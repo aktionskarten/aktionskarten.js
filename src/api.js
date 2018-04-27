@@ -1,7 +1,7 @@
 class Api {
   constructor(url) {
     this.url = url;
-    this.mapUrl = '/maps'
+    this.mapsUrl = '/maps'
   }
 
   get apiUrl() {
@@ -9,7 +9,7 @@ class Api {
   }
 
   urlFor(id, endpoint) {
-    let url =  this.mapUrl + '/' + id;
+    let url =  this.mapsUrl + '/' + id;
     if (endpoint) {
       url += '/' + (Array.isArray(endpoint) ? endpoint.join('/') : endpoint)
     }
@@ -22,7 +22,11 @@ class Api {
       Object.assign(_headers, headers);
     }
 
-    return fetch(this.apiUrl + url, {
+    if (!url.startsWith('http')) {
+      url = this.apiUrl + url;
+    }
+
+    return fetch(url, {
       method: method,
       body: JSON.stringify(data),
       headers: new Headers(_headers)
