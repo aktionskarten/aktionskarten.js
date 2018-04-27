@@ -1,0 +1,34 @@
+a.leaflet-draw-edit-text {
+  background-position: -270px -1px;
+}
+
+a.leaflet-draw-edit-remove {
+  background-position: -217px -1px !important;
+}
+
+a.leaflet-draw-edit-edit {
+  background-position: -134px -1px !important;
+}
+
+a.leaflet-draw-draw-marker {
+  background-position: -108px -1px !important;
+}
+
+a.leaflet-draw-draw-circle {
+  background-position: -81px -1px !important;
+}
+
+a.leaflet-draw-draw-polygon {
+  background-position: -26px -1px !important;
+}
+.leaflet-styleeditor-tooltip {
+  border: none;
+  background-color: rgba(68,68,68,.6);
+}
+.leaflet-styleeditor-tooltip {
+  color: #fff;
+}
+.leaflet-styleeditor-header, .leaflet-styleeditor-button {
+  background-color: transparent;
+}
+

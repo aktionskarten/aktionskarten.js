@@ -1,0 +1,18 @@
+<body style="margin:0;padding:0">
+<div id="map" style="width:100%; height: 100%"></div>
+</body>
+<script>
+var api, model, view;
+window.onload  = async function() {
+  api = new ActionMap.Api('http://localhost:5000');
+  model = await ActionMap.MapModel.get(api, 'testsss');
+  view = new ActionMap.View('map', model)
+
+  await view.init();
+
+  // you now can do the follwing through the console
+  //
+  // login:     model.auth('TOKEN_STRING')
+  // modes:     view.mode = 'bbox' OR view.mode = ''
+};
+</script>
