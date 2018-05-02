@@ -4,9 +4,11 @@
 <script>
 var api, model, view;
 window.onload  = async function() {
-  api = new ActionMap.Api('http://localhost:5000');
-  model = await ActionMap.MapModel.get(api, 'testsss');
+  api = new ActionMap.Api('https://staging.aktionskarten.org');
+  model = await ActionMap.MapModel.get(api, 'test');
   view = new ActionMap.View('map', model)
+
+  model.auth('foobar')
 
   await view.init();
 
