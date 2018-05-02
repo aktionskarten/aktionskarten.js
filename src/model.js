@@ -308,8 +308,10 @@ class MapModel {
       json = await this._api.updateMap(this.token, data);
     }
 
-    for (let [key, value] of Object.entries(json)) {
-      this.data[key] = value;
+    if (json) {
+      for (let [key, value] of Object.entries(json)) {
+        this.data[key] = value;
+      }
     }
 
     if (this._features) {
