@@ -1,20 +1,34 @@
-<body style="margin:0;padding:0">
-<div id="map" style="width:100%; height: 100%"></div>
-</body>
-<script>
-var api, model, view;
-window.onload  = async function() {
-  api = new ActionMap.Api('https://staging.aktionskarten.org');
-  model = await ActionMap.MapModel.get(api, 'test');
-  view = new ActionMap.View('map', model)
+<html>
+  <head>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.1/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.2/leaflet.draw.css" />
+    <link rel="stylesheet" href="https://dwilhelm89.github.io/Leaflet.StyleEditor/css/Leaflet.StyleEditor.min.css" />
+    <link rel="stylesheet" href="https://kartographischeaktion.github.io/AktionskartenMarker/AktionskartenMarker.css" />
+  </head>
+  <body style="margin:0;padding:0">
+    <div id="map" style="width:100%; height: 100%"></div>
+  </body>
 
-  model.auth('foobar')
+  <script src="https://unpkg.com/leaflet@1.3.1/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.2/leaflet.draw.js"></script>
+  <script src="https://dwilhelm89.github.io/Leaflet.StyleEditor/javascript/Leaflet.StyleEditor.min.js"></script>
+  <script src="https://kartographischeaktion.github.io/AktionskartenMarker/AktionskartenMarker.js"></script>
 
-  await view.init();
+  <script>
+  var api, model, view;
+  window.onload  = async function() {
+    api = new ActionMap.Api('https://staging.aktionskarten.org');
+    model = await ActionMap.MapModel.get(api, 'test');
+    view = new ActionMap.View('map', model)
 
-  // you now can do the follwing through the console
-  //
-  // login:     model.auth('TOKEN_STRING')
-  // modes:     view.mode = 'bbox' OR view.mode = ''
-};
-</script>
+    model.auth('foobar')
+
+    await view.init();
+
+    // you now can do the follwing through the console
+    //
+    // login:     model.auth('TOKEN_STRING')
+    // modes:     view.mode = 'bbox' OR view.mode = ''
+  };
+  </script>
+</html>
