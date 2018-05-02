@@ -20,6 +20,9 @@ module.exports = {
   devServer: {
     contentBase: './dist'
   },
+  externals: {
+    'leaflet': 'L'
+  },
   plugins: [
     new CleanWebpackPlugin(['dist']),
     // patch spritesheet.svg from leaflet with our custom one
