@@ -7,7 +7,6 @@ const webpack = require('webpack');
 
 module.exports = {
   entry: {
-    leaflet: './src/leaflet/index.js',
     lib: './src/index.js',
   },
   mode: 'development',
