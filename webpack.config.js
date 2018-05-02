@@ -21,15 +21,9 @@ module.exports = {
     contentBase: './dist'
   },
   externals: {
-    'leaflet': 'L'
+    'leaflet': 'L',
   },
   plugins: [
-    new CleanWebpackPlugin(['dist']),
-    // patch spritesheet.svg from leaflet with our custom one
-    new webpack.NormalModuleReplacementPlugin(
-      /.*images\/spritesheet\.svg/,
-      path.resolve(__dirname, 'src/leaflet/spritesheet.svg')
-    ),
     new MiniCssExtractPlugin({
       filename: "[name].css",
       chunkFilename: "[id].css"

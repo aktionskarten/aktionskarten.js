@@ -1,22 +1,11 @@
-import 'leaflet/dist/leaflet.css';
-import 'leaflet-draw/dist/leaflet.draw.css';
-import 'Leaflet.StyleEditor/dist/css/Leaflet.StyleEditor.min.css'
-import 'AktionskartenMarker/AktionskartenMarker.css'
+// load css for Leaflet stuff from external source
 import './style.css'
 
+// L object is declared as external
 import L from 'leaflet'
 import 'leaflet-draw'
 import 'Leaflet.StyleEditor'
 import 'AktionskartenMarker'
-
-// Fix path marker issues see
-// https://github.com/PaulLeCam/react-leaflet/issues/255
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: require('leaflet/dist/images/marker-icon-2x.png'),
-  iconUrl: require('leaflet/dist/images/marker-icon.png'),
-  shadowUrl: require('leaflet/dist/images/marker-shadow.png'),
-});
 
 //
 // Localized Leaflet.Draw strings
@@ -380,5 +369,4 @@ L.HTMLContainer = L.Class.extend({
 //    return modeHandlers
 //  }
 //});
-
 
