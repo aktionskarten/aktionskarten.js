@@ -23,6 +23,7 @@ module.exports = {
     'leaflet': 'L',
   },
   plugins: [
+    new CleanWebpackPlugin(['dist']),
     new MiniCssExtractPlugin({
       filename: "[name].css",
       chunkFilename: "[id].css"
