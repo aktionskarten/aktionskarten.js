@@ -1,9 +1,9 @@
 {
-  "name": "actionmap.js",
+  "name": "aktionskarten.js",
   "version": "0.0.0",
   "description": "",
-  "main": "dist/lib.bundle.js",
   "private": true,
+  "main": "src/index.js",
   "dependencies": {
     "AktionskartenMarker": "github:KartographischeAktion/AktionskartenMarker",
     "Leaflet.StyleEditor": "github:dwilhelm89/Leaflet.StyleEditor",
