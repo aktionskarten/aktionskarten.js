@@ -70,29 +70,59 @@ L.GeoJSON.include({
 // are normally a FeatureGroup but GeoJSON extends FeatureGroup and gives
 // us functionality to populate with geojson data
 L.FeatureLayer = L.GeoJSON.extend({
-    addFeature(data) {
-      var exists = false;
-      this.eachLayer((layer) => {
-        if (data.properties.id == layer.id) {
-          exists = true;
+    _contains(id) {
+      var layer;
+      this.eachLayer((_layer) => {
+        if (_layer.id == id) {
+          layer = _layer;
         }
       })
 
-      // already exists for client who created the feature
-      if (!exists) {
-        this.addData(data);
-      }
+      return layer;
     },
-    updateFeature(data) {
-      this.deleteFeature(data.properties.id);
-      this.addData(data);
+    addFeature(geojson) {
+      let id = geojson.properties.id;
+      if (!!this._contains(id)) {
+        return;
+      }
+
+      this.addData(geojson);
+    },
+    updateFeature(geojson) {
+      let id = geojson.properties.id;
+      if (!!this._contains(id)) {
+        return;
+      }
+
+      this.deleteFeature(geojson.properties.id);
+      this.addData(geojson);
     },
     deleteFeature(id) {
-      this.eachLayer((layer) => {
-        if (id == layer.id) {
-          this.removeLayer(layer);
-        }
-      })
+      let found = this._contains(id);
+      if (!!found) {
+          this.removeLayer(found);
+      }
+    },
+    // Same as addData but adds a single feature and returns the actual created
+    // layer
+    geojsonToLayer(geojson) {
+      var options = this.options;
+      if (options.filter && !options.filter(geojson)) { return this; }
+
+      var layer = L.GeoJSON.geometryToLayer(geojson, options);
+      if (!layer) {
+        return this;
+      }
+      layer.feature = L.GeoJSON.asFeature(geojson);
+
+      layer.defaultOptions = layer.options;
+      this.resetStyle(layer);
+
+      if (options.onEachFeature) {
+        options.onEachFeature(geojson, layer);
+      }
+
+      return layer;
     }
 });
 
