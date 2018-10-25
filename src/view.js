@@ -26,7 +26,7 @@ class View {
     console.log("setting mode to ", mode);
 
     this._mode = mode;
-    this.fire('modeChanged');
+    this.fire('modeChanged', mode);
     this._refresh();
   }
 
