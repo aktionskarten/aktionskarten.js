@@ -100,10 +100,21 @@ class View {
       delete this._controls.draw;
     } else if (!noDraw && !added) {
       let options = {
-          position: 'topright',
           draw: {
+            polygon: {
+              allowIntersection: false,
+              drawError: {
+                  color: '#b00b00',
+                  timeout: 1000
+              },
+              shapeOptions: {
+                  color: '#bada55'
+              },
+              showArea: true
+            },
             rectangle: false,
-            circlemarker: false
+            circlemarker: false,
+            circle: false
           },
           edit: {
             featureGroup: this._features, // only allow features to be editable
