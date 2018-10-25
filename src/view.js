@@ -41,7 +41,7 @@ class View {
       style: (f) => f.properties
     });
 
-    this.model.on('bboxChanged', async (bbox) => {
+    this.model.on('bboxChanged', async (e) => {
       grid.clearLayers();
       grid.addData(await this.model.grid());
       this._map.fitBounds(grid.getBounds());

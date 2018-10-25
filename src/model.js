@@ -186,7 +186,7 @@ class MapModel {
           if (this.data[key] != val) {
             this._states[key] = 'dirty';
             this.data[key] = val;
-            this.fire(key + 'Changed', val);
+            this.fire(key + 'Changed', {'value': val});
             console.log("setting ", key, val);
           }
         },
@@ -201,9 +201,9 @@ class MapModel {
     }
 
     // update date and time if you change datetime
-    this.on('datetimeChanged', (datetime) => {
-      if (datetime) {
-        let values = datetime.split(' ');
+    this.on('datetimeChanged', (e) => {
+      if (e.value) {
+        let values = e.value.split(' ');
         this.date = values[0];
         this.time = values[1];
       }
