@@ -19,9 +19,6 @@ module.exports = {
   devServer: {
     contentBase: './dist'
   },
-  externals: {
-    'leaflet': 'L',
-  },
   plugins: [
     new CleanWebpackPlugin(['dist']),
     new MiniCssExtractPlugin({
