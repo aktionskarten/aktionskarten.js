@@ -246,9 +246,7 @@ class MapModel {
   }
 
   async grid() {
-    console.log("grid state", this._states['bbox']);
     if (this._states['bbox'] == 'dirty') {
-      console.log('yea');
       return await this._api.getGridForBBox(this.bbox);
     }
     return await this._api.getGrid(this.id);
@@ -309,16 +307,12 @@ class MapModel {
     let data = (({ id, name, description, date, time, datetime, attributes, bbox, place}) => ({ id, name, description, date, time, datetime, attributes, bbox, place}))(this);
     let handler = this._api.updateMap;
 
-    console.log(data);
-
     let json;
     if (!this.id) {
-      console.log("creating");
       this.data.token = ''
       this.data.secret = ''
       json = await this._api.createMap(data);
     } else {
-      console.log("updateing");
       json = await this._api.updateMap(this.token, data);
     }
 
