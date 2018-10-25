@@ -182,6 +182,9 @@ class View {
     this._registerLeafletEventHandlers();
     this._registerSocketIOEventHandlers();
 
+    // render controls, tooltips and popups
+    this._refresh();
+
     // add grid
     let grid = await this.model.grid()
     this._grid.addData(grid);
@@ -190,13 +193,11 @@ class View {
     let features = await this.model.features()
     this._features.addData(features.geojson);
 
+    // refresh controls on login
     this.model.on('authenticated', async e => {
       console.log("logged in, redraw interface");
       await this._refresh();
     });
-
-    // render controls, tooltips and popups
-    this._refresh();
   }
 
   async _refresh() {
