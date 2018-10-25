@@ -8,9 +8,9 @@
   <script>
   var api, model, view;
   window.onload  = async function() {
-    api = new ActionMap.Api('https://staging.aktionskarten.org');
-    model = await ActionMap.MapModel.get(api, 'test');
-    view = new ActionMap.View('map', model)
+    api = new Aktionskarten.Api('https://staging.aktionskarten.org');
+    model = await Aktionskarten.MapModel.get(api, 'test');
+    view = new Aktionskarten.View('map', model)
 
     model.auth('foobar')
 
