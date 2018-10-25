@@ -1,3 +1,4 @@
+import L from './leaflet'
 import io from 'socket.io-client'
 import { filterProperties } from './utils'
 
