@@ -23,6 +23,7 @@ L.Icon.Default.mergeOptions({
 //
 L.drawLocal.draw.toolbar.buttons.text = 'Schreibe Text zu einem Element';
 L.drawLocal.draw.toolbar.buttons.polyline = 'Male eine Demoroute';
+L.drawLocal.draw.toolbar.buttons.polygon = 'Markiere ein Gebiet';
 L.drawLocal.draw.toolbar.buttons.marker = 'Platziere einen Aktionsmarker';
 L.drawLocal.draw.handlers.polyline.tooltip = {
   'start': 'Klicke wo die Demo anfangen soll',
