@@ -74,7 +74,8 @@ class View {
           layer.id = feature.properties.id;
 
           if ('label' in feature.properties) {
-            layer.bindTooltip(feature.properties.label, {direction: 'left', sticky: true});
+            layer.options.popupContent = feature.properties.label
+            layer.bindPopup(feature.properties.label, {direction: 'left', sticky: true});
           }
         }
       });
