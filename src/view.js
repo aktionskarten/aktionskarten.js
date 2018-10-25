@@ -71,11 +71,15 @@ class View {
           return L.marker(latlng);
         },
         onEachFeature: (feature, layer) => {
-          layer.id = feature.properties.id;
+          layer.id = layer.options.id = feature.properties.id;
 
           if ('label' in feature.properties) {
             layer.options.popupContent = feature.properties.label
             layer.bindPopup(feature.properties.label, {direction: 'left', sticky: true});
+          }
+
+          if (this._controls && 'style' in this._controls) {
+            this._controls.style.addEditClickEvents(layer);
           }
         }
       });
@@ -128,7 +132,7 @@ class View {
         colorRamp: [
           '#e04f9e', '#fe0000', '#ee9c00', '#ffff00', '#00e13c', '#00a54c', '#00adf0', '#7e55fc', '#1f4199', '#7d3411'
         ],
-        position: 'topright',
+        showTooltip: false,
         markerType: L.StyleEditor.marker.AktionskartenMarker,
         useGrouping: false // otherwise a change style applies to all
                            // auto-added featues
@@ -141,9 +145,11 @@ class View {
 
     let noStyle = !this.model.authenticated || this.mode == 'bbox';
     if (noStyle) {
+      this._controls.style.disable();
       this._map.removeControl(this._controls.style);
     } else {
       this._map.addControl(this._controls.style);
+      this._controls.style.enable();
     }
   }
 
@@ -257,6 +263,14 @@ class View {
           this._map.fire('featureDeleted', id);
         });
       });
+
+      var enableStyle = e => { this._controls.style.enable() };
+      var disableStyle = e => { this._controls.style.disable() };
+      this._map.on(L.Draw.Event.EDITSTART, disableStyle);
+      this._map.on(L.Draw.Event.EDITSTOP, enableStyle);
+      this._map.on(L.Draw.Event.DELETESTART, disableStyle);
+      this._map.on(L.Draw.Event.DELETESTOP, enableStyle);
+
 
       this._map.on('styleeditor:changed', async e => {
         console.log('FILTER', filterProperties);
