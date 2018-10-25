@@ -148,7 +148,11 @@ class View {
   }
 
   async init() {
-    this._map = L.map(this.mapElemId);
+    this._map = L.map(this.mapElemId, {zoomControl: false});
+
+    // add zoom control
+    var zoom = new L.Control.Zoom({ position: 'topright' });
+    this._map.addControl(zoom);
 
     this.center();
 
