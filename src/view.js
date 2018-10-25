@@ -92,13 +92,8 @@ class View {
   }
 
   async updateDraw() {
-    let noDraw = !this.model.authenticated || this.mode == 'bbox';
-    let added = 'draw' in this._controls;
-
-    if (noDraw && added) {
-      this._map.removeControl(this._controls.draw);
-      delete this._controls.draw;
-    } else if (!noDraw && !added) {
+    let instantiated = 'draw' in this._controls;
+    if (!instantiated) {
       let options = {
           draw: {
             polygon: {
@@ -122,19 +117,20 @@ class View {
       };
       let draw = new L.Control.Draw(options);
       this._controls.draw = draw;
-      this._map.addControl(draw);
+    }
+
+    let noDraw = !this.model.authenticated || this.mode == 'bbox';
+    if (noDraw) {
+      this._map.removeControl(this._controls.draw);
+    } else {
+      this._map.addControl(this._controls.draw);
     }
   }
 
   updateStyle() {
-    let noStyle = !this.model.authenticated || this.mode == 'bbox';
-    let added = 'style' in this._controls;
-
-    if (noStyle && added) {
-      this._map.removeControl(this._controls.style);
-      delete this._controls.style;
-    } else if (!noStyle && !added) {
-      let style = new L.control.styleEditor({
+    let instantiated = 'style' in this._controls;
+    if (!instantiated) {
+      let options = {
         colorRamp: [
           '#e04f9e', '#fe0000', '#ee9c00', '#ffff00', '#00e13c', '#00a54c', '#00adf0', '#7e55fc', '#1f4199', '#7d3411'
         ],
@@ -142,10 +138,18 @@ class View {
         markerType: L.StyleEditor.marker.AktionskartenMarker,
         useGrouping: false // otherwise a change style applies to all
                            // auto-added featues
-      });
+      };
 
+      let style = new L.Control.StyleEditor(options);
       this._controls.style = style;
       this._map.addControl(style);
+    }
+
+    let noStyle = !this.model.authenticated || this.mode == 'bbox';
+    if (noStyle) {
+      this._map.removeControl(this._controls.style);
+    } else {
+      this._map.addControl(this._controls.style);
     }
   }
 
