@@ -9,7 +9,7 @@ function filterProperties(options) {
 
     for (let i=0; i<keys.length; ++i) {
       key = keys[i];
-      if (!data || !(key in data)) {
+      if (typeof data != 'object' || !(key in data)) {
         return;
       }
       data = data[key]
