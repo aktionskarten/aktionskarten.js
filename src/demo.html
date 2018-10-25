@@ -12,9 +12,9 @@
     model = await Aktionskarten.MapModel.get(api, 'test');
     view = new Aktionskarten.View('map', model)
 
-    model.auth('foobar')
-
     await view.init();
+
+    model.auth('foobar')
 
     // you now can do the follwing through the console
     //
