@@ -1,11 +1,14 @@
-// load css for Leaflet stuff from external source
-import './style.css'
-
-// L object is declared as external
 import L from 'leaflet'
 import 'leaflet-draw'
 import 'Leaflet.StyleEditor'
 import 'AktionskartenMarker'
+
+import 'leaflet/dist/leaflet.css'
+import 'leaflet-draw/dist/leaflet.draw.css'
+import 'leaflet-styleeditor/dist/css/Leaflet.StyleEditor.min.css'
+import 'AktionskartenMarker/AktionskartenMarker.css'
+import './style.css'
+
 
 //
 // Localized Leaflet.Draw strings
@@ -152,6 +155,8 @@ L.HTMLContainer = L.Class.extend({
     return elem;
   }
 });
+
+export default L;
 
 //
 // Custom Text Edit Handler - unused
