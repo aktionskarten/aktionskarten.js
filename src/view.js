@@ -203,22 +203,26 @@ class View {
 
   _registerLeafletEventHandlers() {
       this._map.on(L.Draw.Event.CREATED, async e => {
-        let geojson = e.layer.toGeoJSON();
+        var type = e.layerType,
+            layer = e.layer,
+            geojson = layer.toGeoJSON();
 
         // use rectangle as bbox if only rectangle control is enabled
         if (geojson.geometry.type == "Polygon" && this.mode == 'bbox') {
-          let bounds = e.layer.getBounds();
+          let bounds = layer.getBounds();
           let rect = [bounds.getSouthEast(), bounds.getNorthWest()];
           this.model.bbox = [].concat.apply([], L.GeoJSON.latLngsToCoords(rect));
           return;
         }
 
-
-
-        let feature = await model.addFeature(geojson)
+        let feature = await this.model.addFeature(geojson)
         await feature.save();
-        e.layer.id = feature.id
-        this._features.addData(feature.geojson);
+
+        // convert feature to layer (with our styles)
+        let featureLayer = this._features.geojsonToLayer(feature.geojson);
+        featureLayer.id = feature.id;
+
+        this._features.addLayer(featureLayer)
 
         this._map.fire('featureAdded', feature.id);
         console.log("added", feature)
