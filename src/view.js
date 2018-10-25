@@ -273,7 +273,6 @@ class View {
 
 
       this._map.on('styleeditor:changed', async e => {
-        console.log('FILTER', filterProperties);
         var id = e.id,
             properties = filterProperties(e.options);
 
