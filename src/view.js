@@ -57,13 +57,6 @@ class View {
         // copies style and id to feature.options
         style: (f) => f.properties,
         pointToLayer: (feature, latlng) => {
-          if ('radius' in feature.properties) {
-            return L.circle(latlng,
-              feature.properties.radius,
-              feature.properties
-            );
-          }
-
           try {
             let markerType = this._controls.style.options.markerType;
             if (!('icon' in feature.properties)) {
@@ -215,14 +208,7 @@ class View {
           return;
         }
 
-        // feature
-        if (geojson.geometry.type == "Point") {
 
-          // if the layer is a circle save radius to properties
-          if (e.layer.getRadius){
-            geojson.properties.radius = e.layer.getRadius();
-          }
-        }
 
         let feature = await model.addFeature(geojson)
         await feature.save();

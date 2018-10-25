@@ -1,5 +1,5 @@
 function filterProperties(options) {
-  var validKeys = ['id', 'label', 'radius', 'color', 'weight', 'opacity', 'fillColor', 'fillOpacity', 'dashArray', 'icon.options.iconColor', 'icon.options.iconSize', 'icon.options.icon'],
+  var validKeys = ['id', 'label', 'color', 'weight', 'opacity', 'fillColor', 'fillOpacity', 'dashArray', 'icon.options.iconColor', 'icon.options.iconSize', 'icon.options.icon'],
       props = {};
 
   validKeys.forEach(function(item) {
