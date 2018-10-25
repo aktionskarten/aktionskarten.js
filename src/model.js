@@ -179,8 +179,7 @@ class MapModel {
     // which will add dynamically setter+getter for each property.
     this._states = {}
     this.data = {'attributes':[]}
-    let keys = ['id', 'name', 'description', 'datetime', 'attributes', 'bbox',
-      'place', 'token']
+    let keys = ['id', 'name', 'description', 'datetime', 'date', 'time', 'attributes', 'bbox', 'place', 'token']
     for (let key of keys) {
       Object.defineProperty(this, key, {
         set: (val) => {
@@ -200,7 +199,21 @@ class MapModel {
       this._states[key] = 'persistent'
     }
 
-    Object.assign(this.data, map);
+    // update date and time if you change datetime
+    this.on('datetimeChanged', (datetime) => {
+      if (datetime) {
+        let values = datetime.split(' ');
+        this.date = values[0];
+        this.time = values[1];
+      }
+    });
+
+    let now = new Date()
+    let date = now.getFullYear() + '-' + (now.getMonth()+1) + '-' + now.getDate()
+    let time = now.getHours() + ':' + now.getMinutes()
+    this.datetime =  date + ' ' + time
+
+    Object.assign(this, map);
   }
 
   on(type, fn) {
@@ -292,7 +305,7 @@ class MapModel {
   async save() {
     // filter only certain props through object destructuring and property
     // shorthand, see https://stackoverflow.com/questions/17781472/#39333479
-    let data = (({ id, name, description, datetime, attributes, bbox, place}) => ({ id, name, description, datetime, attributes, bbox, place}))(this);
+    let data = (({ id, name, description, date, time, datetime, attributes, bbox, place}) => ({ id, name, description, date, time, datetime, attributes, bbox, place}))(this);
     let handler = this._api.updateMap;
 
     console.log(data);
