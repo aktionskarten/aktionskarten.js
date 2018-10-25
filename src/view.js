@@ -261,8 +261,13 @@ class View {
       this._map.on('styleeditor:changed', async e => {
         console.log('FILTER', filterProperties);
         var id = e.id,
-            properties = filterProperties(e.options),
-            geojson = Object.assign(e.toGeoJSON(), {'properties': properties}),
+            properties = filterProperties(e.options);
+
+        if ('options' in e && e.options.popupContent) {
+          properties.label = e.options.popupContent
+        }
+
+        var geojson = Object.assign(e.toGeoJSON(), {'properties': properties}),
             feature = await this.model.getFeature(id);
 
         geojson.properties.id = id;
