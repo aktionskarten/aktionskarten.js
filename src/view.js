@@ -185,9 +185,6 @@ class View {
     this.model.on('authenticated', async e => {
       console.log("logged in, redraw interface");
       await this._refresh();
-
-      this._features.clearLayers();
-      this._features.addData((await this.model.features()).geojson);
     });
 
     // add map data
