@@ -48,191 +48,6 @@ L.Draw.Rectangle.include({
   }
 });
 
-//
-// Custom Edit Handler
-//
-
-L.Draw.Event.TEXTSTART = 'draw:textstart'
-L.Draw.Event.TEXTSTOP = 'draw:textstop'
-
-L.EditToolbar.Text = L.Handler.extend({
-  statics: {
-    TYPE: 'text'
-  },
-
-  // copy/paste of L.EditToolbar.Delete.initialize
-  initialize(map, options) {
-    L.Handler.prototype.initialize.call(this, map);
-
-    L.Util.setOptions(this, options);
-
-    // Store the selectable layer group for ease of access
-    this._layers = this.options.featureGroup;
-
-    if (!(this._layers instanceof L.FeatureGroup)) {
-      throw new Error('options.featureGroup must be a L.FeatureGroup');
-    }
-
-    // Save the type so super can fire, need to do this as cannot do this.TYPE :(
-    this.type = L.EditToolbar.Text.TYPE;
-
-    var version = L.version.split('.');
-    //If Version is >= 1.2.0
-    if (parseInt(version[0], 10) === 1 && parseInt(version[1], 10) >= 2) {
-      L.EditToolbar.Text.include(L.Evented.prototype);
-    } else {
-      L.EditToolbar.Text.include(L.Mixin.Events);
-    }
-  },
-
-  enable() {
-    if (this._enabled) {
-      return;
-    }
-    this.fire('enabled', {handler: this.type});
-    this._map.fire(L.Draw.Event.TEXTSTART, {handler: this.type});
-
-    L.Handler.prototype.enable.call(this);
-
-    this._layers
-      .on('layeradd', this._enableLayerHandler, this)
-      .on('layerremove', this._disableLayerHandler, this);
-  },
-
-  disable() {
-    if (!this._enabled) {
-      return;
-    }
-
-    this._layers
-      .off('layeradd', this._enableLayerHandler, this)
-      .off('layerremove', this._disableLayerHandler, this);
-
-    L.Handler.prototype.disable.call(this);
-
-    this._map.fire(L.Draw.Event.TEXTSTOP, {handler: this.type});
-
-    this.fire('disabled', {handler: this.type});
-  },
-
-
-  _enableLayerHandler(e) {
-    var layer = e.layer || e.target || e;
-    layer.on('click', this._layerHandler, this);
-  },
-
-  _disableLayerHandler(e) {
-    var layer = e.layer || e.target || e;
-    layer.off('click', this._layerHandler, this);
-
-    // close still open popups when disabled
-    if (layer.isPopupOpen()) {
-      layer.closePopup()
-    }
-    layer.unbindPopup();
-  },
-
-  _layerHandler(e) {
-    var layer = e.layer || e.target || e;
-
-    // replace popup with tooltip and mark layer as edited
-    layer.on('popupclose', e => {
-      var elem = layer.getPopup().getContent();
-      var value = elem && elem.getAttribute('value');
-      if (layer.getTooltip()) {
-        layer.setTooltipContent(elem.value);
-      } else {
-        layer.bindTooltip(elem.value, {direction: 'left', sticky: true});
-      }
-
-      layer.feature.properties.label = elem.value;
-      layer.edited = true
-
-      layer.unbindPopup()
-    });
-
-    // create popup and focus input
-    var elem = L.DomUtil.create('input');
-    elem.setAttribute('type', 'text');
-    if ('label' in layer.feature.properties) {
-      elem.setAttribute('value', layer.feature.properties.label);
-    }
-    L.DomEvent.on(elem, 'keypress', function (ev) {
-      if (ev.key == 'Enter') {
-        layer.closePopup();
-      }
-    });
-
-    layer.bindPopup(elem, {opacity: 0.7, sticky: true}).openPopup();
-    elem.focus();
-  },
-
-  save() {
-    var editedLayers = new L.LayerGroup();
-    this._layers.eachLayer(function (layer) {
-      if (layer.isPopupOpen()) {
-        layer.closePopup()
-      }
-
-      if (layer.edited) {
-        editedLayers.addLayer(layer);
-        layer.edited = false;
-      }
-    });
-
-    this._map.fire(L.Draw.Event.EDITED, {layers: editedLayers});
-  },
-
-  addHooks() {
-    var map = this._map;
-
-    if (map) {
-      map.getContainer().focus();
-
-      this._layers.eachLayer(this._enableLayerHandler, this);
-
-      this._tooltip = new L.Draw.Tooltip(this._map);
-      this._tooltip.updateContent({text: L.drawLocal.edit.handlers.text.tooltip.text});
-
-      this._map.on('mousemove', this._onMouseMove, this);
-    }
-  },
-
-  removeHooks() {
-    if (this._map) {
-      this._layers.eachLayer(this._disableLayerHandler, this);
-
-      this._tooltip.dispose();
-      this._tooltip = null;
-
-      this._map.off('mousemove', this._onMouseMove, this);
-    }
-  },
-
-  _onMouseMove: function (e) {
-    this._tooltip.updatePosition(e.latlng);
-  },
-
-  revertLayers() {
-  }
-});
-
-
-let defaultEditModeHandlers = L.EditToolbar.prototype.getModeHandlers;
-L.EditToolbar.include({
-  getModeHandlers: function(map) {
-    var featureGroup = this.options.featureGroup;
-    let modeHandlers = defaultEditModeHandlers.bind(this).call(this, map)
-    modeHandlers.push({
-        enabled: true, //this.options.text,
-        handler: new L.EditToolbar.Text(map, {
-          featureGroup: featureGroup
-        }),
-        title: L.drawLocal.edit.toolbar.buttons.text
-    });
-    return modeHandlers;
-  }
-});
 
 L.GridLayer = L.GeoJSON.extend({
     count() {
@@ -337,6 +152,194 @@ L.HTMLContainer = L.Class.extend({
     return elem;
   }
 });
+
+//
+// Custom Text Edit Handler - unused
+//
+//
+//L.Draw.Event.TEXTSTART = 'draw:textstart'
+//L.Draw.Event.TEXTSTOP = 'draw:textstop'
+//
+//L.EditToolbar.Text = L.Handler.extend({
+//  statics: {
+//    TYPE: 'text'
+//  },
+//
+//  // copy/paste of L.EditToolbar.Delete.initialize
+//  initialize(map, options) {
+//    L.Handler.prototype.initialize.call(this, map);
+//
+//    L.Util.setOptions(this, options);
+//
+//    // Store the selectable layer group for ease of access
+//    this._layers = this.options.featureGroup;
+//
+//    if (!(this._layers instanceof L.FeatureGroup)) {
+//      throw new Error('options.featureGroup must be a L.FeatureGroup');
+//    }
+//
+//    // Save the type so super can fire, need to do this as cannot do this.TYPE :(
+//    this.type = L.EditToolbar.Text.TYPE;
+//
+//    var version = L.version.split('.');
+//    //If Version is >= 1.2.0
+//    if (parseInt(version[0], 10) === 1 && parseInt(version[1], 10) >= 2) {
+//      L.EditToolbar.Text.include(L.Evented.prototype);
+//    } else {
+//      L.EditToolbar.Text.include(L.Mixin.Events);
+//    }
+//  },
+//
+//  enable() {
+//    if (this._enabled) {
+//      return;
+//    }
+//    this.fire('enabled', {handler: this.type});
+//    this._map.fire(L.Draw.Event.TEXTSTART, {handler: this.type});
+//
+//    L.Handler.prototype.enable.call(this);
+//
+//    this._layers
+//      .on('layeradd', this._enableLayerHandler, this)
+//      .on('layerremove', this._disableLayerHandler, this);
+//  },
+//
+//  disable() {
+//    if (!this._enabled) {
+//      return;
+//    }
+//
+//    this._layers
+//      .off('layeradd', this._enableLayerHandler, this)
+//      .off('layerremove', this._disableLayerHandler, this);
+//
+//    L.Handler.prototype.disable.call(this);
+//
+//    this._map.fire(L.Draw.Event.TEXTSTOP, {handler: this.type});
+//
+//    this.fire('disabled', {handler: this.type});
+//  },
+//
+//
+//  _enableLayerHandler(e) {
+//    var layer = e.layer || e.target || e;
+//    layer.on('click', this._layerHandler, this);
+//  },
+//
+//  _disableLayerHandler(e) {
+//    var layer = e.layer || e.target || e;
+//    layer.off('click', this._layerHandler, this);
+//
+//    // close still open popups when disabled
+//    if (layer.isPopupOpen()) {
+//      layer.closePopup()
+//    }
+//    layer.unbindPopup();
+//  },
+//
+//  _layerHandler(e) {
+//    var layer = e.layer || e.target || e;
+//
+//    // replace popup with tooltip and mark layer as edited
+//    layer.on('popupclose', e => {
+//      var elem = layer.getPopup().getContent();
+//      var value = elem && elem.getAttribute('value');
+//      if (layer.getTooltip()) {
+//        layer.setTooltipContent(elem.value);
+//      } else {
+//        layer.bindTooltip(elem.value, {direction: 'left', sticky: true});
+//      }
+//
+//      layer.options.label = elem.value;
+//      layer.edited = true
+//
+//      layer.unbindPopup()
+//    });
+//
+//    // create popup and focus input
+//    var elem = L.DomUtil.create('input');
+//    elem.setAttribute('type', 'text');
+//    if ('label' in layer.options) {
+//      elem.setAttribute('value', layer.options.label);
+//    }
+//    L.DomEvent.on(elem, 'keypress', function (ev) {
+//      if (ev.key == 'Enter') {
+//        layer.closePopup();
+//      }
+//    });
+//
+//    layer.bindPopup(elem, {opacity: 0.7, sticky: true}).openPopup();
+//    elem.focus();
+//  },
+//
+//  save() {
+//    var editedLayers = new L.LayerGroup();
+//    this._layers.eachLayer(function (layer) {
+//      if (layer.isPopupOpen()) {
+//        layer.closePopup()
+//      }
+//
+//      if (layer.edited) {
+//        editedLayers.addLayer(layer);
+//        layer.edited = false;
+//      }
+//    });
+//
+//    this._map.fire(L.Draw.Event.EDITED, {layers: editedLayers});
+//  },
+//
+//  addHooks() {
+//    var map = this._map;
+//
+//    if (map) {
+//      map.getContainer().focus();
+//
+//      this._layers.eachLayer(this._enableLayerHandler, this);
+//
+//      this._tooltip = new L.Draw.Tooltip(this._map);
+//      this._tooltip.updateContent({text: L.drawLocal.edit.handlers.text.tooltip.text});
+//
+//      this._map.on('mousemove', this._onMouseMove, this);
+//    }
+//  },
+//
+//  removeHooks() {
+//    if (this._map) {
+//      this._layers.eachLayer(this._disableLayerHandler, this);
+//
+//      this._tooltip.dispose();
+//      this._tooltip = null;
+//
+//      this._map.off('mousemove', this._onMouseMove, this);
+//    }
+//  },
+//
+//  _onMouseMove: function (e) {
+//    this._tooltip.updatePosition(e.latlng);
+//  },
+//
+//  revertLayers() {
+//  }
+//});
+//
+//
+//let defaultEditModeHandlers = L.EditToolbar.prototype.getModeHandlers;
+//L.EditToolbar.include({
+//  getModeHandlers: function(map) {
+//    var featureGroup = this.options.featureGroup;
+//    let modeHandlers = defaultEditModeHandlers.bind(this).call(this, map)
+//    modeHandlers.push({
+//        enabled: true, //this.options.text,
+//        handler: new L.EditToolbar.Text(map, {
+//          featureGroup: featureGroup
+//        }),
+//        title: L.drawLocal.edit.toolbar.buttons.text
+//    });
+//    return modeHandlers;
+//  }
+//});
+//
+
 
 //
 // Custom Draw Handler - unused
