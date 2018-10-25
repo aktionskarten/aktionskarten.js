@@ -192,7 +192,8 @@ class MapModel {
         },
         get: () => {
           return this.data[key];
-        }
+        },
+        configurable: false
       });
 
       this.data[key] = undefined
