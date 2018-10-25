@@ -222,19 +222,24 @@ class View {
         let featureLayer = this._features.geojsonToLayer(feature.geojson);
         featureLayer.id = feature.id;
 
+        // mark this layer as current so style editor will be opened
+        // automatically when we add it to our features
+        let style = this._controls.style;
+        style.options.util.setCurrentElement(featureLayer);
         this._features.addLayer(featureLayer)
 
         this._map.fire('featureAdded', feature.id);
-        console.log("added", feature)
       });
 
       this._map.on(L.Draw.Event.EDITED, e => {
         var layers = e.layers;
         layers.eachLayer(async layer => {
           var id = layer.id,
+              properties = filterProperties(layer.options),
+              geojson = Object.assign(layer.toGeoJSON(), {'properties': properties}),
               feature = await this.model.getFeature(id);
 
-          feature.geojson = layer.toGeoJSON();
+          feature.geojson = geojson;
           await feature.save()
 
           this._map.fire('featureEdited', id);
