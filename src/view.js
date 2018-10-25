@@ -364,7 +364,7 @@ class View {
 
     let popup = this._grid.getPopup();
 
-    if (this.mode != 'bbox' && this._grid.count() > 0 && this._features.count() == 0) {
+    if (this.model.authenticated && this.mode != 'bbox' && this._grid.count() > 0 && this._features.count() == 0) {
       var bounds = this._grid.getBounds();
       this._grid.openPopup(bounds.getCenter());
     } else {
