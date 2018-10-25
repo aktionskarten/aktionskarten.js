@@ -6,9 +6,9 @@
   "main": "src/index.js",
   "dependencies": {
     "AktionskartenMarker": "github:KartographischeAktion/AktionskartenMarker",
-    "Leaflet.StyleEditor": "github:dwilhelm89/Leaflet.StyleEditor",
     "leaflet": "^1.3.1",
     "leaflet-draw": "^1.0.2",
+    "leaflet-styleeditor": "github:dwilhelm89/Leaflet.StyleEditor",
     "socket.io-client": "^2.1.0"
   },
   "devDependencies": {

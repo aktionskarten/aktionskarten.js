@@ -1,6 +1,6 @@
 import L from 'leaflet'
 import 'leaflet-draw'
-import 'Leaflet.StyleEditor'
+import 'leaflet-styleeditor'
 import 'AktionskartenMarker'
 
 import 'leaflet/dist/leaflet.css'
