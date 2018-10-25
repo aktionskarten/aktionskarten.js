@@ -35,7 +35,7 @@ class View {
   }
 
   async _addGridLayer() {
-    let grid = new L.GridLayer(null, {
+    let grid = new L.GeoJSON(null, {
       interactive: false,
       style: (f) => f.properties
     });

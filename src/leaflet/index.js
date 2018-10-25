@@ -60,8 +60,7 @@ L.Draw.Rectangle.include({
   }
 });
 
-
-L.GridLayer = L.GeoJSON.extend({
+L.GeoJSON.include({
     count() {
       return this.getLayers().length;
     }
@@ -70,7 +69,7 @@ L.GridLayer = L.GeoJSON.extend({
 // Map features (editable through Leaflet.Draw and Leaflet.StyleEditor)
 // are normally a FeatureGroup but GeoJSON extends FeatureGroup and gives
 // us functionality to populate with geojson data
-L.FeatureLayer = L.GridLayer.extend({
+L.FeatureLayer = L.GeoJSON.extend({
     addFeature(data) {
       var exists = false;
       this.eachLayer((layer) => {
