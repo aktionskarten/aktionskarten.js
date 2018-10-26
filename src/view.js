@@ -41,7 +41,7 @@ class View {
       style: (f) => f.properties
     });
 
-    this.model.on('bboxChanged', async (e) => {
+    this.on('bboxChanged', async (e) => {
       grid.clearLayers();
       grid.addData(await this.model.grid());
       this._map.fitBounds(grid.getBounds());
@@ -236,7 +236,7 @@ class View {
         style.options.util.setCurrentElement(featureLayer);
         this._features.addLayer(featureLayer)
 
-        this._map.fire('featureAdded', feature.id);
+        this.fire('featureAdded', feature.id);
       });
 
       this._map.on(L.Draw.Event.EDITED, e => {
@@ -250,7 +250,7 @@ class View {
           feature.geojson = geojson;
           await feature.save()
 
-          this._map.fire('featureEdited', id);
+          this.fire('featureEdited', id);
         });
       });
 
@@ -262,7 +262,7 @@ class View {
 
           await feature.remove();
 
-          this._map.fire('featureDeleted', id);
+          this.fire('featureDeleted', id);
         });
       });
 
@@ -289,7 +289,7 @@ class View {
         feature.geojson = geojson;
         await feature.save()
 
-        this._map.fire('styleChanged', id);
+        this.fire('styleChanged', id);
         console.log("styled", feature)
       });
 
@@ -346,14 +346,14 @@ class View {
   }
 
   on(event, handler) {
-    if (this._map) {
-      this._map.on(event, handler);
+    if (this.model) {
+      this.model.on(event, handler);
     }
   }
 
   fire(event, data) {
-    if (this._map) {
-      this._map.fire(event, data);
+    if (this.model) {
+      this.model.fire(event, data);
     }
   }
 
@@ -435,7 +435,7 @@ class View {
         redrawContent();
       }
 
-      this.model.on('bboxChanged', (bbox) => {
+      this.on('bboxChanged', (bbox) => {
         this.tooltip.reset();
         redrawContent();
       });
