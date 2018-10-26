@@ -120,6 +120,10 @@ class FeatureCollection {
     }
   }
 
+  /**
+   * Generator for iterating through all features. If you need an array just
+   * use Array.from(..) on the generator itself
+   */
   * all() {
     for (let i=0; i < this._features.length; ++i) {
       yield this._features[i];
