@@ -23,4 +23,19 @@ function filterProperties(options) {
   return props;
 }
 
-export { filterProperties }
+//
+// see from https://stackoverflow.com/a/49694780
+//
+function sortObj(obj) {
+  obj === null || typeof obj !== 'object'
+  ? obj
+  : Array.isArray(obj)
+  ? obj.map(sortObj)
+  : Object.assign({},
+      ...Object.entries(obj)
+        .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
+        .map(([k, v]) => ({ [k]: sortObj(v) }),
+    ))
+}
+
+export { filterProperties, sortObj }
