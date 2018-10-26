@@ -16,6 +16,12 @@ class View {
     if (mode) {
       this._mode = mode;
     }
+
+    // refresh controls on login
+    this.on('authenticated', async e => {
+      console.log("logged in, redraw interface");
+      await this._refresh();
+    });
   }
 
   set mode(mode) {
@@ -192,12 +198,6 @@ class View {
     // add features
     let features = await this.model.features()
     this._features.addData(features.geojson);
-
-    // refresh controls on login
-    this.model.on('authenticated', async e => {
-      console.log("logged in, redraw interface");
-      await this._refresh();
-    });
   }
 
   async _refresh() {
