@@ -31,7 +31,7 @@ class FeatureModel {
     return this._geojson.properties.id;
   }
 
-  get _mapId() {
+  get mapId() {
     return this._collection._map.id;
   }
 
@@ -51,14 +51,14 @@ class FeatureModel {
 
     let json;
     if (!this.id) {
-      json = await this._api.addFeature(this.token, this._mapId, this.geojson);
+      json = await this._api.addFeature(this.token, this.mapId, this.geojson);
     } else {
-      json = await this._api.updateFeature(this.token, this._mapId, this.id, this.geojson);
+      json = await this._api.updateFeature(this.token, this.mapId, this.id, this.geojson);
     }
 
     if (json) {
       this._state = 'persistent';
-      this.geojson = json;
+      this._geojson = json;
     }
     return this;
   }
@@ -70,7 +70,7 @@ class FeatureModel {
    */
   async remove() {
     if (this.id) {
-    let resp = await this._api.removeFeature(this.token, this._mapId, this.id);
+    let resp = await this._api.removeFeature(this.token, this.mapId, this.id);
       if (!resp.ok) {
         return false;
       }
