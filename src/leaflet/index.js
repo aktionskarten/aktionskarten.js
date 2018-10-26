@@ -82,36 +82,18 @@ L.FeatureLayer = L.GeoJSON.extend({
     },
     addFeature(geojson) {
       let id = geojson.properties.id;
-      if (!!this._contains(id)) {
-        return;
-      }
+      if (!!this._contains(id)) { return; }
 
-      this.addData(geojson);
-    },
-    updateFeature(geojson) {
-      let id = geojson.properties.id;
-      if (!!this._contains(id)) {
-        return;
-      }
-
-      this.deleteFeature(geojson.properties.id);
-      this.addData(geojson);
-    },
-    deleteFeature(id) {
-      let found = this._contains(id);
-      if (!!found) {
-          this.removeLayer(found);
-      }
-    },
-    // Same as addData but adds a single feature and returns the actual created
-    // layer
-    geojsonToLayer(geojson) {
+      // the following is basically same as addData for single features but
+      // returns the actual created layer
       var options = this.options;
-      if (options.filter && !options.filter(geojson)) { return this; }
+      if (options.filter && !options.filter(geojson)) {
+        return;
+      }
 
       var layer = L.GeoJSON.geometryToLayer(geojson, options);
       if (!layer) {
-        return this;
+        return;
       }
       layer.feature = L.GeoJSON.asFeature(geojson);
 
@@ -122,8 +104,24 @@ L.FeatureLayer = L.GeoJSON.extend({
         options.onEachFeature(geojson, layer);
       }
 
+      this.addLayer(layer);
       return layer;
-    }
+    },
+    updateFeature(geojson) {
+      let id = geojson.properties.id;
+      if (!this._contains(id)) {
+        return;
+      }
+
+      this.deleteFeature(geojson.properties.id);
+      this.addFeature(geojson);
+    },
+    deleteFeature(id) {
+      let found = this._contains(id);
+      if (!!found) {
+          this.removeLayer(found);
+      }
+    },
 });
 
 
