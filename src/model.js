@@ -1,4 +1,5 @@
 import Api from './api'
+import {sortObj} from './utils'
 
 /** Class representing a GeoJSON feature of a map / collection */
 class FeatureModel {
@@ -140,6 +141,22 @@ class FeatureCollection {
       data['features'].push(feature.geojson);
     });
     return data;
+  }
+
+
+  /**
+   * Check if a given geojson object is in our collection
+   * @param {object} - Valid GeoJSON object
+   */
+  contains(geojson) {
+    let needle = JSON.stringify(sortObj(geojson))
+    let f, gen = this.all();
+    while((f = gen.next().value)) {
+      if (JSON.stringify(sortObj(f._geojson)) == needle) {
+        return true;
+      }
+    }
+    return false;
   }
 
   /**
