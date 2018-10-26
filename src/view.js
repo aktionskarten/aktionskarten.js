@@ -226,15 +226,15 @@ class View {
         let feature = await this.model.addFeature(geojson)
         await feature.save();
 
-        // convert feature to layer (with our styles)
-        let featureLayer = this._features.geojsonToLayer(feature.geojson);
-        featureLayer.id = feature.id;
-
-        // mark this layer as current so style editor will be opened
-        // automatically when we add it to our features
+        // iterate over all feature layers and find new one to open style editor
+        // for this layer
         let style = this._controls.style;
-        style.options.util.setCurrentElement(featureLayer);
-        this._features.addLayer(featureLayer)
+        this._features.eachLayer(layer => {
+          if (layer.id == feature.id) {
+            style.options.util.setCurrentElement(layer);
+            style.initChangeStyle({'target': layer});
+          }
+        });
 
         this.fire('featureAdded', feature.id);
       });
@@ -275,17 +275,19 @@ class View {
 
 
       this._map.on('styleeditor:changed', async e => {
-        var id = e.id,
-            properties = filterProperties(e.options);
+        let id = e.id;
+        let feature = await this.model.getFeature(id);
 
+        let properties = {'id': id, 'map_id': feature.mapId}
         if ('options' in e && e.options.popupContent) {
           properties.label = e.options.popupContent
         }
 
-        var geojson = Object.assign(e.toGeoJSON(), {'properties': properties}),
-            feature = await this.model.getFeature(id);
+        // add new style
+        let filtered = filterProperties(e.options)
+        properties = Object.assign(properties, filtered)
 
-        geojson.properties.id = id;
+        let geojson = Object.assign(e.toGeoJSON(), {'properties': properties})
         feature.geojson = geojson;
         await feature.save()
 
@@ -305,9 +307,12 @@ class View {
         this._features.addFeature(data);
       });
 
-      this._socket.on('updated', (data) => {
-        console.log('event update', data);
-        this._features.updateFeature(data);
+      this._socket.on('updated', async (data) => {
+        let features = await this.model.features();
+        if (!features.contains(data)) {
+          console.log('event update', data);
+          this._features.updateFeature(data);
+        }
       });
 
       this._socket.on('deleted', (data) => {
