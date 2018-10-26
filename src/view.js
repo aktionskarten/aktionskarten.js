@@ -119,15 +119,16 @@ class View {
             featureGroup: this._features, // only allow features to be editable
           }
       };
-      let draw = new L.Control.Draw(options);
-      this._controls.draw = draw;
+      this._controls.draw = new L.Control.Draw(options)
     }
 
-    let noDraw = !this.model.authenticated || this.mode == 'bbox';
-    if (noDraw) {
-      this._map.removeControl(this._controls.draw);
+    let draw = this._controls.draw;
+    if (!this.model.authenticated || this.mode == 'bbox') {
+      if (draw._map) {
+        this._map.removeControl(draw);
+      }
     } else {
-      this._map.addControl(this._controls.draw);
+      this._map.addControl(draw);
     }
   }
 
@@ -144,18 +145,18 @@ class View {
                            // auto-added featues
       };
 
-      let style = new L.Control.StyleEditor(options);
-      this._controls.style = style;
-      this._map.addControl(style);
+      this._controls.style = new L.Control.StyleEditor(options);
     }
 
-    let noStyle = !this.model.authenticated || this.mode == 'bbox';
-    if (noStyle) {
-      this._controls.style.disable();
-      this._map.removeControl(this._controls.style);
+    let style = this._controls.style;
+    if (!this.model.authenticated || this.mode == 'bbox') {
+      if (style._map) {
+        style.disable();
+        this._map.removeControl(style);
+      }
     } else {
-      this._map.addControl(this._controls.style);
-      this._controls.style.enable();
+      this._map.addControl(style);
+      style.enable();
     }
   }
 
