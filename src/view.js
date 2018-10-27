@@ -84,7 +84,7 @@ class View {
             layer.bindPopup(feature.properties.label, {direction: 'left', sticky: true});
           }
 
-          if (this._controls && 'style' in this._controls) {
+          if (this._controls && 'style' in this._controls && this._controls.style.isEnabled()) {
             this._controls.style.addEditClickEvents(layer);
           }
         }
@@ -150,7 +150,7 @@ class View {
 
     let style = this._controls.style;
     if (!this.model.authenticated || this.mode == 'bbox') {
-      if (style._map) {
+      if (style.isEnabled()) {
         style.disable();
         this._map.removeControl(style);
       }

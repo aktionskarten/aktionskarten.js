@@ -36,6 +36,13 @@ L.drawLocal.edit.handlers.text = {
   }
 }
 
+L.Control.StyleEditor.include({
+  isEnabled () {
+    let ui = this.options.controlUI;
+    return ui && L.DomUtil.hasClass(ui, 'enabled');
+  }
+});
+
 // Limit rectangle to DINA4 ratio
 L.Draw.Rectangle.include({
   _drawShape: function (latlng) {
