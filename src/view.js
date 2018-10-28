@@ -295,12 +295,18 @@ class View {
         }
 
         // add new style
-        let filtered = filterProperties(e.options)
+        let layer = this._features.contains(id),
+            filtered = filterProperties(e.options);
         properties = Object.assign(properties, filtered)
+        if(layer) {
+          layer.feature.properties = properties;
+        }
 
         let geojson = Object.assign(e.toGeoJSON(), {'properties': properties})
         feature.geojson = geojson;
         await feature.save()
+
+        this.openStyleFor(feature.id);
 
         this.fire('styleChanged', id);
         console.log("styled", feature)
@@ -318,12 +324,9 @@ class View {
         this._features.addFeature(data);
       });
 
-      this._socket.on('updated', async (data) => {
-        let features = await this.model.features();
-        if (!features.contains(data)) {
-          console.log('event update', data);
-          this._features.updateFeature(data);
-        }
+      this._socket.on('updated', (data) => {
+        console.log('event updated', data);
+        this._features.updateFeature(data);
       });
 
       this._socket.on('deleted', (data) => {
