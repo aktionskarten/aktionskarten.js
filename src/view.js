@@ -199,6 +199,8 @@ class View {
     // add features
     let features = await this.model.features()
     this._features.addData(features.geojson);
+
+    this._refresh();
   }
 
   async _refresh() {
