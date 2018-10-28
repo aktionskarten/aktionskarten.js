@@ -150,9 +150,7 @@ L.HTMLContainer = L.Class.extend({
   },
 
   show() {
-    console.log("SHOWING CONTAINER");
     if (!this._wrapper) {
-      console.log("CREATING NEW CONTAINER");
       this._wrapper = L.DomUtil.create('div', 'leaflet-styleeditor-tooltip-wrapper', this._root)
       this._tooltip = L.DomUtil.create('div', 'leaflet-styleeditor-tooltip', this._wrapper);
       this._container = L.DomUtil.create('div', 'container', this._tooltip);
