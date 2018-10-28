@@ -77,7 +77,7 @@ L.GeoJSON.include({
 // are normally a FeatureGroup but GeoJSON extends FeatureGroup and gives
 // us functionality to populate with geojson data
 L.FeatureLayer = L.GeoJSON.extend({
-    _contains(id) {
+    contains(id) {
       var layer;
       this.eachLayer((_layer) => {
         if (_layer.id == id) {
@@ -89,7 +89,7 @@ L.FeatureLayer = L.GeoJSON.extend({
     },
     addFeature(geojson) {
       let id = geojson.properties.id;
-      if (!!this._contains(id)) { return; }
+      if (!!this.contains(id)) { return; }
 
       // the following is basically same as addData for single features but
       // returns the actual created layer
@@ -124,7 +124,7 @@ L.FeatureLayer = L.GeoJSON.extend({
       this.addFeature(geojson);
     },
     deleteFeature(id) {
-      let found = this._contains(id);
+      let found = this.contains(id);
       if (!!found) {
           this.removeLayer(found);
       }
