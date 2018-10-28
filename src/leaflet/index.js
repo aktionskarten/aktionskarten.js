@@ -1,3 +1,4 @@
+import {sortObj} from '../utils'
 import L from 'leaflet'
 import 'leaflet-draw'
 import 'leaflet-styleeditor'
@@ -116,11 +117,21 @@ L.FeatureLayer = L.GeoJSON.extend({
     },
     updateFeature(geojson) {
       let id = geojson.properties.id;
-      if (!this._contains(id)) {
+      let layer = this.contains(id);
+      if (!layer) {
+        this.addFeature(geojson);
         return;
       }
 
-      this.deleteFeature(geojson.properties.id);
+      let sortedOld = sortObj(layer.feature),
+          sortedNew = sortObj(geojson),
+          strOld = JSON.stringify(sortedOld),
+          strNew = JSON.stringify(sortedNew);
+      if (strOld == strNew) {
+        return;
+      }
+
+      this.deleteFeature(id);
       this.addFeature(geojson);
     },
     deleteFeature(id) {
