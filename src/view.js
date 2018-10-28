@@ -81,7 +81,7 @@ class View {
 
           if ('label' in feature.properties) {
             layer.options.popupContent = feature.properties.label
-            layer.bindPopup(feature.properties.label, {direction: 'left', sticky: true});
+            layer.bindTooltip(feature.properties.label, {permanent: true, interactive: true});
           }
 
           if (this._controls && 'style' in this._controls && this._controls.style.isEnabled()) {
