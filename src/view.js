@@ -160,6 +160,22 @@ class View {
     }
   }
 
+  openStyleFor(id) {
+    let style = this._controls.style;
+
+    if (!style.isEnabled()) {
+      return;
+    }
+
+    this._features.eachLayer(layer => {
+      if (layer.id == id) {
+        style.options.util.setCurrentElement(layer);
+        style.initChangeStyle({'target': layer});
+      }
+    });
+  }
+
+
   async init() {
     this._map = L.map(this.mapElemId, {zoomControl: false});
 
@@ -229,15 +245,7 @@ class View {
         let feature = await this.model.addFeature(geojson)
         await feature.save();
 
-        // iterate over all feature layers and find new one to open style editor
-        // for this layer
-        let style = this._controls.style;
-        this._features.eachLayer(layer => {
-          if (layer.id == feature.id) {
-            style.options.util.setCurrentElement(layer);
-            style.initChangeStyle({'target': layer});
-          }
-        });
+        this.openStyleFor(feature.id);
 
         this.fire('featureAdded', feature.id);
       });
