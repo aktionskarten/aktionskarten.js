@@ -1,4 +1,4 @@
-import L from './leaflet'
+import {L} from './leaflet'
 import io from 'socket.io-client'
 import { filterProperties } from './utils'
 
@@ -80,13 +80,32 @@ class View {
           layer.id = layer.options.id = feature.properties.id;
 
           if ('label' in feature.properties) {
-            layer.options.popupContent = feature.properties.label
             layer.bindTooltip(feature.properties.label, {permanent: true, interactive: true});
           }
 
-          if (this._controls && 'style' in this._controls && this._controls.style.isEnabled()) {
-            this._controls.style.addEditClickEvents(layer);
-          }
+
+          let removeHandler = async (e) => {
+              let layer = e.sourceTarget,
+                  id = layer.id,
+                  feature = await this.model.getFeature(id),
+                  style = this._controls.style;
+              style.removeEditClickEvents(layer);
+              style.hideEditor();
+              await feature.remove();
+          };
+          layer.on('triggered', L.DomEvent.stop).on('triggered', async (e) => {
+            removeHandler(e)
+          });
+          layer.on('click', L.DomEvent.stop).on('click', async (e) => {
+            let layer = e.sourceTarget;
+            //
+            /// delete if ctrl or meta is pressed otherwise make it editable
+            if ((e.originalEvent.ctrlKey || e.originalEvent.metaKey)) {
+              removeHandler(e)
+            } else {
+              this.enableEditFor(layer)
+            }
+          });
         }
       });
 
@@ -95,44 +114,62 @@ class View {
     }
   }
 
-  async updateDraw() {
-    let instantiated = 'draw' in this._controls;
+  initEditable() {
+    let instantiated = 'editable' in this._controls;
     if (!instantiated) {
-      let options = {
-          draw: {
-            polygon: {
-              allowIntersection: false,
-              drawError: {
-                  color: '#b00b00',
-                  timeout: 1000
-              },
-              shapeOptions: {
-                  color: '#bada55'
-              },
-              showArea: true
-            },
-            rectangle: false,
-            circlemarker: false,
-            circle: false
-          },
-          edit: {
-            featureGroup: this._features, // only allow features to be editable
-          }
-      };
-      this._controls.draw = new L.Control.Draw(options)
-    }
-
-    let draw = this._controls.draw;
-    if (!this.model.authenticated || this.mode == 'bbox') {
-      if (draw._map) {
-        this._map.removeControl(draw);
-      }
-    } else {
-      this._map.addControl(draw);
+      this._controls.editable = [
+        new L.EditControl.Line(this.overlay),
+        new L.EditControl.Polygon(this.overlay),
+        new L.EditControl.Marker(this.overlay)
+      ];
     }
   }
 
-  updateStyle() {
+  async updateEditable() {
+    let editable = this._controls.editable;
+    if (!editable) {
+      return;
+    }
+
+    if (!this.model.authenticated || this.mode == 'bbox') {
+      for (let control of editable) {
+        this._map.removeControl(control);
+      }
+    } else {
+      for (let control of editable) {
+        this._map.addControl(control);
+      }
+    }
+  }
+
+  updateOverlay() {
+    if (!this.model.authenticated || this.mode != 'bbox') {
+      if (this._map.editTools) {
+        this._map.editTools.featuresLayer.clearLayers();
+      }
+      this.overlay.hide();
+      return;
+    }
+
+    this.overlay.clear();
+    this.overlay.add('p', 'small', 'Markiere ein DIN A4-Rechteck als Grundlage der Aktionskarte.')
+
+    let wantsRedraw = this._map.editTools.featuresLayer.getLayers().length > 0
+    let label = wantsRedraw ? 'Neuzeichnen' : 'Zeichnen';
+    this.overlay.add('button', 'btn btn-secondary btn-sm', label)
+                .on('click', L.DomEvent.stop)
+                .on('click', (e) => { this._map.editTools.startRectangle() });
+
+    if (wantsRedraw) {
+      this.overlay.add('button', 'btn btn-primary btn-sm ml-1', 'Weiter')
+                    .on('click', L.DomEvent.stop)
+                    .on('click', (e) => { this.model.save(), this.mode = ''});
+    }
+
+    this.overlay.show();
+  }
+
+  initStyleEditor() {
     let instantiated = 'style' in this._controls;
     if (!instantiated) {
       let options = {
@@ -147,8 +184,14 @@ class View {
 
       this._controls.style = new L.Control.StyleEditor(options);
     }
+  }
 
+  updateStyle() {
     let style = this._controls.style;
+    if (!style) {
+      return;
+    }
+
     if (!this.model.authenticated || this.mode == 'bbox') {
       if (style.isEnabled()) {
         style.disable();
@@ -160,24 +203,32 @@ class View {
     }
   }
 
-  openStyleFor(id) {
+  enableEditFor(layer) {
     let style = this._controls.style;
+    let current = style.options.util.getCurrentElement();
 
-    if (!style.isEnabled()) {
+    if (current && current.id == layer.id) {
+      current.enableEdit();
       return;
     }
 
-    this._features.eachLayer(layer => {
-      if (layer.id == id) {
-        style.options.util.setCurrentElement(layer);
-        style.initChangeStyle({'target': layer});
-      }
-    });
+    console.log("enable edit");
+
+    if (current) {
+      current.disableEdit();
+      style.hideEditor();
+    }
+    layer.enableEdit();
+    style.initChangeStyle({'target': layer});
+
+    style.options.util.setCurrentElement(layer);
   }
 
-
   async init() {
-    this._map = L.map(this.mapElemId, {zoomControl: false});
+    this._map = L.map(this.mapElemId, {
+      zoomControl: false,
+      editable: true,
+    });
 
     // add zoom control
     var zoom = new L.Control.Zoom({ position: 'topright' });
@@ -205,7 +256,12 @@ class View {
     this._registerLeafletEventHandlers();
     this._registerSocketIOEventHandlers();
 
+    // add overlay
+    this.overlay = new L.HTMLContainer(this._map.getContainer());
+
     // render controls, tooltips and popups
+    this.initEditable();
+    this.initStyleEditor();
     this._refresh();
 
     // add grid
@@ -222,96 +278,139 @@ class View {
   async _refresh() {
     console.log("Refreshing UI");
 
+    this.updateOverlay();
     await this.updateStyle();
-    await this.updateDraw();
-    this.updateTooltip();
+    await this.updateEditable();
     this.updatePopup();
   }
 
   _registerLeafletEventHandlers() {
-      this._map.on(L.Draw.Event.CREATED, async e => {
-        var type = e.layerType,
-            layer = e.layer,
-            geojson = layer.toGeoJSON();
+    // if you click anywhere on the map => disable edit mode
+    this._map.on('click', (e) => {
+      let style = this._controls.style;
+      let current = style.options.util.getCurrentElement();
+      if (current) {
+        current.disableEdit();
+        style.hideEditor();
+      }
+    });
 
-        // use rectangle as bbox if only rectangle control is enabled
-        if (geojson.geometry.type == "Polygon" && this.mode == 'bbox') {
-          let bounds = layer.getBounds();
-          let rect = [bounds.getSouthEast(), bounds.getNorthWest()];
-          this.model.bbox = [].concat.apply([], L.GeoJSON.latLngsToCoords(rect));
-          return;
+    this._map.on('editable:drawing:cancel', (e) => {
+      console.log('editable:drawing:cancel', e)
+      if (e.layer) {
+        e.layer.remove();
+      }
+      L.DomEvent.stop(e);
+    })
+
+    let bboxRectHandler = (e) => {
+      if (this.mode != 'bbox') {
+        return;
+      }
+
+      var layer = e.layer,
+          geojson = layer.toGeoJSON();
+
+
+      if (geojson.geometry.type == "Polygon") {
+        let bounds = layer.getBounds();
+        let rect = [bounds.getSouthEast(), bounds.getNorthWest()];
+        this.model.bbox = [].concat.apply([], L.GeoJSON.latLngsToCoords(rect));
+        let featuresLayer = this._map.editTools.featuresLayer;
+        if (featuresLayer.getLayers().length > 1) {
+          featuresLayer.removeLayer(featuresLayer.getLayers()[0]);
         }
+        this._refresh();
+        return;
+      }
+    };
 
-        let feature = await this.model.addFeature(geojson)
-        await feature.save();
+    this._map.on('editable:vertex:dragend', bboxRectHandler);
+    this._map.on('editable:drawing:commit', bboxRectHandler);
+    this._map.on('editable:drawing:commit', async (e) => {
+      console.log("commit");
 
-        this.openStyleFor(feature.id);
+      if (this.mode == 'bbox') {
+        return;
+      }
 
-        this.fire('featureAdded', feature.id);
-      });
+      var type = e.layerType,
+          layer = e.layer,
+          geojson = layer.toGeoJSON();
 
-      this._map.on(L.Draw.Event.EDITED, e => {
-        var layers = e.layers;
-        layers.eachLayer(async layer => {
-          var id = layer.id,
-              properties = filterProperties(layer.options),
-              geojson = Object.assign(layer.toGeoJSON(), {'properties': properties}),
-              feature = await this.model.getFeature(id);
+      let feature = await this.model.addFeature(geojson)
+      await feature.save();
 
-          feature.geojson = geojson;
-          await feature.save()
+      // remove drawn feature, it gets added through created event (socket io)
+      // with proper id and defaults
+      this._map.editTools.featuresLayer.clearLayers();
 
-          this.fire('featureEdited', id);
-        });
-      });
-
-      this._map.on(L.Draw.Event.DELETED, e => {
-        var layers = e.layers;
-        layers.eachLayer(async layer => {
-          var id = layer.id,
-              feature = await this.model.getFeature(id);
-
-          await feature.remove();
-
-          this.fire('featureDeleted', id);
-        });
-      });
-
-      var enableStyle = e => { this._controls.style.enable() };
-      var disableStyle = e => { this._controls.style.disable() };
-      this._map.on(L.Draw.Event.EDITSTART, disableStyle);
-      this._map.on(L.Draw.Event.EDITSTOP, enableStyle);
-      this._map.on(L.Draw.Event.DELETESTART, disableStyle);
-      this._map.on(L.Draw.Event.DELETESTOP, enableStyle);
-
-
-      this._map.on('styleeditor:changed', async e => {
-        let id = e.id;
-        let feature = await this.model.getFeature(id);
-
-        let properties = {'id': id, 'map_id': feature.mapId}
-        if ('options' in e && e.options.popupContent) {
-          properties.label = e.options.popupContent
+      // find and make new feature editable
+      this._features.eachLayer(layer => {
+        if (layer.id == feature.id) {
+          this.enableEditFor(layer)
         }
-
-        // add new style
-        let layer = this._features.contains(id),
-            filtered = filterProperties(e.options);
-        properties = Object.assign(properties, filtered)
-        if(layer) {
-          layer.feature.properties = properties;
-        }
-
-        let geojson = Object.assign(e.toGeoJSON(), {'properties': properties})
-        feature.geojson = geojson;
-        await feature.save()
-
-        this.openStyleFor(feature.id);
-
-        this.fire('styleChanged', id);
-        console.log("styled", feature)
       });
 
+      this.overlay.hide();
+
+      this.fire('featureAdded', feature.id);
+    });
+
+    this._map.on('editable:drawing:clicked', (e) => console.log('editable:drawing:clicked'))
+    this._map.on('editable:created', (e) => console.log('editable:created'))
+
+    let updateHandler = async (e) => {
+      let layer = e.layer,
+          id = layer.id;
+      if (!id) {
+        return
+      }
+
+      let geojson = layer.toGeoJSON(),
+      feature = await this.model.getFeature(id);
+
+      if (!feature) {
+        return;
+      }
+
+      feature.geojson = geojson;
+      layer.feature = feature.geojson
+      await feature.save()
+
+      console.log("edited");
+      this.fire('featureEdited', id);
+    }
+
+    this._map.on('editable:dragend', updateHandler)
+    this._map.on('editable:vertex:dragend', updateHandler)
+
+    this._map.on('styleeditor:changed', async e => {
+      let id = e.id;
+      let feature = await this.model.getFeature(id);
+
+      // add new style
+      let layer = this._features.contains(id),
+          filtered = filterProperties(e.options),
+          properties = Object.assign({'id': id, 'map_id': feature.mapId}, filtered)
+
+      if(layer) {
+        layer.feature.properties = properties;
+      }
+
+      let geojson = Object.assign(e.toGeoJSON(), {'properties': properties})
+      feature.geojson = geojson;
+      await feature.save()
+
+      this._features.eachLayer(layer => {
+        if (layer.id == feature.id) {
+          this.enableEditFor(layer)
+        }
+      });
+
+      this.fire('styleChanged', id);
+      console.log("styled", feature)
+    });
   }
 
 
@@ -408,56 +507,6 @@ class View {
       this._grid.openPopup(bounds.getCenter());
     } else {
       this._grid.closePopup();
-    }
-  }
-
-
-  updateTooltip() {
-    if (!this.tooltip) {
-      this.tooltip = new L.HTMLContainer(this._map.getContainer());
-    }
-
-    if (!this.model.authenticated || this.mode != 'bbox') {
-      this.tooltip.hide();
-      return;
-    }
-
-    this.tooltip.show();
-
-    let drawContent = () => {
-      let pElem = this.tooltip.add('p', '', 'Markiere ein DIN A4-Rechteck als Grundlage der Aktionskarte.<br />');
-      this.tooltip.add('button', 'btn btn-secondary', 'Zeichnen')
-                  .on('click', (e) => {
-                    new L.Draw.Rectangle(this._map).enable();
-                    L.DomEvent.stop(e);
-                  });
-    }
-
-    let redrawContent = () => {
-      this.tooltip.add('button', 'btn btn-secondary mr-1', 'Neuzeichnen')
-                  .on('click', (e) => {
-                    new L.Draw.Rectangle(this._map).enable();
-                    L.DomEvent.stop(e);
-                  });
-      this.tooltip.add('button', 'btn btn-primary ml-1', 'Weiter')
-                  .on('click', (e) => {
-                    this.model.save();
-                    this.mode = ''
-                    L.DomEvent.stop(e);
-                  });
-    }
-
-    if (!this.tooltip.hasContent()) {
-      if (!this.model.bbox) {
-        drawContent();
-      } else {
-        redrawContent();
-      }
-
-      this.on('bboxChanged', (bbox) => {
-        this.tooltip.reset();
-        redrawContent();
-      });
     }
   }
 }

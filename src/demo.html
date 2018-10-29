@@ -9,12 +9,12 @@
   var api, model, view;
   window.onload  = async function() {
     api = new Aktionskarten.Api('https://staging.aktionskarten.org');
-    model = await Aktionskarten.MapModel.get(api, 'test');
+    model = await Aktionskarten.MapModel.get(api, 'test123');
     view = new Aktionskarten.View('map', model)
 
     await view.init();
 
-    model.auth('foobar')
+    model.auth('31RBpNwscIMqeGdPv0xO8Lo6')
 
     // you now can do the follwing through the console
     //

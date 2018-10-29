@@ -5,12 +5,18 @@
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
-   version="1.1"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   viewBox="0 0 92 26"
+   height="26"
+   width="92"
    id="svg4225"
-   width="660"
-   height="60"
-   viewBox="0 0 660 60">
+   version="1.1"
+   inkscape:version="0.92.2 2405546, 2018-03-11"
+   sodipodi:docname="spritesheet.svg"
+   inkscape:export-filename="/home/fpuga/development/upstream/icarto.Leaflet.draw/src/images/spritesheet-2x.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
   <metadata
      id="metadata4258">
     <rdf:RDF>
@@ -25,103 +31,60 @@
   </metadata>
   <defs
      id="defs4256" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="2560"
+     inkscape:window-height="1386"
+     id="namedview4254"
+     showgrid="false"
+     inkscape:zoom="1.3101852"
+     inkscape:cx="236.80603"
+     inkscape:cy="7.2419621"
+     inkscape:window-x="0"
+     inkscape:window-y="54"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="enabled"
+     scale-x="0.8" />
   <g
+     id="enabled"
      style="fill:#464646;fill-opacity:1"
-     id="enabled">
+     transform="translate(0,-34)">
     <g
+       id="polyline"
        style="fill:#464646;fill-opacity:1"
-       id="polyline">
+       transform="matrix(0.75,0,0,0.75,-5.5,24.5)">
       <path
-         style="fill:#464646;fill-opacity:1"
+         d="m 18,36 v 6 h 6 v -6 z m 4,4 h -2 v -2 h 2 z"
          id="path4229"
-         d="m 18,36 v 6 h 6 v -6 z m 4,4 h -2 v -2 h 2 z" />
+         inkscape:connector-curvature="0"
+         style="fill:#464646;fill-opacity:1" />
       <path
-         style="fill:#464646;fill-opacity:1"
+         d="m 36,18 v 6 h 6 v -6 z m 4,4 h -2 v -2 h 2 z"
          id="path4231"
-         d="m 36,18 v 6 h 6 v -6 z m 4,4 h -2 v -2 h 2 z" />
+         inkscape:connector-curvature="0"
+         style="fill:#464646;fill-opacity:1" />
       <path
-         style="fill:#464646;fill-opacity:1"
+         d="m 23.142,39.145 -2.285,-2.29 16,-15.998 2.285,2.285 z"
          id="path4233"
-         d="m 23.142,39.145 -2.285,-2.29 16,-15.998 2.285,2.285 z" />
+         inkscape:connector-curvature="0"
+         style="fill:#464646;fill-opacity:1" />
     </g>
     <path
-       style="fill:#464646;fill-opacity:1"
-       d="M 100,24.565 97.904,39.395 83.07,42 76,28.773 86.463,18 Z"
-       id="polygon" />
+       id="polygon"
+       d="M 58,42.92375 56.428,54.04625 45.3025,56 40,46.07975 47.84725,38 Z"
+       inkscape:connector-curvature="0"
+       style="fill:#464646;fill-opacity:1;stroke-width:0.75" />
     <path
-       style="fill:#464646;fill-opacity:1"
-       d="m 140,20 h 20 v 20 h -20 z"
-       id="rectangle" />
-    <path
-       style="fill:#464646;fill-opacity:1"
-       d="m 221,30 c 0,6.078 -4.926,11 -11,11 -6.074,0 -11,-4.922 -11,-11 0,-6.074 4.926,-11 11,-11 6.074,0 11,4.926 11,11 z"
-       id="circle" />
-    <path
-       style="fill:#464646;fill-opacity:1"
-       d="m 270,19 c -4.971,0 -9,4.029 -9,9 0,4.971 5.001,12 9,14 4.001,-2 9,-9.029 9,-14 0,-4.971 -4.029,-9 -9,-9 z m 0,12.5 c -2.484,0 -4.5,-2.014 -4.5,-4.5 0,-2.484 2.016,-4.5 4.5,-4.5 2.485,0 4.5,2.016 4.5,4.5 0,2.486 -2.015,4.5 -4.5,4.5 z"
-       id="marker" />
-    <g
-       style="fill:#464646;fill-opacity:1"
-       id="edit">
-      <path
-         style="fill:#464646;fill-opacity:1"
-         id="path4240"
-         d="m 337,30.156 v 0.407 5.604 c 0,1.658 -1.344,3 -3,3 h -10 c -1.655,0 -3,-1.342 -3,-3 v -10 c 0,-1.657 1.345,-3 3,-3 h 6.345 l 3.19,-3.17 H 324 c -3.313,0 -6,2.687 -6,6 v 10 c 0,3.313 2.687,6 6,6 h 10 c 3.314,0 6,-2.687 6,-6 v -8.809 l -3,2.968" />
-      <path
-         style="fill:#464646;fill-opacity:1"
-         id="path4242"
-         d="m 338.72,24.637 -8.892,8.892 H 327 V 30.7 l 8.89,-8.89 z" />
-      <path
-         style="fill:#464646;fill-opacity:1"
-         id="path4244"
-         transform="rotate(-134.99,340.703,19.816999)"
-         d="m 338.697,17.826 h 4 v 4 h -4 z" />
-    </g>
-    <g
-       style="fill:#464646;fill-opacity:1"
-       id="remove">
-      <path
-         style="fill:#464646;fill-opacity:1"
-         id="path4247"
-         d="m 381,42 h 18 V 24 h -18 z m 14,-16 h 2 v 14 h -2 z m -4,0 h 2 v 14 h -2 z m -4,0 h 2 v 14 h -2 z m -4,0 h 2 v 14 h -2 z" />
-      <path
-         style="fill:#464646;fill-opacity:1"
-         id="path4249"
-         d="m 395,20 v -4 h -10 v 4 h -6 v 2 h 22 v -2 z m -2,0 h -6 v -2 h 6 z" />
-    </g>
+       id="marker"
+       d="m 79,38 c -3.86633,0 -7,3.15313 -7,7.043478 C 72,48.933826 75.88967,54.434783 79,56 82.11189,54.434783 86,48.933826 86,45.043478 86,41.15313 82.86633,38 79,38 Z m 0,9.782609 c -1.932,0 -3.5,-1.576174 -3.5,-3.521739 0,-1.944 1.568,-3.52174 3.5,-3.52174 1.93277,0 3.5,1.57774 3.5,3.52174 0,1.945565 -1.56723,3.521739 -3.5,3.521739 z"
+       inkscape:connector-curvature="0"
+       style="fill:#464646;fill-opacity:1;stroke-width:0.78018939" />
   </g>
-  <g
-     style="fill:#bbbbbb"
-     transform="translate(120)"
-     id="disabled">
-    <use
-       height="100%"
-       width="100%"
-       y="0"
-       x="0"
-       id="edit-disabled"
-       xlink:href="#edit" />
-    <use
-       height="100%"
-       width="100%"
-       y="0"
-       x="0"
-       id="remove-disabled"
-       xlink:href="#remove" />
-  </g>
-  <path
-     d="m 581.65725,30 c 0,6.078 -4.926,11 -11,11 -6.074,0 -11,-4.922 -11,-11 0,-6.074 4.926,-11 11,-11 6.074,0 11,4.926 11,11 z"
-     id="circle-3"
-     style="fill:none;stroke:#464646;stroke-width:2;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-  <text
-     transform="scale(1.0000048,0.99999523)"
-     id="text4539"
-     y="42.000198"
-     x="615.23145"
-     style="font-style:normal;font-weight:normal;font-size:34.66685688px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#464646;fill-opacity:1;stroke:none;stroke-width:1.00000477px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;"
-     xml:space="preserve"><tspan
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:'Bitstream Vera Serif';-inkscape-font-specification:'Bitstream Vera Serif';stroke-width:1.00000477px;fill:#464646;fill-opacity:1;font-size:34.66685688px;"
-       y="42.000198"
-       x="615.23145"
-       id="tspan4537">A</tspan></text>
 </svg>

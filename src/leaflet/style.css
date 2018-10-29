@@ -2,41 +2,91 @@
   display: none;
 }
 
-.leaflet-draw-toolbar a {
-  background-image: linear-gradient(transparent,transparent), url(spritesheet.svg) !important
-}
-
-a.leaflet-draw-edit-text {
-  background-position: -270px -1px;
-}
-
-a.leaflet-draw-edit-remove {
-  background-position: -217px -1px !important;
-}
-
-a.leaflet-draw-edit-edit {
-  background-position: -134px -1px !important;
-}
-
-a.leaflet-draw-draw-marker {
-  background-position: -108px -1px !important;
-}
-
-a.leaflet-draw-draw-circle {
-  background-position: -81px -1px !important;
-}
-
-a.leaflet-draw-draw-polygon {
-  background-position: -26px -1px !important;
-}
-.leaflet-styleeditor-tooltip {
-  border: none;
-  background-color: rgba(68,68,68,.6);
-}
-.leaflet-styleeditor-tooltip {
-  color: #fff;
-}
 .leaflet-styleeditor-header, .leaflet-styleeditor-button {
   background-color: transparent;
 }
 
+.leaflet-styleeditor-button-custom {
+  background-color: #dc3545 !important;
+  margin-top: 1em;
+}
+
+.leaflet-styleeditor-label {
+  margin-top: 1em;
+}
+
+.leaflet-styleeditor-uiElement:first-child .leaflet-styleeditor-label {
+  margin-top: 0;
+}
+
+.leaflet-styleeditor-interior {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.leaflet-styleeditor-select {
+  padding: 24px;
+}
+
+.leaflet-styleeditor-select-option {
+  padding: 18px;
+}
+
+.leaflet-styleeditor-select-option-wrapper {
+  width: 150px;
+}
+
+/*
+@keyframes fade {
+    to {
+    opacity: 0.5;
+  }
+}
+
+.leaflet-styleeditor-marker-selected {
+  animation: fade 1s infinite alternate;
+}
+*/
+
+.leaflet-toolbar-editable {
+  width: 80px !important;
+}
+
+.leaflet-toolbar-editable a,.leaflet-toolbar-editable a:hover  {
+  display: flex;
+  align-items: left;
+  justify-content: start;
+  width: 100% !important;
+  cursor:pointer;
+}
+
+.leaflet-toolbar-editable span {
+  background-image: linear-gradient(transparent,transparent), url(spritesheet.svg) !important;
+  width: 30px;
+  height: 30px;
+  margin-right: 0.3em;
+}
+
+span.leaflet-toolbar-editable-line {
+  background-position: -2px;
+}
+
+span.leaflet-toolbar-editable-polygon {
+  background-position: -35px;
+}
+
+span.leaflet-toolbar-editable-marker {
+  background-position: -63px;
+}
+
+.leaflet-styleeditor-tooltip {
+  border: none;
+  background-color: rgba(68,68,68,.6);
+}
+
+.leaflet-styleeditor-tooltip {
+  color: #fff;
+}
+
+
+/* #00ad87 */
