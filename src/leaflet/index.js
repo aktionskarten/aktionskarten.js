@@ -327,7 +327,7 @@ L.EditControl.Line = EditControl.extend({
       html: 'Route'
     },
     callback(editable) {
-      this.overlay.add('p', 'small', 'Klicke auf die Karte um eine Route zu malen<br />');
+      this.overlay.add('p', 'small', 'Klicke auf die Karte um eine Route zu malen. Beende sie indem du den letzten Punkt nochmal anklickst.<br />');
       this.overlay.add('button', 'btn btn-sm btn-danger', 'Abbrechen')
                     .on('click', () => editable.stopDrawing())
                     .on('click', () => this.overlay.hide())
@@ -344,7 +344,7 @@ L.EditControl.Polygon = EditControl.extend({
       title: 'neues Gebiet markieren',
     },
     callback(editable) {
-      this.overlay.add('p', 'small', 'Klicke auf die Karte um ein Gebiet zu markieren<br />');
+      this.overlay.add('p', 'small', 'Klicke auf die Karte um ein Gebiet zu markieren. Mindestens drei Punkte notwendig.<br />');
       this.overlay.add('button', 'btn btn-sm btn-danger', 'Abbrechen')
                     .on('click', () => editable.stopDrawing())
                     .on('click', () => this.overlay.hide())
