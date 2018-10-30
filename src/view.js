@@ -114,6 +114,57 @@ class View {
     }
   }
 
+  async init() {
+    this._map = L.map(this.mapElemId, {
+      zoomControl: false,
+      editable: true,
+    });
+
+    // add zoom control
+    var zoom = new L.Control.Zoom({ position: 'topright' });
+    this._map.addControl(zoom);
+
+    this.center();
+
+    // add tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 18,
+      detectRetina: true,
+      attribution: 'Karte &copy; Aktionskarten | Tiles &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+        '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a> '
+    }).addTo(this._map);
+
+    // init layers
+    await this._addGridLayer();
+    await this._addFeatureLayer();
+
+    // init socketio
+    this._socket = io.connect(this.model._api.url);
+    this._socket.emit('join', this.model.id);
+
+    // register event handlers
+    this._registerLeafletEventHandlers();
+    this._registerSocketIOEventHandlers();
+
+    // add overlay
+    this.overlay = new L.HTMLContainer(this._map.getContainer());
+
+    // render controls, tooltips and popups
+    this.initEditable();
+    this.initStyleEditor();
+    this._refresh();
+
+    // add grid
+    let grid = await this.model.grid()
+    this._grid.addData(grid);
+
+    // add features
+    let features = await this.model.features()
+    this._features.addData(features.geojson);
+
+    this._updateUI();
+  }
+
   initEditable() {
     let instantiated = 'editable' in this._controls;
     if (!instantiated) {
@@ -224,56 +275,6 @@ class View {
     style.options.util.setCurrentElement(layer);
   }
 
-  async init() {
-    this._map = L.map(this.mapElemId, {
-      zoomControl: false,
-      editable: true,
-    });
-
-    // add zoom control
-    var zoom = new L.Control.Zoom({ position: 'topright' });
-    this._map.addControl(zoom);
-
-    this.center();
-
-    // add tiles
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 18,
-      detectRetina: true,
-      attribution: 'Karte &copy; Aktionskarten | Tiles &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
-        '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a> '
-    }).addTo(this._map);
-
-    // init layers
-    await this._addGridLayer();
-    await this._addFeatureLayer();
-
-    // init socketio
-    this._socket = io.connect(this.model._api.url);
-    this._socket.emit('join', this.model.id);
-
-    // register event handlers
-    this._registerLeafletEventHandlers();
-    this._registerSocketIOEventHandlers();
-
-    // add overlay
-    this.overlay = new L.HTMLContainer(this._map.getContainer());
-
-    // render controls, tooltips and popups
-    this.initEditable();
-    this.initStyleEditor();
-    this._refresh();
-
-    // add grid
-    let grid = await this.model.grid()
-    this._grid.addData(grid);
-
-    // add features
-    let features = await this.model.features()
-    this._features.addData(features.geojson);
-
-    this._refresh();
-  }
 
   async _refresh() {
     console.log("Refreshing UI");
