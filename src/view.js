@@ -20,7 +20,7 @@ class View {
     // refresh controls on login
     this.on('authenticated', async e => {
       console.log("logged in, redraw interface");
-      await this._refresh();
+      await this._updateUI();
     });
   }
 
@@ -33,7 +33,7 @@ class View {
 
     this._mode = mode;
     this.fire('modeChanged', mode);
-    this._refresh();
+    this._updateUI();
   }
 
 
@@ -152,7 +152,7 @@ class View {
     // render controls, tooltips and popups
     this.initEditable();
     this.initStyleEditor();
-    this._refresh();
+    this._updateUI();
 
     // add grid
     let grid = await this.model.grid()
@@ -276,7 +276,7 @@ class View {
   }
 
 
-  async _refresh() {
+  async _updateUI() {
     console.log("Refreshing UI");
 
     this.updateOverlay();
@@ -321,7 +321,7 @@ class View {
         if (featuresLayer.getLayers().length > 1) {
           featuresLayer.removeLayer(featuresLayer.getLayers()[0]);
         }
-        this._refresh();
+        this._updateUI();
         return;
       }
     };
