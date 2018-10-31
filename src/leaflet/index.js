@@ -140,10 +140,10 @@ L.HTMLContainer = L.Class.extend({
   add(tagName, className, content) {
     let elem = L.DomUtil.create(tagName, className, this._container);
 
-    // HTMLElement has no on method, add on with help of leaflet utis
-    elem.on = function() {
-      let args = [elem].concat(Array.from(arguments));
-      L.DomEvent.on.apply(this , args);
+    // HTMLElement has no event subscription  method, add with same defintion
+    // like for leaflet
+    elem.on = function(type, fn, context) {
+      L.DomEvent.on(this, type, fn, context ? context : this);
       return this;
     };
 
