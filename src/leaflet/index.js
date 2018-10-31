@@ -1,5 +1,5 @@
 import {sortObj} from '../utils'
-import L from 'leaflet'
+import 'leaflet'
 import 'leaflet-editable'
 import 'leaflet-path-drag'
 import 'leaflet-styleeditor'
@@ -368,4 +368,4 @@ L.EditControl.Marker = EditControl.extend({
     }
 })
 
-export {L}
+export default L;
