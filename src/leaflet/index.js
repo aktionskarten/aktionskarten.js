@@ -129,7 +129,6 @@ L.HTMLContainer = L.Class.extend({
     if (this._root && this._root.contains(this._wrapper)) {
       this._root.removeChild(this._wrapper)
     }
-    this.clear();
   },
 
   clear() {
