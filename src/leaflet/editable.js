@@ -1,5 +1,6 @@
 import 'leaflet-editable'
 import 'leaflet-path-drag'
+import './editable.css'
 
 //
 // Limit Rectangle to only be able to create rectangles of DIN A4 ratio

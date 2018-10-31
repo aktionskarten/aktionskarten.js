@@ -1,5 +1,6 @@
 import 'leaflet-styleeditor'
 import 'leaflet-styleeditor/dist/css/Leaflet.StyleEditor.min.css'
+import './styleditor.css'
 
 
 L.Control.StyleEditor.include({
