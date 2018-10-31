@@ -136,35 +136,40 @@ class View {
         '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a> '
     }).addTo(this._map);
 
-    // init layers
-    await this._addGridLayer();
-    await this._addFeatureLayer();
+    this._map.whenReady(async () => {
+        this._updateUI();
 
-    // init socketio
-    this._socket = io.connect(this.model._api.url);
-    this._socket.emit('join', this.model.id);
+        // init layers
+        await this._addGridLayer();
+        await this._addFeatureLayer();
 
-    // register event handlers
-    this._registerLeafletEventHandlers();
-    this._registerSocketIOEventHandlers();
+        // init socketio
+        this._socket = io.connect(this.model._api.url);
+        this._socket.emit('join', this.model.id);
 
-    // add overlay
-    this.overlay = new L.HTMLContainer(this._map.getContainer());
+        // register event handlers
+        this._registerLeafletEventHandlers();
+        this._registerSocketIOEventHandlers();
 
-    // render controls, tooltips and popups
-    this.initEditable();
-    this.initStyleEditor();
-    this._updateUI();
+        // add overlay
+        //this.overlay = new L.HTMLContainer(this._map.getContainer());
 
-    // add grid
-    let grid = await this.model.grid()
-    this._grid.addData(grid);
+        // render controls, tooltips and popups
+        this.initEditable();
+        this.initStyleEditor();
 
-    // add features
-    let features = await this.model.features()
-    this._featuresLayer.addData(features.geojson);
+        // add grid
+        let grid = await this.model.grid()
+        if (grid) {
+          this._grid.addData(grid);
+        }
 
-    this._updateUI();
+        // add features
+        let features = await this.model.features()
+        this._featuresLayer.addData(features.geojson);
+
+        this._updateUI();
+    });
   }
 
   initEditable() {
