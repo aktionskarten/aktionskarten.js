@@ -337,84 +337,81 @@ var ContainerMixin = {
 
 
 
-//
-// Leaflet-Editable
-//
+// Controls
 L.EditControl = {}
-
-let EditControl = L.Control.extend({
+L.EditControl.Base = L.Control.extend({
   options: {
     kind: '',
     title: '',
-    html: ''
-  },
-  initialize: function(overlay) {
-    this.options.position = 'topleft'
-    this.overlay = overlay;
+    html: '',
+    position: 'topleft'
   },
   onAdd: function (map) {
-      let container = L.DomUtil.create('div', 'leaflet-control leaflet-bar leaflet-toolbar-editable');
-      L.DomEvent.on(container, 'click', L.DomEvent.stop)
-                .on(container, 'click', ()=>this.callback(map.editTools));
+    let container = L.DomUtil.create('div', 'leaflet-control leaflet-bar leaflet-toolbar-editable');
+    let link = L.DomUtil.create('a', 'leaflet-toolbar-editable-'+this.options.kind, container);
+    link.href = '#';
+    link.title = this.options.title;
+    link.innerHTML = '<span class="leaflet-toolbar-editable-' + this.options.kind + '"></span>' + this.options.html;
 
-      let link = L.DomUtil.create('a', 'leaflet-toolbar-editable-'+this.options.kind, container);
-      link.href = '#';
-      link.title = this.options.title;
-      link.innerHTML = '<span class="leaflet-toolbar-editable-' + this.options.kind + '"></span>' + this.options.html;
+    L.DomEvent.on(container, 'click', L.DomEvent.stop)
+              .on(container, 'click', ()=> this.callback(map.editTools))
 
-      return container;
-  }
+    return container;
+  },
 });
 
-L.EditControl.Line = EditControl.extend({
+// Line Control and Editor
+L.EditControl.Line = L.EditControl.Base.extend({
     options: {
       kind: 'line',
       title: 'neue Route erstellen',
       html: 'Route'
     },
     callback(editable) {
-      this.overlay.add('p', 'small', 'Klicke auf die Karte um eine Route zu malen. Beende sie indem du den letzten Punkt nochmal anklickst.<br />');
-      this.overlay.add('button', 'btn btn-sm btn-danger', 'Abbrechen')
-                    .on('click', () => editable.stopDrawing())
-                    .on('click', () => this.overlay.hide())
-                    .disableClickPropagation();
-      this.overlay.show();
       editable.startPolyline()
     }
 })
 
-L.EditControl.Polygon = EditControl.extend({
+// Polygon Control and Editor
+L.EditControl.Polygon = L.EditControl.Base.extend({
     options: {
       kind: 'polygon',
       html: 'Gebiet',
       title: 'neues Gebiet markieren',
     },
     callback(editable) {
-      this.overlay.add('p', 'small', 'Klicke auf die Karte um ein Gebiet zu markieren. Mindestens drei Punkte notwendig.<br />');
-      this.overlay.add('button', 'btn btn-sm btn-danger', 'Abbrechen')
-                    .on('click', () => editable.stopDrawing())
-                    .on('click', () => this.overlay.hide())
-                    .disableClickPropagation();
-      this.overlay.show();
       editable.startPolygon()
     }
 })
 
-L.EditControl.Marker = EditControl.extend({
+// Marker Control and Editor
+L.EditControl.Marker = L.EditControl.Base.extend({
     options: {
       kind: 'marker',
       html: 'Marker',
       title: 'neuen Marker setzen',
     },
     callback(editable) {
-      this.overlay.add('p', 'small', 'Klicke auf die Karte um den Marker zu setzen<br />');
-      this.overlay.add('button', 'btn btn-sm btn-danger', 'Abbrechen')
-                    .on('click', () => editable.stopDrawing())
-                    .on('click', () => this.overlay.hide())
-                    .disableClickPropagation();
-      this.overlay.show();
       editable.startMarker().editor.connect();
     }
+})
+
+L.Editable.RectangleEditor.include({
+  options: {
+    buttons: [
+      {
+        label: 'Neuzeichnen',
+        color: 'secondary',
+        callback: function() { this.fireAndForward('bbox:redraw') },
+      },
+      {
+        label: 'Weiter',
+        color: 'primary',
+        callback: function() { this.fireAndForward('bbox:commit') },
+      }
+    ],
+    help: 'Markiere ein DIN-A4 Rechteck als Grundlage für deine Aktionskarte.',
+  }
 })
 
 export default L;
