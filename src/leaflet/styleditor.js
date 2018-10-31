@@ -85,8 +85,8 @@ let ButtonElement = L.StyleEditor.formElements.FormElement.extend({
 //   }
 // }
 //
-// So basically depending on the value exclude element from render. Supported
-// types could be:
+// So basically depending on the value exclude element from render. You could
+// even change order by that. Supported types could be:
 // * boolean
 // * function: call function and check boolean return value
 // * class of type FormElement: add or override this element
