@@ -466,13 +466,13 @@ class View {
 
   on(event, handler) {
     if (this.model) {
-      this.model.on(event, handler);
+      this.model.on(event, handler, this);
     }
   }
 
   fire(event, data) {
     if (this.model) {
-      this.model.fire(event, data);
+      this.model.fire(event, data, this);
     }
   }
 
