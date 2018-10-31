@@ -132,9 +132,7 @@ L.HTMLContainer = L.Class.extend({
   },
 
   clear() {
-    console.log('first child', this._container.firstChild)
     L.DomUtil.empty(this._container);
-    console.log('fist after child', this._container.firstChild)
   },
 
   add(tagName, className, content) {
