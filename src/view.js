@@ -18,9 +18,9 @@ class View {
     }
 
     // refresh controls on login
-    this.on('authenticated', async e => {
+    this.on('authenticated', e => {
       console.log("logged in, redraw interface");
-      await this._updateUI();
+      this._updateUI();
     });
   }
 
