@@ -335,6 +335,8 @@ var ContainerMixin = {
   }
 };
 
+L.Editable.BaseEditor.include(ContainerMixin);
+L.Editable.BaseEditor.addInitHook(ContainerMixin.initOverlay)
 
 
 // Controls
@@ -371,6 +373,11 @@ L.EditControl.Line = L.EditControl.Base.extend({
       editable.startPolyline()
     }
 })
+L.Editable.PolylineEditor.include({
+  options: {
+    help: 'Klicke auf die Karte um eine Route zu malen. Beende sie indem du den letzten Punkt nochmal anklickst.',
+  }
+})
 
 // Polygon Control and Editor
 L.EditControl.Polygon = L.EditControl.Base.extend({
@@ -383,6 +390,11 @@ L.EditControl.Polygon = L.EditControl.Base.extend({
       editable.startPolygon()
     }
 })
+L.Editable.PolygonEditor.include({
+  options: {
+    help: 'Klicke auf die Karte um ein Gebiet zu markieren. Mindestens drei Punkte notwendig.',
+  }
+})
 
 // Marker Control and Editor
 L.EditControl.Marker = L.EditControl.Base.extend({
@@ -394,6 +406,11 @@ L.EditControl.Marker = L.EditControl.Base.extend({
     callback(editable) {
       editable.startMarker().editor.connect();
     }
+})
+L.Editable.MarkerEditor.include({
+  options: {
+    help: 'Klicke auf die Karte um den Marker zu platzieren.',
+  }
 })
 
 L.Editable.RectangleEditor.include({
