@@ -58,8 +58,8 @@ class View {
   }
 
   async _addFeatureLayer() {
-    if (!this._features) {
-      let features = new L.FeatureLayer(null, {
+    if (!this._featuresLayerLayer) {
+      let featuresLayer = new L.FeatureLayer(null, {
         // copies style and id to feature.options
         style: (f) => f.properties,
         pointToLayer: (feature, latlng) => {
@@ -109,8 +109,8 @@ class View {
         }
       });
 
-      this._features = features;
-      features.addTo(this._map);
+      this._featuresLayer = featuresLayer;
+      featuresLayer.addTo(this._map);
     }
   }
 
@@ -160,7 +160,7 @@ class View {
 
     // add features
     let features = await this.model.features()
-    this._features.addData(features.geojson);
+    this._featuresLayer.addData(features.geojson);
 
     this._updateUI();
   }
@@ -347,7 +347,7 @@ class View {
       this._map.editTools.featuresLayer.clearLayers();
 
       // find and make new feature editable
-      this._features.eachLayer(layer => {
+      this._featuresLayer.eachLayer(layer => {
         if (layer.id == feature.id) {
           this.enableEditFor(layer)
         }
@@ -391,7 +391,7 @@ class View {
       let feature = await this.model.getFeature(id);
 
       // add new style
-      let layer = this._features.contains(id),
+      let layer = this._featuresLayer.contains(id),
           filtered = filterProperties(e.options),
           properties = Object.assign({'id': id, 'map_id': feature.mapId}, filtered)
 
@@ -403,7 +403,7 @@ class View {
       feature.geojson = geojson;
       await feature.save()
 
-      this._features.eachLayer(layer => {
+      this._featuresLayer.eachLayer(layer => {
         if (layer.id == feature.id) {
           this.enableEditFor(layer)
         }
@@ -421,17 +421,17 @@ class View {
       });
       this._socket.on('created', (data) => {
         console.log('event create', data);
-        this._features.addFeature(data);
+        this._featuresLayer.addFeature(data);
       });
 
       this._socket.on('updated', (data) => {
         console.log('event updated', data);
-        this._features.updateFeature(data);
+        this._featuresLayer.updateFeature(data);
       });
 
       this._socket.on('deleted', (data) => {
         console.log('event deleted', data);
-        this._features.deleteFeature(data.properties.id);
+        this._featuresLayer.deleteFeature(data.properties.id);
       });
   }
 
@@ -503,7 +503,7 @@ class View {
 
     let popup = this._grid.getPopup();
 
-    if (this.model.authenticated && this.mode != 'bbox' && this._grid.count() > 0 && this._features.count() == 0) {
+    if (this.model.authenticated && this.mode != 'bbox' && this._grid.count() > 0 && this._featuresLayer.count() == 0) {
       var bounds = this._grid.getBounds();
       this._grid.openPopup(bounds.getCenter());
     } else {
