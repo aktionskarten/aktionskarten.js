@@ -307,7 +307,9 @@ class MapModel {
   async auth(secret) {
     if (secret) {
       this.token = await this._api.loginForMap(this.id, secret)
-      this.fire('authenticated');
+      if (this.token) {
+        this.fire('authenticated');
+      }
     }
     return this.token;
   }
