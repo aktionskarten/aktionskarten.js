@@ -339,17 +339,15 @@ class MapModel {
       json = await this._api.updateMap(this.token, data);
     }
 
-    if (json) {
-      for (let [key, value] of Object.entries(json)) {
-        this.data[key] = value;
-      }
+    if (!json) {
+      return false;
     }
 
-    if (this._features) {
-      return this._features.save();
+    for (let [key, value] of Object.entries(json)) {
+      this.data[key] = value;
     }
 
-    return this;
+    return this._features.save();
   }
 
   /**
