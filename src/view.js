@@ -222,7 +222,7 @@ class View {
     }
   }
 
-  updateStyle() {
+  updateStyleEditor() {
     let style = this._controls.style;
     if (!style) {
       return;
@@ -262,10 +262,14 @@ class View {
 
 
   async _updateUI() {
-    console.log("Refreshing UI");
+    if (!this._map) {
+      return;
+    }
 
-    await this.updateStyle();
+    console.log("Refreshing UI (mode="+this.mode+', authenticated='+this.model.authenticated+')');
+
     await this.updateEditable();
+    await this.updateStyleEditor();
     this.updatePopup();
   }
 
