@@ -103,7 +103,9 @@ class View {
             if ((e.originalEvent.ctrlKey || e.originalEvent.metaKey)) {
               removeHandler(e)
             } else {
-              this.enableEditFor(layer)
+              if (this.model.authenticated && this.mode != 'bbox') {
+                this.enableEditFor(layer)
+              }
             }
           });
         }
