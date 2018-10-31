@@ -246,6 +246,13 @@ L.StyleEditor.forms.MarkerForm.include({
   },
 });
 
+L.Control.StyleEditor.include({
+  isEnabled () {
+    let ui = this.options.controlUI;
+    return ui && L.DomUtil.hasClass(ui, 'enabled');
+  }
+});
+
 //
 // Leaflet Editable
 //
@@ -279,12 +286,54 @@ L.Editable.RectangleEditor.include({
   }
 });
 
-L.Control.StyleEditor.include({
-  isEnabled () {
-    let ui = this.options.controlUI;
-    return ui && L.DomUtil.hasClass(ui, 'enabled');
+
+// ContainerMixin enables you to provide a help text which will be rendered
+// on top of your map
+var ContainerMixin = {
+  initOverlay: function() {
+    if (true || this.options.help) {
+      this.feature.on('editable:enable', this.showOverlay, this);
+      this.feature.on('editable:disable', this.hideOverlay, this);
+      this.feature.on('editable:drawing:commit', this.hideOverlay, this);
+
+      // add help text
+      this.overlay = new L.HTMLContainer(this.map.getContainer());
+      this.overlay.add('p', 'small', this.options.help + '<br />');
+
+      // add buttons
+      let buttons = this.options.buttons || [{}]
+      for (let button of buttons) {
+        let label = button.label || 'Abbrechen';
+        let color = button.color || 'danger';
+        let callback = button.callback || this.tools.stopDrawing
+        let context = (button.callback) ? this : this.tools;
+        this.overlay.add('button', 'btn btn-sm btn-'+color, label)
+                      .on('click', callback, context)
+                      .on('click', this.hideOverlay, this)
+                      .disableClickPropagation();
+      }
+    }
+  },
+
+  showOverlay: function() {
+    if (!this.container) {
+      this.initOverlay();
+    }
+
+    // only show for new features (not saved ones)
+    if (this.feature.id) {
+      return;
+    }
+
+    this.overlay.show()
+  },
+
+  hideOverlay: function() {
+    if (this.overlay) {
+      this.overlay.hide()
+    }
   }
-});
+};
 
 
 
