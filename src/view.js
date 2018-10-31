@@ -176,9 +176,9 @@ class View {
     let instantiated = 'editable' in this._controls;
     if (!instantiated) {
       this._controls.editable = [
-        new L.EditControl.Line(this.overlay),
-        new L.EditControl.Polygon(this.overlay),
-        new L.EditControl.Marker(this.overlay)
+        new L.EditControl.Marker(),
+        new L.EditControl.Line(),
+        new L.EditControl.Polygon()
       ];
     }
   }
@@ -198,33 +198,11 @@ class View {
         this._map.addControl(control);
       }
     }
-  }
 
-  updateOverlay() {
-    if (!this.model.authenticated || this.mode != 'bbox') {
-      if (this._map.editTools) {
-        this._map.editTools.featuresLayer.clearLayers();
-      }
-      this.overlay.hide();
-      return;
+    var tools = this._map.editTools
+    if (this.model.authenticated && this.mode == 'bbox' && !tools.drawing()) {
+      tools.startRectangle()
     }
-
-    this.overlay.clear();
-    this.overlay.add('p', 'small', 'Markiere ein DIN A4-Rechteck als Grundlage der Aktionskarte.')
-
-    let wantsRedraw = this._map.editTools.featuresLayer.getLayers().length > 0
-    let label = wantsRedraw ? 'Neuzeichnen' : 'Zeichnen';
-    this.overlay.add('button', 'btn btn-secondary btn-sm', label)
-                .on('click', L.DomEvent.stop)
-                .on('click', (e) => { this._map.editTools.startRectangle() });
-
-    if (wantsRedraw) {
-      this.overlay.add('button', 'btn btn-primary btn-sm ml-1', 'Weiter')
-                    .on('click', L.DomEvent.stop)
-                    .on('click', (e) => { this.model.save(), this.mode = ''});
-    }
-
-    this.overlay.show();
   }
 
   initStyleEditor() {
@@ -286,7 +264,6 @@ class View {
   async _updateUI() {
     console.log("Refreshing UI");
 
-    this.updateOverlay();
     await this.updateStyle();
     await this.updateEditable();
     this.updatePopup();
@@ -328,11 +305,25 @@ class View {
         if (featuresLayer.getLayers().length > 1) {
           featuresLayer.removeLayer(featuresLayer.getLayers()[0]);
         }
+
+        layer.disableEdit();
+
         this._updateUI();
         return;
       }
     };
+    this._map.on('bbox:redraw', function(e) {
+      console.log(e);
+      this.editTools.stopDrawing();
+      this.editTools.startRectangle();
+    });
 
+    this._map.on('bbox:commit', (e)=>{
+      console.log("bbox event", e);
+      this.model.save();
+      this.mode = ''
+    })
+    this._map.on('editable:vertex:dragend', (e) => console.log('editable:vertex:dragend'))
     this._map.on('editable:vertex:dragend', bboxRectHandler);
     this._map.on('editable:drawing:commit', bboxRectHandler);
     this._map.on('editable:drawing:commit', async (e) => {
@@ -359,8 +350,6 @@ class View {
           this.enableEditFor(layer)
         }
       });
-
-      this.overlay.hide();
 
       this.fire('featureAdded', feature.id);
     });
