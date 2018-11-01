@@ -1,8 +1,5 @@
-import './leaflet'
-import './editable'
-import './styleeditor'
+import L from './leaflet'
+import {editable} from './editable'
+import {styleEditor} from './styleeditor'
 
-import 'AktionskartenMarker'
-import 'AktionskartenMarker/AktionskartenMarker.css'
-
-export default L;
+export {L, editable, styleEditor};

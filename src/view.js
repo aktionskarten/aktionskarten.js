@@ -1,4 +1,4 @@
-import L from './leaflet'
+import {L, styleEditor, editable} from './leaflet'
 import io from 'socket.io-client'
 import { filterProperties } from './utils'
 
@@ -155,8 +155,10 @@ class View {
         //this.overlay = new L.HTMLContainer(this._map.getContainer());
 
         // render controls, tooltips and popups
-        this.initEditable();
-        this.initStyleEditor();
+        this._controls = {
+          style: styleEditor(),
+          editable: editable(),
+        }
 
         // add grid
         let grid = await this.model.grid()
@@ -170,17 +172,6 @@ class View {
 
         this._updateUI();
     });
-  }
-
-  initEditable() {
-    let instantiated = 'editable' in this._controls;
-    if (!instantiated) {
-      this._controls.editable = [
-        new L.EditControl.Marker(),
-        new L.EditControl.Line(),
-        new L.EditControl.Polygon()
-      ];
-    }
   }
 
   async updateEditable() {
@@ -205,22 +196,6 @@ class View {
     }
   }
 
-  initStyleEditor() {
-    let instantiated = 'style' in this._controls;
-    if (!instantiated) {
-      let options = {
-        colorRamp: [
-          '#e04f9e', '#fe0000', '#ee9c00', '#ffff00', '#00e13c', '#00a54c', '#00adf0', '#7e55fc', '#1f4199', '#7d3411'
-        ],
-        showTooltip: false,
-        markerType: L.StyleEditor.marker.AktionskartenMarker,
-        useGrouping: false // otherwise a change style applies to all
-                           // auto-added featues
-      };
-
-      this._controls.style = new L.Control.StyleEditor(options);
-    }
-  }
 
   updateStyleEditor() {
     let style = this._controls.style;
