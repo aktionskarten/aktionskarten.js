@@ -35,17 +35,24 @@ L.Editable.RectangleEditor.include({
 });
 
 
+//
 // ContainerMixin enables you to provide a help text which will be rendered
-// on top of your map
+// on top of your map. See implementation below for examples
+//
 var ContainerMixin = {
   initOverlay: function() {
-    if (true || this.options.help) {
-      this.feature.on('editable:enable', this.showOverlay, this);
-      this.feature.on('editable:disable', this.hideOverlay, this);
-      this.feature.on('editable:drawing:commit', this.hideOverlay, this);
-
-      // add help text
+    if (!this.overlay) {
       this.overlay = new L.HTMLContainer(this.map.getContainer());
+      this.feature.on('editable:enable', this.showOverlay, this);
+      this.feature.on('editable:disable', this.removeOverlay, this);
+      this.feature.on('editable:drawing:cancel', this.removeOverlay, this);
+      this.feature.on('editable:drawing:commit', this.removeOverlay, this);
+    }
+
+    this.overlay.clear();
+
+    if (this.options.help) {
+      // add help text
       this.overlay.add('p', 'small', this.options.help + '<br />');
 
       // add buttons
@@ -54,31 +61,31 @@ var ContainerMixin = {
         let label = button.label || 'Abbrechen';
         let color = button.color || 'danger';
         let callback = button.callback || this.tools.stopDrawing
-        let context = (button.callback) ? this : this.tools;
+        let context = button.callback ? this : this.tools;
         this.overlay.add('button', 'btn btn-sm btn-'+color, label)
                       .on('click', callback, context)
-                      .on('click', this.hideOverlay, this)
                       .disableClickPropagation();
       }
     }
   },
 
-  showOverlay: function() {
-    if (!this.container) {
-      this.initOverlay();
-    }
+  setOverlayButtons: function(buttons) {
+    this.options.buttons = buttons || [{}];
+    this.initOverlay();
+  },
 
-    // only show for new features (not saved ones)
+  showOverlay: function() {
+    // HACK: only show for new features (not saved ones). Should be in View
     if (this.feature.id) {
       return;
     }
 
-    this.overlay.show()
+    this.overlay.show();
   },
 
-  hideOverlay: function() {
+  removeOverlay: function() {
     if (this.overlay) {
-      this.overlay.hide()
+      this.overlay.remove()
     }
   }
 };
