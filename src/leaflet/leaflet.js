@@ -29,8 +29,8 @@ L.Polygon.mergeOptions({
   opacity: 0
 });
 
-L.GeoJSON.include({
-    count() {
+L.LayerGroup.include({
+  count: function() {
       return this.getLayers().length;
     }
 });
