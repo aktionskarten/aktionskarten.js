@@ -185,6 +185,46 @@ class View {
     });
   }
 
+  _registerLeafletEventHandlers() {
+    // general
+    this._map.on('click', this.onClick, this);
+    this._map.on('editable:drawing:start', this.onDrawingStart, this);
+    this._map.on('editable:drawing:cancel', this.onDrawingCancel, this);
+
+    // editable - rect object
+    this._map.on('editable:vertex:dragend', this.onDrawingBbox, this);
+    this._map.on('editable:vertex:dragend', this.onDrawingBbox, this);
+    this._map.on('editable:drawing:commit', this.onDrawingBbox, this);
+
+    // editable - geo objects
+    this._map.on('editable:drawing:commit', this.onDrawingCommit, this);
+    this._map.on('editable:dragend', this.onDrawingUpdate, this)
+    this._map.on('editable:vertex:dragend', this.onDrawingUpdate, this)
+
+    // styleeditor
+    this._map.on('styleeditor:changed', this.onStyleChanged, this);
+  }
+
+  _registerSocketIOEventHandlers() {
+      this._socket.on('connect', () => {
+        console.log('connected')
+      });
+      this._socket.on('created', (data) => {
+        console.log('event create', data);
+        this._featuresLayer.addFeature(data);
+      });
+
+      this._socket.on('updated', (data) => {
+        console.log('event updated', data);
+        this._featuresLayer.updateFeature(data);
+      });
+
+      this._socket.on('deleted', (data) => {
+        console.log('event deleted', data);
+        this._featuresLayer.deleteFeature(data.properties.id);
+      });
+  }
+
   async updateEditable() {
     let editable = this._controls.editable;
     if (!editable) {
@@ -300,207 +340,6 @@ class View {
     this.updatePopup();
   }
 
-  _registerLeafletEventHandlers() {
-    // if you click anywhere on the map => disable edit mode
-    this._map.on('click', (e) => {
-      let style = this._controls.style;
-      let current = style.options.util.getCurrentElement();
-      if (current) {
-        current.disableEdit();
-        style.hideEditor();
-      }
-    });
-
-    this._map.on('editable:drawing:start', (e) => {
-      console.log("editable:drawing:start")
-      this.hideEditor();
-    })
-    this._map.on('editable:drawing:cancel', (e) => {
-      console.log('editable:drawing:cancel', e)
-      if (e.layer) {
-        e.layer.remove();
-      }
-      L.DomEvent.stop(e);
-    })
-
-    let bboxRectHandler = (e) => {
-      if (this.mode != 'bbox') {
-        return;
-      }
-
-      var layer = e.layer,
-          geojson = layer.toGeoJSON();
-
-
-      if (geojson.geometry.type == "Polygon") {
-        let bounds = layer.getBounds();
-        let rect = [bounds.getSouthEast(), bounds.getNorthWest()];
-        this.model.bbox = [].concat.apply([], L.GeoJSON.latLngsToCoords(rect));
-        this._bboxRect = null;
-
-        return;
-      }
-    };
-    this._map.on('bbox:redraw', function(e) {
-      console.log(e);
-      this.editTools.stopDrawing();
-      this.editTools.startRectangle();
-    });
-
-    this._map.on('bbox:commit', (e)=>{
-      console.log("bbox event", e);
-      this.model.save();
-      this.mode = ''
-    })
-    this._map.on('editable:vertex:dragend', (e) => console.log('editable:vertex:dragend'))
-    this._map.on('editable:vertex:dragend', bboxRectHandler);
-    this._map.on('editable:drawing:commit', bboxRectHandler);
-    this._map.on('editable:drawing:commit', async (e) => {
-      console.log("commit");
-
-      if (this.mode == 'bbox') {
-        return;
-      }
-
-      var type = e.layerType,
-          layer = e.layer,
-          geojson = layer.toGeoJSON();
-
-      let feature = await this.model.addFeature(geojson)
-      await feature.save();
-
-      // remove drawn feature, it gets added through created event (socket io)
-      // with proper id and defaults
-      this._map.editTools.featuresLayer.clearLayers();
-
-      // find and make new feature editable
-      this._featuresLayer.eachLayer(layer => {
-        if (layer.id == feature.id) {
-          this.showEditor(layer)
-        }
-      });
-
-      this.fire('featureAdded', feature.id);
-    });
-
-    this._map.on('editable:drawing:clicked', (e) => console.log('editable:drawing:clicked'))
-    this._map.on('editable:created', (e) => console.log('editable:created'))
-
-    let updateHandler = async (e) => {
-      let layer = e.layer,
-          id = layer.id;
-      if (!id) {
-        return
-      }
-
-      let geojson = layer.toGeoJSON(),
-      feature = await this.model.getFeature(id);
-
-      if (!feature) {
-        return;
-      }
-
-      feature.geojson = geojson;
-      layer.feature = feature.geojson
-      await feature.save()
-
-      console.log("edited");
-      this.fire('featureEdited', id);
-    }
-
-    this._map.on('editable:dragend', updateHandler)
-    this._map.on('editable:vertex:dragend', updateHandler)
-
-    this._map.on('styleeditor:changed', async e => {
-      let id = e.id;
-      let feature = await this.model.getFeature(id);
-
-      // add new style
-      let layer = this._featuresLayer.contains(id),
-          filtered = filterProperties(e.options),
-          properties = Object.assign({'id': id, 'map_id': feature.mapId}, filtered)
-
-      if(layer) {
-        layer.feature.properties = properties;
-      }
-
-      let geojson = Object.assign(e.toGeoJSON(), {'properties': properties})
-      feature.geojson = geojson;
-      await feature.save()
-
-      this._featuresLayer.eachLayer(layer => {
-        if (layer.id == feature.id) {
-          this.showEditor(layer)
-        }
-      });
-
-      this.fire('styleChanged', id);
-      console.log("styled", feature)
-    });
-  }
-
-
-  _registerSocketIOEventHandlers() {
-      this._socket.on('connect', () => {
-        console.log('connected')
-      });
-      this._socket.on('created', (data) => {
-        console.log('event create', data);
-        this._featuresLayer.addFeature(data);
-      });
-
-      this._socket.on('updated', (data) => {
-        console.log('event updated', data);
-        this._featuresLayer.updateFeature(data);
-      });
-
-      this._socket.on('deleted', (data) => {
-        console.log('event deleted', data);
-        this._featuresLayer.deleteFeature(data.properties.id);
-      });
-  }
-
-  async center(cords) {
-    if (cords) {
-      this._map.setView(cords, 12);
-      return;
-    }
-
-    var a,b;
-    if (this.model.bbox) {
-      a = L.GeoJSON.coordsToLatLng(this.model.bbox.slice(0,2));
-      b = L.GeoJSON.coordsToLatLng(this.model.bbox.slice(2,4));
-    } else if(this.model.place) {
-      var json = await this.model._api.getGeolocationsFor(this.model.place);
-      if (json.length > 0 && 'boundingbox' in json[0]) {
-        let bbox = json[0].boundingbox;
-        a = [bbox[0],bbox[2]];
-        b = [bbox[1], bbox[3]];
-      }
-    }
-
-    // if no bbox or place fallback to bbox of Berlin
-    if (!a || !b) {
-      a = ["52.3570365", "13.2288599"];
-      b = ["52.6770365", "13.5488599"];
-    }
-
-    this._map.fitBounds([a, b]);
-
-  }
-
-  on(event, handler) {
-    if (this.model) {
-      this.model.on(event, handler, this);
-    }
-  }
-
-  fire(event, data) {
-    if (this.model) {
-      this.model.fire(event, {value:data}, this);
-    }
-  }
-
   updatePopup() {
     if (!this._grid.getPopup()) {
       let content = `
@@ -534,6 +373,172 @@ class View {
     } else {
       this._grid.closePopup();
     }
+  }
+
+  on(event, handler) {
+    if (this.model) {
+      this.model.on(event, handler, this);
+    }
+  }
+
+  fire(event, data) {
+    if (this.model) {
+      this.model.fire(event, {value:data}, this);
+    }
+  }
+
+
+
+  //
+  // Event Handlers
+  //
+  onClick(e) {
+    // if you click anywhere on the map => disable edit mode
+    let style = this._controls.style;
+    let current = style.options.util.getCurrentElement();
+    if (current) {
+      current.disableEdit();
+      style.hideEditor();
+    }
+  }
+
+  onDrawingStart(e) {
+    console.log("editable:drawing:start")
+    this.hideEditor();
+  }
+
+  onDrawingCancel(e) {
+    console.log('editable:drawing:cancel', e)
+    if (e.layer) {
+      e.layer.remove();
+    }
+  }
+
+  onDrawingBbox(e) {
+    if (this.mode != 'bbox') {
+      return;
+    }
+
+    var layer = e.layer,
+        geojson = layer.toGeoJSON();
+
+    if (geojson.geometry.type != "Polygon") {
+      console.warn("Invalid geometry type");
+      return;
+    }
+
+    let bounds = layer.getBounds();
+    let rect = [bounds.getSouthEast(), bounds.getNorthWest()];
+    this.model.bbox = [].concat.apply([], L.GeoJSON.latLngsToCoords(rect));
+    this._bboxRect = null;
+
+    console.log("bbox changed");
+  }
+
+  async onDrawingCommit(e) {
+      if (this.mode == 'bbox') {
+        return;
+      }
+
+      var type = e.layerType,
+          layer = e.layer,
+          geojson = layer.toGeoJSON();
+
+      let feature = await this.model.addFeature(geojson)
+      await feature.save();
+
+      // remove drawn feature, it gets added through created event (socket io)
+      // with proper id and defaults
+      this._map.editTools.featuresLayer.clearLayers();
+
+      // find and make new feature editable
+      this._featuresLayer.eachLayer(layer => {
+        if (layer.id == feature.id) {
+          this.showEditor(layer)
+        }
+      });
+
+      console.log("added");
+      this.fire('featureAdded', feature.id);
+  }
+
+  async onDrawingUpdate(e) {
+    let layer = e.layer,
+        id = layer.id;
+
+    if (!id) {
+      return
+    }
+
+    let geojson = layer.toGeoJSON(),
+    feature = await this.model.getFeature(id);
+
+    if (!feature) {
+      return;
+    }
+
+    feature.geojson = geojson;
+    layer.feature = feature.geojson
+    await feature.save()
+
+    console.log("edited");
+    this.fire('featureEdited', id);
+  }
+
+  async onStyleChanged(e) {
+    let id = e.id;
+    let feature = await this.model.getFeature(id);
+
+    // add new style
+    let layer = this._featuresLayer.contains(id),
+        filtered = filterProperties(e.options),
+        properties = Object.assign({'id': id, 'map_id': feature.mapId}, filtered)
+
+    if(layer) {
+      layer.feature.properties = properties;
+    }
+
+    let geojson = Object.assign(e.toGeoJSON(), {'properties': properties})
+    feature.geojson = geojson;
+    await feature.save()
+
+    this._featuresLayer.eachLayer(layer => {
+      if (layer.id == feature.id) {
+        this.showEditor(layer)
+      }
+    });
+
+    console.log("styled", feature)
+    this.fire('styleChanged', id);
+  }
+
+  async center(cords) {
+    if (cords) {
+      this._map.setView(cords, 12);
+      return;
+    }
+
+    var a,b;
+    if (this.model.bbox) {
+      a = L.GeoJSON.coordsToLatLng(this.model.bbox.slice(0,2));
+      b = L.GeoJSON.coordsToLatLng(this.model.bbox.slice(2,4));
+    } else if(this.model.place) {
+      var json = await this.model._api.getGeolocationsFor(this.model.place);
+      if (json.length > 0 && 'boundingbox' in json[0]) {
+        let bbox = json[0].boundingbox;
+        a = [bbox[0],bbox[2]];
+        b = [bbox[1], bbox[3]];
+      }
+    }
+
+    // if no bbox or place fallback to bbox of Berlin
+    if (!a || !b) {
+      a = ["52.3570365", "13.2288599"];
+      b = ["52.6770365", "13.5488599"];
+    }
+
+    this._map.fitBounds([a, b]);
+
   }
 }
 
