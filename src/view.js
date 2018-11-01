@@ -105,13 +105,13 @@ class View {
           });
           layer.on('click', L.DomEvent.stop).on('click', async (e) => {
             let layer = e.sourceTarget;
-            //
+
             /// delete if ctrl or meta is pressed otherwise make it editable
             if ((e.originalEvent.ctrlKey || e.originalEvent.metaKey)) {
               removeHandler(e)
             } else {
               if (this.model.authenticated && this.mode != 'bbox') {
-                this.enableEditFor(layer)
+                this.showEditor(layer)
               }
             }
           });
@@ -225,23 +225,33 @@ class View {
     }
   }
 
-  enableEditFor(layer) {
+  hideEditor() {
+    let style = this._controls.style;
+    let current = style.options.util.getCurrentElement();
+    if (current) {
+      current.disableEdit();
+      style.hideEditor();
+    }
+  }
+
+  showEditor(layer) {
     let style = this._controls.style;
     let current = style.options.util.getCurrentElement();
 
     if (current && current.id == layer.id) {
       current.enableEdit();
+      style.showEditor();
       return;
     }
 
     console.log("enable edit");
 
     if (current) {
-      current.disableEdit();
-      style.hideEditor();
+      this.hideEditor();
     }
     layer.enableEdit();
     style.initChangeStyle({'target': layer});
+
 
     style.options.util.setCurrentElement(layer);
   }
@@ -270,6 +280,10 @@ class View {
       }
     });
 
+    this._map.on('editable:drawing:start', (e) => {
+      console.log("editable:drawing:start")
+      this.hideEditor();
+    })
     this._map.on('editable:drawing:cancel', (e) => {
       console.log('editable:drawing:cancel', e)
       if (e.layer) {
@@ -337,7 +351,7 @@ class View {
       // find and make new feature editable
       this._featuresLayer.eachLayer(layer => {
         if (layer.id == feature.id) {
-          this.enableEditFor(layer)
+          this.showEditor(layer)
         }
       });
 
@@ -391,7 +405,7 @@ class View {
 
       this._featuresLayer.eachLayer(layer => {
         if (layer.id == feature.id) {
-          this.enableEditFor(layer)
+          this.showEditor(layer)
         }
       });
 
