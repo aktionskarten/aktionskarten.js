@@ -347,7 +347,10 @@ class MapModel {
       this.data[key] = value;
     }
 
-    return this._features.save();
+    if (this._features) {
+      return await this._features.save();
+    }
+    return true;
   }
 
   /**
