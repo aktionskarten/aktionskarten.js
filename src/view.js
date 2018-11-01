@@ -472,7 +472,7 @@ class View {
 
   fire(event, data) {
     if (this.model) {
-      this.model.fire(event, data, this);
+      this.model.fire(event, {value:data}, this);
     }
   }
 
