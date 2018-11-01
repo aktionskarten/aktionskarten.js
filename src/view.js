@@ -202,11 +202,42 @@ class View {
     }
 
     var tools = this._map.editTools
-    if (this.model.authenticated && this.mode == 'bbox' && !tools.drawing()) {
-      tools.startRectangle()
-    }
-  }
+    tools.stopDrawing();
 
+    if (this.model.authenticated && this.mode == 'bbox') {
+      console.log(tools);
+      let buttons = [{
+        label: tools.editLayer.count() >0 ? 'Neuzeichnen' : 'Zeichnen',
+        color: 'secondary',
+        callback: (e) => {
+          this._map.editTools.featuresLayer.clearLayers();
+          this._bboxRect.editor.startDrawing()
+        },
+      }];
+
+      if (this._grid.count() > 0) {
+        buttons.push({
+          label: 'Weiter',
+          color: 'primary',
+          callback: async (e) => {
+            await this.model.save();
+
+            this._bboxRect.editor.disable();
+            this._bboxRect = null;
+
+            this._map.editTools.featuresLayer.clearLayers();
+            this.mode = '';
+          }
+        });
+      }
+
+      if (!this._bboxRect) {
+        let rect = tools.createRectangle([[0,0],[0,0]]);
+        rect.enableEdit(this._map).setOverlayButtons(buttons);
+        this._bboxRect = rect;
+      }
+    };
+  }
 
   updateStyleEditor() {
     let style = this._controls.style;
@@ -305,14 +336,8 @@ class View {
         let bounds = layer.getBounds();
         let rect = [bounds.getSouthEast(), bounds.getNorthWest()];
         this.model.bbox = [].concat.apply([], L.GeoJSON.latLngsToCoords(rect));
-        let featuresLayer = this._map.editTools.featuresLayer;
-        if (featuresLayer.getLayers().length > 1) {
-          featuresLayer.removeLayer(featuresLayer.getLayers()[0]);
-        }
+        this._bboxRect = null;
 
-        layer.disableEdit();
-
-        this._updateUI();
         return;
       }
     };
