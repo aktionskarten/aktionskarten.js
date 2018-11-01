@@ -29,6 +29,12 @@ class View {
       return;
     }
 
+    // if we have no grid yet, enforce bbox mode so
+    // the user is adding one
+    if (!this._grid && this._grid.count() == 0) {
+      mode = 'bbox';
+    }
+
     console.log("setting mode to ", mode);
 
     this._mode = mode;
@@ -51,6 +57,7 @@ class View {
       grid.clearLayers();
       grid.addData(await this.model.grid());
       this._map.fitBounds(grid.getBounds());
+      this._updateUI();
     });
 
     this._grid = grid;
@@ -164,6 +171,8 @@ class View {
         let grid = await this.model.grid()
         if (grid) {
           this._grid.addData(grid);
+        } else {
+          this.mode = 'bbox';
         }
 
         // add features
