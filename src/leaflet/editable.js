@@ -114,6 +114,7 @@ let BaseControl = L.Control.extend({
 
     L.DomEvent.on(container, 'click', L.DomEvent.stop)
               .on(container, 'click', ()=> this.callback(map.editTools))
+    L.DomEvent.disableClickPropagation(container);
 
     return container;
   },
