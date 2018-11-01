@@ -132,6 +132,14 @@ L.HTMLContainer = L.Class.extend({
     L.DomUtil.empty(this._container);
   },
 
+  remove() {
+    this.clear();
+    L.DomUtil.remove(this._container);
+    L.DomUtil.remove(this._tooltip);
+    L.DomUtil.remove(this._wrapper);
+
+  },
+
   add(tagName, className, content) {
     let elem = L.DomUtil.create(tagName, className, this._container);
 
