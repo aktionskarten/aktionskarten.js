@@ -177,7 +177,9 @@ class View {
 
         // add features
         let features = await this.model.features()
-        this._featuresLayer.addData(features.geojson);
+        if (features) {
+          this._featuresLayer.addData(features.geojson);
+        }
 
         this._updateUI();
     });
