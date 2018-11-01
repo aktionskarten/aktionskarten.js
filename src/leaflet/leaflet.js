@@ -161,4 +161,4 @@ L.HTMLContainer = L.Class.extend({
 });
 
 
-
+export default L
