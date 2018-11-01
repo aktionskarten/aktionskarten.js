@@ -1,5 +1,8 @@
 import 'leaflet-styleeditor'
+import 'AktionskartenMarker'
+
 import 'leaflet-styleeditor/dist/css/Leaflet.StyleEditor.min.css'
+import 'AktionskartenMarker/AktionskartenMarker.css'
 import './styleeditor.css'
 
 
@@ -127,3 +130,19 @@ L.StyleEditor.forms.MarkerForm.include({
     L.StyleEditor.forms.Form.prototype.initialize.call(this, options);
   },
 });
+
+function styleEditor() {
+  let options = {
+    colorRamp: [
+      '#e04f9e', '#fe0000', '#ee9c00', '#ffff00', '#00e13c', '#00a54c', '#00adf0', '#7e55fc', '#1f4199', '#7d3411'
+    ],
+    showTooltip: false,
+    markerType: L.StyleEditor.marker.AktionskartenMarker,
+    useGrouping: false // otherwise a change style applies to all
+                       // auto-added featues
+  };
+
+  return new L.Control.StyleEditor(options)
+}
+
+export {styleEditor}
