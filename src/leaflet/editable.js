@@ -98,8 +98,7 @@ L.Editable.BaseEditor.addInitHook(ContainerMixin.initOverlay)
 //
 // Custom Controls
 //
-L.EditControl = {}
-L.EditControl.Base = L.Control.extend({
+let BaseControl = L.Control.extend({
   options: {
     kind: '',
     title: '',
@@ -121,7 +120,7 @@ L.EditControl.Base = L.Control.extend({
 });
 
 // Line Control and Editor
-L.EditControl.Line = L.EditControl.Base.extend({
+let LineControl = BaseControl.extend({
     options: {
       kind: 'line',
       title: 'neue Route erstellen',
@@ -138,7 +137,7 @@ L.Editable.PolylineEditor.include({
 })
 
 // Polygon Control and Editor
-L.EditControl.Polygon = L.EditControl.Base.extend({
+let PolygonControl = BaseControl.extend({
     options: {
       kind: 'polygon',
       html: 'Gebiet',
@@ -155,7 +154,7 @@ L.Editable.PolygonEditor.include({
 })
 
 // Marker Control and Editor
-L.EditControl.Marker = L.EditControl.Base.extend({
+let MarkerControl = BaseControl.extend({
     options: {
       kind: 'marker',
       html: 'Marker',
@@ -174,18 +173,16 @@ L.Editable.MarkerEditor.include({
 // Rectangle Control
 L.Editable.RectangleEditor.include({
   options: {
-    buttons: [
-      {
-        label: 'Neuzeichnen',
-        color: 'secondary',
-        callback: function() { this.fireAndForward('bbox:redraw') },
-      },
-      {
-        label: 'Weiter',
-        color: 'primary',
-        callback: function() { this.fireAndForward('bbox:commit') },
-      }
-    ],
     help: 'Markiere ein DIN-A4 Rechteck als Grundlage für deine Aktionskarte.',
   }
 })
+
+function editable() {
+  return [
+    new MarkerControl(),
+    new LineControl(),
+    new PolygonControl()
+  ];
+}
+
+export {editable}
