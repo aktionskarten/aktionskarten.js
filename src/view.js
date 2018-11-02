@@ -19,7 +19,7 @@ class View {
 
     // refresh controls on login
     this.on('authenticated', e => {
-      console.log("logged in, redraw interface");
+      console.log("logged " + (e.value  ? "in" : "out ") + ", redraw interface");
       this._updateUI();
     });
   }
