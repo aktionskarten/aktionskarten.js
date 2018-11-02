@@ -304,14 +304,15 @@ class MapModel {
    * @param {string} - secret for this map
    * @return {Promise<bool>}
    */
-  async auth(secret) {
+  async login(secret) {
     if (secret) {
       this.token = await this._api.loginForMap(this.id, secret)
-      if (this.token) {
-        this.fire('authenticated');
+      if (!!this.token) {
+        this.fire('authenticated', true);
+        return this.token;
       }
     }
-    return this.token;
+    return false;
   }
 
   get authenticated() {
