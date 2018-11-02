@@ -315,6 +315,13 @@ class MapModel {
     return false;
   }
 
+  logout() {
+    if (this.token) {
+      this.token = null;
+      this.fire('authenticated', false);
+    }
+  }
+
   get authenticated() {
     return !!this.token;
   }
