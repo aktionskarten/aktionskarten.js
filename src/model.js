@@ -207,7 +207,7 @@ class MapModel {
           if (this.data[key] != val) {
             this._states[key] = 'dirty';
             this.data[key] = val;
-            this.fire(key + 'Changed', {'value': val});
+            this.fire(key + 'Changed', val);
             console.log("setting ", key, val);
           }
         },
@@ -247,7 +247,7 @@ class MapModel {
   }
 
   fire(type, data) {
-    this._evented.fire(type, data);
+    this._evented.fire(type, {value: data});
   }
 
   /**
