@@ -244,8 +244,13 @@ class View {
     var tools = this._map.editTools
     tools.stopDrawing();
 
-    if (this.model.authenticated && this.mode == 'bbox') {
-      console.log(tools);
+    if (this.mode == 'bbox') {
+      if (!this.model.authenticated && this._bboxRect) {
+        this._bboxRect.editor.disable();
+        this._bboxRect = null;
+        return;
+      }
+
       let buttons = [{
         label: tools.editLayer.count() >0 ? 'Neuzeichnen' : 'Zeichnen',
         color: 'secondary',
@@ -271,12 +276,15 @@ class View {
         });
       }
 
-      if (!this._bboxRect) {
-        let rect = tools.createRectangle([[0,0],[0,0]]);
-        rect.enableEdit(this._map).setOverlayButtons(buttons);
-        this._bboxRect = rect;
+      // if we had a bbox rect already, delete it
+      if (this._bboxRect && this._bboxRect.editor) {
+        this._bboxRect.editor.disable();
       }
-    };
+
+      let rect = tools.createRectangle([[0,0],[0,0]]);
+      rect.enableEdit(this._map).setOverlayButtons(buttons);
+      this._bboxRect = rect;
+    }
   }
 
   updateStyleEditor() {
