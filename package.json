@@ -6,6 +6,7 @@
   "main": "src/index.js",
   "dependencies": {
     "AktionskartenMarker": "github:KartographischeAktion/AktionskartenMarker",
+    "i18next": "^12.0.0",
     "leaflet": "^1.3.4",
     "leaflet-draw": "^1.0.4",
     "leaflet-editable": "^1.2.0",

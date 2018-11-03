@@ -1,7 +1,9 @@
+import i18next from 'i18next';
+import locales from './i18n'
+
 import {L, styleEditor, editable} from './leaflet'
 import io from 'socket.io-client'
 import { filterProperties } from './utils'
-
 
 class View {
   constructor(mapElemId, data, mode) {
@@ -31,7 +33,7 @@ class View {
 
     // if we have no grid yet, enforce bbox mode so
     // the user is adding one
-    if (!this._grid && this._grid.count() == 0) {
+    if (!this._grid || this._grid.count() == 0) {
       mode = 'bbox';
     }
 
@@ -45,6 +47,13 @@ class View {
 
   get mode() {
     return this._mode;
+  }
+
+  get t() {
+    if (this._map.i18next) {
+      return this._map.i18next.t.bind(this._map.i18next)
+    }
+    return (s) => s
   }
 
   async _addGridLayer() {
@@ -90,7 +99,6 @@ class View {
             layer.bindTooltip(feature.properties.label, {permanent: true, interactive: true});
           }
 
-
           let removeHandler = async (e) => {
               let layer = e.sourceTarget,
                   id = layer.id,
@@ -123,65 +131,71 @@ class View {
     }
   }
 
-  async init() {
+  async init(lng) {
     this._map = L.map(this.mapElemId, {
       zoomControl: false,
       editable: true,
     });
 
-    // add zoom control
-    var zoom = new L.Control.Zoom({ position: 'topright' });
-    this._map.addControl(zoom);
+    let i18nOptions = {lng: lng, fallbackLng: 'en', resources: locales, debug: true}
+    i18next.init(i18nOptions, (err, t) => {
+      // make instance accessable
+      this._map.i18next = i18next;
 
-    this.center();
+      // add zoom control
+      var zoom = new L.Control.Zoom({ position: 'topright' });
+      this._map.addControl(zoom);
 
-    // add tiles
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 18,
-      detectRetina: true,
-      attribution: 'Karte &copy; Aktionskarten | Tiles &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
-        '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a> '
-    }).addTo(this._map);
+      this.center();
 
-    this._map.whenReady(async () => {
-        this._updateUI();
+      // add tiles
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        detectRetina: true,
+        attribution: 'Karte &copy; Aktionskarten | Tiles &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+          '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a> '
+      }).addTo(this._map);
 
-        // init layers
-        await this._addGridLayer();
-        await this._addFeatureLayer();
+      this._map.whenReady(async () => {
+          this._updateUI();
 
-        // init socketio
-        this._socket = io.connect(this.model._api.url);
-        this._socket.emit('join', this.model.id);
+          // init layers
+          await this._addGridLayer();
+          await this._addFeatureLayer();
 
-        // register event handlers
-        this._registerLeafletEventHandlers();
-        this._registerSocketIOEventHandlers();
+          // init socketio
+          this._socket = io.connect(this.model._api.url);
+          this._socket.emit('join', this.model.id);
 
-        // add overlay
-        //this.overlay = new L.HTMLContainer(this._map.getContainer());
+          // register event handlers
+          this._registerLeafletEventHandlers();
+          this._registerSocketIOEventHandlers();
 
-        // render controls, tooltips and popups
-        this._controls = {
-          style: styleEditor(),
-          editable: editable(),
-        }
+          // add overlay
+          //this.overlay = new L.HTMLContainer(this._map.getContainer());
 
-        // add grid
-        let grid = await this.model.grid()
-        if (grid) {
-          this._grid.addData(grid);
-        } else {
-          this.mode = 'bbox';
-        }
+          // render controls, tooltips and popups
+          this._controls = {
+            style: styleEditor(),
+            editable: editable(),
+          }
 
-        // add features
-        let features = await this.model.features()
-        if (features) {
-          this._featuresLayer.addData(features.geojson);
-        }
+          // add grid
+          let grid = await this.model.grid()
+          if (grid) {
+            this._grid.addData(grid);
+          } else {
+            this.mode = 'bbox';
+          }
 
-        this._updateUI();
+          // add features
+          let features = await this.model.features()
+          if (features) {
+            this._featuresLayer.addData(features.geojson);
+          }
+
+          this._updateUI();
+      });
     });
   }
 
@@ -252,7 +266,7 @@ class View {
       }
 
       let buttons = [{
-        label: tools.editLayer.count() >0 ? 'Neuzeichnen' : 'Zeichnen',
+        label: this.t(tools.editLayer.count() >0 ? 'Redraw' : 'Draw'),
         color: 'secondary',
         callback: (e) => {
           this._map.editTools.featuresLayer.clearLayers();
@@ -262,7 +276,7 @@ class View {
 
       if (this._grid.count() > 0) {
         buttons.push({
-          label: 'Weiter',
+          label: this.t('Continue'),
           color: 'primary',
           callback: async (e) => {
             await this.model.save();
@@ -349,31 +363,14 @@ class View {
   }
 
   updatePopup() {
+    let content = '<div class="container"><div class="row"><p>'
+                + this.t('introduction')
+                + '</p></div></div>';
     if (!this._grid.getPopup()) {
-      let content = `
-        <div class="container">
-          <div class="row">
-          <p>
-            Der Ausschnitt auf der Karte stellt deine Aktionskarte dar.
-            Noch ist sie leer, aber mittels der Toolbar rechts, kannst
-            du sie mit Leben füllen. Klicke dazu einfach auf die Buttons.
-            <br /><br />
-            Du kannst Daten wie Ort, allgemeine Infos oder den
-            Kartenausschnitt selbst über den Metadaten-Link in der
-            Navigationsleiste nachträglich ändern.
-            <br /><br />
-            <b>Tip:</b>
-            Benutz die Export-Funktion um am Ende die Karte als Bild für
-            soziale Netzwerke / Messenger, PDF zum Drucken oder SVG
-            weiterverwerden zu können.
-          </p>
-          </div>
-        </div>
-      `
       this._grid.bindPopup(content)
+    } else {
+      this._grid.setPopupContent(content)
     }
-
-    let popup = this._grid.getPopup();
 
     if (this.model.authenticated && this.mode != 'bbox' && this._grid.count() > 0 && this._featuresLayer.count() == 0) {
       var bounds = this._grid.getBounds();

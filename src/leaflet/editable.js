@@ -40,41 +40,51 @@ L.Editable.RectangleEditor.include({
 // on top of your map. See implementation below for examples
 //
 var ContainerMixin = {
+
   initOverlay: function() {
+    this.feature.on('editable:enable', this.showOverlay, this);
+    this.feature.on('editable:disable', this.removeOverlay, this);
+    this.feature.on('editable:drawing:cancel', this.removeOverlay, this);
+    this.feature.on('editable:drawing:commit', this.removeOverlay, this);
+  },
+
+  addOverlay: function() {
     if (!this.overlay) {
       this.overlay = new L.HTMLContainer(this.map.getContainer());
-      this.feature.on('editable:enable', this.showOverlay, this);
-      this.feature.on('editable:disable', this.removeOverlay, this);
-      this.feature.on('editable:drawing:cancel', this.removeOverlay, this);
-      this.feature.on('editable:drawing:commit', this.removeOverlay, this);
+    } else {
+      this.overlay.clear();
     }
 
-    this.overlay.clear();
+    // use translate function if available otherwise provide identity
+    let i18next = this.map.i18next;
+    let t = (s) => (i18next) ? i18next.t(s) : s
 
-    if (this.options.help) {
-      // add help text
-      this.overlay.add('p', 'small', this.options.help + '<br />');
+    // add help text (try to translate if t function is available)
+    this.overlay.add('p', 'small', t(this.name + '.help') + '<br />');
 
-      // add buttons
-      let buttons = this.options.buttons || [{}]
-      for (let button of buttons) {
-        let label = button.label || 'Abbrechen';
-        let color = button.color || 'danger';
-        let callback = button.callback || this.tools.stopDrawing
-        let context = button.callback ? this : this.tools;
-        this.overlay.add('button', 'btn btn-sm btn-'+color, label)
-                      .on('click', callback, context)
-                      .disableClickPropagation();
-      }
+    // add buttons
+    let buttons = this.options.buttons || [{}]
+    for (let button of buttons) {
+      let label = button.label || t('Cancel');
+      let color = button.color || 'danger';
+      let callback = button.callback || this.tools.stopDrawing
+      let context = button.callback ? this : this.tools;
+      this.overlay.add('button', 'btn btn-sm btn-'+color, label)
+                    .on('click', callback, context)
+                    .disableClickPropagation();
     }
   },
 
   setOverlayButtons: function(buttons) {
     this.options.buttons = buttons || [{}];
-    this.initOverlay();
+    this.addOverlay();
   },
 
   showOverlay: function() {
+    if (!this.overlay) {
+      this.addOverlay();
+    }
+
     // HACK: only show for new features (not saved ones). Should be in View
     if (this.feature.id) {
       return;
@@ -108,9 +118,16 @@ let BaseControl = L.Control.extend({
   onAdd: function (map) {
     let container = L.DomUtil.create('div', 'leaflet-control leaflet-bar leaflet-toolbar-editable');
     let link = L.DomUtil.create('a', 'leaflet-toolbar-editable-'+this.options.kind, container);
+    //
+    // use translate function if available otherwise provide identity
+    let i18next = map.i18next;
+    let t = (s) => (i18next) ? i18next.t(s) : s
+    let label = t(this.options.kind)
+    console.log(label, this.options.kind)
+
     link.href = '#';
     link.title = this.options.title;
-    link.innerHTML = '<span class="leaflet-toolbar-editable-' + this.options.kind + '"></span>' + this.options.html;
+    link.innerHTML = '<span class="leaflet-toolbar-editable-' + this.options.kind + '"></span>' + label;
 
     L.DomEvent.on(container, 'click', L.DomEvent.stop)
               .on(container, 'click', ()=> this.callback(map.editTools))
@@ -125,57 +142,46 @@ let LineControl = BaseControl.extend({
     options: {
       kind: 'line',
       title: 'neue Route erstellen',
-      html: 'Route'
     },
     callback(editable) {
       editable.startPolyline()
     }
 })
 L.Editable.PolylineEditor.include({
-  options: {
-    help: 'Klicke auf die Karte um eine Route zu malen. Beende sie indem du den letzten Punkt nochmal anklickst.',
-  }
+  name: 'PolylineEditor'
 })
 
 // Polygon Control and Editor
 let PolygonControl = BaseControl.extend({
     options: {
       kind: 'polygon',
-      html: 'Gebiet',
-      title: 'neues Gebiet markieren',
+      title: 'Mark a new area',
     },
     callback(editable) {
       editable.startPolygon()
     }
 })
 L.Editable.PolygonEditor.include({
-  options: {
-    help: 'Klicke auf die Karte um ein Gebiet zu markieren. Mindestens drei Punkte notwendig.',
-  }
+  name: 'PolygonEditor'
 })
 
 // Marker Control and Editor
 let MarkerControl = BaseControl.extend({
     options: {
       kind: 'marker',
-      html: 'Marker',
-      title: 'neuen Marker setzen',
+      title: 'Place a new marker',
     },
     callback(editable) {
       editable.startMarker().editor.connect();
     }
 })
 L.Editable.MarkerEditor.include({
-  options: {
-    help: 'Klicke auf die Karte um den Marker zu platzieren.',
-  }
+  name: 'MarkerEditor'
 })
 
 // Rectangle Control
 L.Editable.RectangleEditor.include({
-  options: {
-    help: 'Markiere ein DIN-A4 Rechteck als Grundlage für deine Aktionskarte.',
-  }
+  name: 'RectangleEditor'
 })
 
 function editable() {

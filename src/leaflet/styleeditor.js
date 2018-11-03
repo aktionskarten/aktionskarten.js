@@ -55,7 +55,7 @@ let TooltipContentElement = L.StyleEditor.formElements.FormElement.extend({
 //
 let ButtonElement = L.StyleEditor.formElements.FormElement.extend({
   options: {
-    title: 'Löschen'
+    title: 'kelete'
   },
   createContent: function () {
     let label = this.options.label = L.DomUtil.create('button', 'leaflet-styleeditor-button leaflet-styleeditor-button-custom', this.options.uiElement)
@@ -98,11 +98,16 @@ let ButtonElement = L.StyleEditor.formElements.FormElement.extend({
 // For now we hack GeometryForm and MarkerForm to customize rendering
 //
 L.StyleEditor.forms.GeometryForm.include({
-  initialize: function(options) {
-    this.options.formElements['tooltipContent'] = TooltipContentElement;
-    this.options.formElements['button'] = ButtonElement;
-    delete this.options.formElements['popupContent'];
-    L.StyleEditor.forms.Form.prototype.initialize.call(this, options);
+  options: {
+    formElements: {
+      'tooltipContent': TooltipContentElement,
+      'color': L.StyleEditor.formElements.ColorElement,
+      'fillColor': L.StyleEditor.formElements.ColorElement,
+      'opacity': L.StyleEditor.formElements.OpacityElement,
+      'fillOpacity': L.StyleEditor.formElements.OpacityElement,
+      'dashArray': L.StyleEditor.formElements.DashElement,
+      'weight': L.StyleEditor.formElements.WeightElement,
+    }
   },
   showFormElements: function () {
     var util = this.options.styleEditorOptions.util,
@@ -123,13 +128,27 @@ L.StyleEditor.forms.GeometryForm.include({
 });
 
 L.StyleEditor.forms.MarkerForm.include({
-  initialize: function(options) {
-    this.options.formElements['tooltipContent'] = TooltipContentElement;
-    this.options.formElements['button'] = ButtonElement;
-    delete this.options.formElements['popupContent'];
-    L.StyleEditor.forms.Form.prototype.initialize.call(this, options);
+  options: {
+    formElements: {
+      'tooltipContent': TooltipContentElement,
+      'icon': L.StyleEditor.formElements.IconElement,
+      'color': L.StyleEditor.formElements.ColorElement,
+      'size': L.StyleEditor.formElements.SizeElement,
+    }
   },
 });
+
+
+//
+// Translate title with i18next
+//
+L.StyleEditor.formElements.FormElement.addInitHook(function() {
+  let map = this.options.styleEditorOptions.map;
+  let i18next = map.i18next;
+  let t = (s) => (i18next) ? i18next.t(s) : s
+  this.options.title = t(this.options.title)
+});
+
 
 function styleEditor() {
   let options = {
