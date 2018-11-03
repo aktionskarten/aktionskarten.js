@@ -152,7 +152,7 @@ class View {
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 18,
         detectRetina: true,
-        attribution: 'Karte &copy; Aktionskarten | Tiles &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+        attribution: 'Tiles &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
           '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a> '
       }).addTo(this._map);
 
