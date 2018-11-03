@@ -208,7 +208,6 @@ class MapModel {
             this._states[key] = 'dirty';
             this.data[key] = val;
             this.fire(key + 'Changed', val);
-            console.log("setting ", key, val);
           }
         },
         get: () => {
