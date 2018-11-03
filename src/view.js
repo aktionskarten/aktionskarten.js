@@ -65,7 +65,6 @@ class View {
     this.on('bboxChanged', async (e) => {
       grid.clearLayers();
       grid.addData(await this.model.grid());
-      this._map.fitBounds(grid.getBounds());
       this._updateUI();
     });
 
@@ -357,6 +356,15 @@ class View {
 
     console.log("Refreshing UI (mode="+this.mode+', authenticated='+this.model.authenticated+')');
 
+    // adjust map extract
+    if (this._grid) {
+      let bounds = this._grid.getBounds();
+      this._map.fitBounds(bounds);
+      if (this.mode != 'bbox') {
+        this._map.setMaxBounds(bounds)
+      }
+    }
+
     await this.updateEditable();
     await this.updateStyleEditor();
     this.updatePopup();
@@ -543,7 +551,6 @@ class View {
     }
 
     this._map.fitBounds([a, b]);
-
   }
 }
 
