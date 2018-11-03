@@ -315,10 +315,8 @@ class MapModel {
   }
 
   logout() {
-    if (this.token) {
-      this.token = null;
-      this.fire('authenticated', false);
-    }
+    this.token = null;
+    this.fire('authenticated', false);
   }
 
   get authenticated() {
