@@ -366,7 +366,7 @@ class MapModel {
   async remove() {
     let resp = await this._api.removeMap(this.token, this.id);
     if (resp.ok) {
-      delete this._map.id;
+      this._map.id = null;
       return true;
     }
     return false;
