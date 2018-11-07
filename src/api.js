@@ -31,14 +31,16 @@ class Api {
       body: JSON.stringify(data),
       headers: new Headers(_headers)
     }).then(async resp => {
+      let json;
+      try {
+        json = await resp.json();
+      } catch (e) {}
+
       if (!resp.ok) {
-        try {
-          throw await resp.json();
-        } catch (e) {
-          throw resp.statusText;
-        }
+        throw json || resp.statusText;
       }
-      return resp;
+
+      return json;
     });
   }
 
