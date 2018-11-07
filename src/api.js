@@ -100,7 +100,7 @@ class Api {
 
   removeMap(token, mapId) {
     let headers = this._genHeaders(mapId, token);
-    return this._del(this.urlFor(id), {}, headers);
+    return this._del(this.urlFor(mapId), {}, headers);
   }
 
   getFeatures(mapId) {
