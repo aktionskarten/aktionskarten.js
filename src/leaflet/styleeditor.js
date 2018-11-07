@@ -55,7 +55,7 @@ let TooltipContentElement = L.StyleEditor.formElements.FormElement.extend({
 //
 let ButtonElement = L.StyleEditor.formElements.FormElement.extend({
   options: {
-    title: 'kelete'
+    title: 'Delete'
   },
   createContent: function () {
     let label = this.options.label = L.DomUtil.create('button', 'leaflet-styleeditor-button leaflet-styleeditor-button-custom', this.options.uiElement)
@@ -107,6 +107,7 @@ L.StyleEditor.forms.GeometryForm.include({
       'fillOpacity': L.StyleEditor.formElements.OpacityElement,
       'dashArray': L.StyleEditor.formElements.DashElement,
       'weight': L.StyleEditor.formElements.WeightElement,
+      'delete': ButtonElement,
     }
   },
   showFormElements: function () {
@@ -134,6 +135,7 @@ L.StyleEditor.forms.MarkerForm.include({
       'icon': L.StyleEditor.formElements.IconElement,
       'color': L.StyleEditor.formElements.ColorElement,
       'size': L.StyleEditor.formElements.SizeElement,
+      'delete': ButtonElement,
     }
   },
 });
