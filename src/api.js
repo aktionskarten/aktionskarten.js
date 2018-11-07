@@ -30,31 +30,28 @@ class Api {
       method: method,
       body: JSON.stringify(data),
       headers: new Headers(_headers)
-    }).catch(console.err);
+    }).then(async resp => {
+      if (!resp.ok) {
+        try {
+          throw await resp.json();
+        } catch (e) {
+          throw resp.statusText;
+        }
+      }
+      return resp;
+    });
   }
 
   async _get(url, headers) {
-    let resp =  await this._fetch('GET', url, headers);
-    if (resp.ok) {
-      let json =  await resp.json();
-      return json;
-    }
+    return  await this._fetch('GET', url, headers);
   }
 
   async _post(url, data, headers) {
-    let resp = await this._fetch('POST', url, headers, data);
-    if (resp.ok) {
-      let json =  await resp.json();
-      return json;
-    }
+    return await this._fetch('POST', url, headers, data);
   }
 
   async _patch(url, data, headers) {
-    let resp = await this._fetch('PATCH', url, headers, data);
-    if (resp.ok) {
-      let json =  await resp.json();
-      return json;
-    }
+    return await this._fetch('PATCH', url, headers, data);
   }
 
   _put(url, data, headers) {
