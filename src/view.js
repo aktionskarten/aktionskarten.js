@@ -11,7 +11,7 @@ class View {
     this.mapElemId = mapElemId;
 
     // private properties for Leaflet
-    this._grid = {}
+    this._grid = null
     this._controls = {}
 
     // if we don't have a bbox, set mode to bbox
@@ -357,7 +357,7 @@ class View {
     console.log("Refreshing UI (mode="+this.mode+', authenticated='+this.model.authenticated+')');
 
     // adjust map extract
-    if (this._grid) {
+    if (this._grid && this._grid.count() > 0) {
       let bounds = this._grid.getBounds();
       this._map.fitBounds(bounds);
       if (this.mode != 'bbox') {
