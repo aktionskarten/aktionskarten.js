@@ -505,7 +505,7 @@ class View {
     // add new style
     let layer = this._featuresLayer.contains(id),
         filtered = filterProperties(e.options),
-        properties = Object.assign({'id': id, 'map_id': feature.mapId}, filtered)
+        properties = Object.assign({'id': id, 'map_id': feature.map.id}, filtered)
 
     if(layer) {
       layer.feature.properties = properties;

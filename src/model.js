@@ -32,8 +32,8 @@ class FeatureModel {
     return this._geojson.properties.id;
   }
 
-  get mapId() {
-    return this._collection._map.id;
+  get map() {
+    return this._collection._map;
   }
 
   get _api() {
@@ -52,9 +52,9 @@ class FeatureModel {
 
     let json;
     if (!this.id) {
-      json = await this._api.addFeature(this.token, this.mapId, this.geojson);
+      json = await this._api.addFeature(this.token, this.map.id, this.geojson);
     } else {
-      json = await this._api.updateFeature(this.token, this.mapId, this.id, this.geojson);
+      json = await this._api.updateFeature(this.token, this.map.id, this.id, this.geojson);
     }
 
     if (json) {
@@ -71,7 +71,7 @@ class FeatureModel {
    */
   async remove() {
     if (this.id) {
-    let resp = await this._api.removeFeature(this.token, this.mapId, this.id);
+    let resp = await this._api.removeFeature(this.token, this.map.id, this.id);
       if (!resp.ok) {
         return false;
       }
@@ -255,12 +255,12 @@ class MapModel {
    *                               operations, this instance needs be logged in
    *                               for the corresponding map)
    * @param  {string}            - map id to fetch
-   * @return {Promise<MapModel>} - Instance of MapModel for corresponding mapId
+   * @return {Promise<MapModel>} - Instance of MapModel for corresponding map id
    */
-  static async get(api, mapId) {
+  static async get(api, id) {
     let map;
-    if (mapId) {
-      map = await api.getMap(mapId)
+    if (id) {
+      map = await api.getMap(id)
     }
     return new MapModel(api, map);
   }
