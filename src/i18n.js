@@ -61,7 +61,7 @@ const i18n = {
 
       // popup
       introduction: 'Der Ausschnitt auf der Karte stellt deine Aktionskarte dar. Mittels der Toolbar links, kannst du Demorouten und Marker plazieren oder Gegenenden markieren.',
-      Draw: 'Zeichen',
+      Draw: 'Zeichnen',
       Redraw: 'Neuzeichnen',
       Continue: 'Weiter'
     },
