@@ -61,6 +61,10 @@ class FeatureModel {
       this._state = 'persistent';
       this._geojson = json;
     }
+
+
+    this.map.fire('featureChanged', {id: this.id});
+
     return this;
   }
 
@@ -204,7 +208,7 @@ class MapModel {
     for (let key of keys) {
       Object.defineProperty(this, key, {
         set: (val) => {
-          if (this.data[key] != val) {
+          if (JSON.stringify(this.data[key]) != JSON.stringify(val)) {
             this._states[key] = 'dirty';
             this.data[key] = val;
             this.fire(key + 'Changed', val);
@@ -219,6 +223,11 @@ class MapModel {
       this.data[key] = undefined
       this._states[key] = 'persistent'
     }
+
+    // update hash on feature changes
+    this.on('featureChanged', (e) => {
+      this.reload();
+    })
 
     // update date and time if you change datetime
     this.on('datetimeChanged', (e) => {
@@ -263,6 +272,12 @@ class MapModel {
       map = await api.getMap(id)
     }
     return new MapModel(api, map);
+  }
+
+
+  async reload() {
+    let map = await this._api.getMap(this.id)
+    Object.assign(this, map);
   }
 
   async grid() {
