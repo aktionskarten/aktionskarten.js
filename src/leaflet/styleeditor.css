@@ -32,15 +32,20 @@
   padding: 18px;
 }
 
-.leaflet-styleeditor-tooltip-wrapper {
-  top: 2.5%;
-}
-
 .leaflet-styleeditor-select-option-wrapper {
   width: 150px;
 }
 
+.leaflet-styleeditor-tooltip-wrapper {
+  position: absolute;
+  left: 50%;
+  top: 5%;
+  width: 40%;
+}
+
 .leaflet-styleeditor-tooltip {
+  position: relative;
+  left: -50%;
   border: none;
   background-color: rgba(255, 255, 255, 0.6);
   color: #000;
