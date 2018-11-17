@@ -202,7 +202,7 @@ class MapModel {
     // which will add dynamically setter+getter for each property.
     this._states = {}
     this.data = {'attributes':[]}
-    let keys = ['id', 'name', 'description', 'datetime', 'date', 'time', 'attributes', 'bbox', 'place', 'token', 'hash']
+    let keys = ['id', 'name', 'description', 'datetime', 'date', 'time', 'attributes', 'bbox', 'place', 'token', 'hash', 'exports']
     for (let key of keys) {
       Object.defineProperty(this, key, {
         set: (val) => {
