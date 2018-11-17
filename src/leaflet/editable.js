@@ -64,15 +64,38 @@ var ContainerMixin = {
 
     // add buttons
     let buttons = this.options.buttons || [{}]
+
+    let vertices = this._drawnLatLngs || []
+    if (vertices.length >= this.MIN_VERTEX) {
+      let btn = {
+        label: t('Finish'),
+        color: 'primary',
+        callback: this.tools.commitDrawing.bind(this.tools),
+      };
+
+      // only add if not already contained
+      if (!buttons.find(elem => elem.label == btn.label)) {
+        buttons.push(btn);
+      }
+    }
+
     for (let button of buttons) {
       let label = button.label || t('Cancel');
       let color = button.color || 'danger';
-      let callback = button.callback || this.tools.stopDrawing
-      let context = button.callback ? this : this.tools;
+      let callback = button.callback || this.tools.stopDrawing.bind(this.tools)
       this.overlay.add('button', 'btn btn-sm btn-'+color, label)
-                    .on('click', callback, context)
+                    .on('click', callback, this)
                     .disableClickPropagation();
     }
+
+    // refresh if it's finishable (add finish button)
+    this.feature.on('editable:vertex:new', (e)=> {
+      let minVertices = this.feature.editor.MIN_VERTEX-1
+      let finishable = e.vertex.getLastIndex() >= minVertices
+      if (finishable) {
+        this.addOverlay()
+      }
+    })
   },
 
   setOverlayButtons: function(buttons) {
@@ -118,12 +141,11 @@ let BaseControl = L.Control.extend({
   onAdd: function (map) {
     let container = L.DomUtil.create('div', 'leaflet-control leaflet-bar leaflet-toolbar-editable');
     let link = L.DomUtil.create('a', 'leaflet-toolbar-editable-'+this.options.kind, container);
-    //
+
     // use translate function if available otherwise provide identity
     let i18next = map.i18next;
     let t = (s) => (i18next) ? i18next.t(s) : s
     let label = t(this.options.kind)
-    console.log(label, this.options.kind)
 
     link.href = '#';
     link.title = this.options.title;
