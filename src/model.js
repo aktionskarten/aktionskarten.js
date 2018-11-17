@@ -218,7 +218,7 @@ class MapModel {
         configurable: false
       });
 
-      this.data[key] = undefined
+      this.data[key] = map[key]
       this._states[key] = 'persistent'
     }
 
@@ -241,7 +241,6 @@ class MapModel {
     let time = now.getHours() + ':' + now.getMinutes()
     this.datetime =  date + ' ' + time
 
-    Object.assign(this, map);
   }
 
   on(type, fn) {
