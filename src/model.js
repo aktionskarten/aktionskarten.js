@@ -76,10 +76,7 @@ class FeatureModel {
    */
   async remove(locally) {
     if (this.id && !locally) {
-    let resp = await this._api.removeFeature(this.token, this.map.id, this.id);
-      if (!resp.ok) {
-        return false;
-      }
+      await this._api.removeFeature(this.token, this.map.id, this.id);
     }
 
     let features = this._collection._features;
@@ -380,12 +377,8 @@ class MapModel {
    * @return {Promise<bool>} - Success of operation
    */
   async remove() {
-    let resp = await this._api.removeMap(this.token, this.id);
-    if (resp.ok) {
-      this._map.id = null;
-      return true;
-    }
-    return false;
+    await this._api.removeMap(this.token, this.id);
+    this._map.id = null;
   }
 }
 
