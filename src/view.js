@@ -27,6 +27,8 @@ class View {
   }
 
   set mode(mode) {
+    console.log("setting mode to ", mode);
+
     if (this._mode == mode) {
       return;
     }
@@ -36,8 +38,6 @@ class View {
     if (!this._grid || this._grid.count() == 0) {
       mode = 'bbox';
     }
-
-    console.log("setting mode to ", mode);
 
     this._mode = mode;
     this.fire('modeChanged', mode);
@@ -125,6 +125,29 @@ class View {
         }
       });
 
+      //
+      // Model is our single point of truth. Therefor listen for changes in our
+      // model
+      //
+      this.on('featureAdded', (e) => {
+        let feature = e.value
+        console.log("featureAdded", feature);
+        featuresLayer.addFeature(feature.geojson);
+      });
+
+      this.on('featureUpdated', (e) => {
+        let feature = e.value
+        console.log("featureAdded", feature);
+        featuresLayer.updateFeature(feature.geojson);
+      });
+
+      this.on('featureDeleted', (e) => {
+        let id = e.value
+        console.log("featureDeleted", id);
+        this.hideEditor(id);
+        featuresLayer.deleteFeature(id);
+      });
+
       this._featuresLayer = featuresLayer;
       featuresLayer.addTo(this._map);
     }
@@ -133,6 +156,7 @@ class View {
   async init(lng) {
     this._map = L.map(this.mapElemId, {
       zoomControl: false,
+      attributionControl: false,
       editable: true,
     });
 
@@ -140,6 +164,8 @@ class View {
     i18next.init(i18nOptions, (err, t) => {
       // make instance accessable
       this._map.i18next = i18next;
+
+      L.control.attribution({position: 'topright'}).addTo(this._map);
 
       // add zoom control
       var zoom = new L.Control.Zoom({ position: 'topright' });
@@ -164,14 +190,10 @@ class View {
 
           // init socketio
           this._socket = io.connect(this.model._api.url);
-          this._socket.emit('join', this.model.id);
 
           // register event handlers
           this._registerLeafletEventHandlers();
           this._registerSocketIOEventHandlers();
-
-          // add overlay
-          //this.overlay = new L.HTMLContainer(this._map.getContainer());
 
           // render controls, tooltips and popups
           this._controls = {
@@ -206,7 +228,6 @@ class View {
 
     // editable - rect object
     this._map.on('editable:vertex:dragend', this.onDrawingBbox, this);
-    this._map.on('editable:vertex:dragend', this.onDrawingBbox, this);
     this._map.on('editable:drawing:commit', this.onDrawingBbox, this);
 
     // editable - geo objects
@@ -220,21 +241,28 @@ class View {
 
   _registerSocketIOEventHandlers() {
       this._socket.on('connect', () => {
-        console.log('connected')
+        this._socket.emit('join', this.model.id);
+        this.fire('connect');
       });
-      this._socket.on('created', (data) => {
-        console.log('event create', data);
-        this._featuresLayer.addFeature(data);
+      this._socket.on('disconnect', () => {
+        this.fire('disconnect');
+      });
+      this._socket.on('map-updated', (data) => {
+        // TODO: use idChanged event
+        this._socket.emit('leave', this.model.id);
+        Object.assign(this.model, data);
+        this._socket.emit('join', this.model.id);
+      });
+      this._socket.on('feature-created', (data) => {
+        this.model.addFeature(data);
       });
 
-      this._socket.on('updated', (data) => {
-        console.log('event updated', data);
-        this._featuresLayer.updateFeature(data);
+      this._socket.on('feature-updated', (data) => {
+        this.model.updateFeature(data);
       });
 
-      this._socket.on('deleted', (data) => {
-        console.log('event deleted', data);
-        this._featuresLayer.deleteFeature(data.properties.id);
+      this._socket.on('feature-deleted', (data) => {
+        this.model.deleteFeature(data.properties.id);
       });
   }
 
@@ -255,17 +283,25 @@ class View {
     }
 
     var tools = this._map.editTools
+
+    // abort all outstanding draw actions
     tools.stopDrawing();
+    this._map.editTools.featuresLayer.clearLayers();
+
+    // remove old bbox, we gonna create a new one later one
+    if (this._bboxRect) {
+      this._bboxRect.editor.disable();
+      this._bboxRect = null;
+    }
+
 
     if (this.mode == 'bbox') {
-      if (!this.model.authenticated && this._bboxRect) {
-        this._bboxRect.editor.disable();
-        this._bboxRect = null;
+      if (!this.model.authenticated) {
         return;
       }
 
       let buttons = [{
-        label: this.t(tools.editLayer.count() >0 ? 'Redraw' : 'Draw'),
+        label: this.t(this._grid.count() > 0 ? 'Redraw' : 'Draw'),
         color: 'secondary',
         callback: (e) => {
           this._map.editTools.featuresLayer.clearLayers();
@@ -278,25 +314,17 @@ class View {
           label: this.t('Continue'),
           color: 'primary',
           callback: async (e) => {
-            await this.model.save();
-
-            this._bboxRect.editor.disable();
-            this._bboxRect = null;
-
-            this._map.editTools.featuresLayer.clearLayers();
             this.mode = '';
+            await this.model.save();
           }
         });
       }
 
-      // if we had a bbox rect already, delete it
-      if (this._bboxRect && this._bboxRect.editor) {
-        this._bboxRect.editor.disable();
+      if (!this._bboxRect) {
+        let rect = tools.createRectangle([[0,0],[0,0]]);
+        rect.enableEdit(this._map).setOverlayButtons(buttons);
+        this._bboxRect = rect;
       }
-
-      let rect = tools.createRectangle([[0,0],[0,0]]);
-      rect.enableEdit(this._map).setOverlayButtons(buttons);
-      this._bboxRect = rect;
     }
   }
 
@@ -317,10 +345,13 @@ class View {
     }
   }
 
-  hideEditor() {
+  hideEditor(id) {
     let style = this._controls.style;
     let current = style.options.util.getCurrentElement();
     if (current) {
+      if (id && id != current.id) {
+        return;
+      }
       current.disableEdit();
       style.hideEditor();
     }
@@ -377,7 +408,7 @@ class View {
 
   fire(event, data) {
     if (this.model) {
-      this.model.fire(event, {value:data}, this);
+      this.model.fire(event, data, this);
     }
   }
 
@@ -399,6 +430,7 @@ class View {
   onDrawingStart(e) {
     console.log("editable:drawing:start")
     this.hideEditor();
+    console.log("editable:drawing:started")
   }
 
   onDrawingCancel(e) {
@@ -424,9 +456,8 @@ class View {
     let bounds = layer.getBounds();
     let rect = [bounds.getSouthEast(), bounds.getNorthWest()];
     this.model.bbox = [].concat.apply([], L.GeoJSON.latLngsToCoords(rect));
-    this._bboxRect = null;
 
-    console.log("bbox changed");
+    console.log("bbox changed", e);
   }
 
   async onDrawingCommit(e) {
@@ -439,10 +470,8 @@ class View {
           geojson = layer.toGeoJSON();
 
       let feature = await this.model.addFeature(geojson)
-      await feature.save();
 
-      // remove drawn feature, it gets added through created event (socket io)
-      // with proper id and defaults
+      // remove drawn feature, it gets added through model events
       this._map.editTools.featuresLayer.clearLayers();
 
       // find and make new feature editable
@@ -453,7 +482,6 @@ class View {
       });
 
       console.log("added");
-      this.fire('featureAdded', feature.id);
   }
 
   async onDrawingUpdate(e) {
@@ -476,7 +504,6 @@ class View {
     await feature.save()
 
     console.log("edited");
-    this.fire('featureEdited', id);
   }
 
   async onStyleChanged(e) {
