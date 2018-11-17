@@ -391,9 +391,6 @@ class View {
     if (this._grid && this._grid.count() > 0) {
       let bounds = this._grid.getBounds();
       this._map.fitBounds(bounds);
-      if (this.mode != 'bbox') {
-        this._map.setMaxBounds(bounds)
-      }
     }
 
     await this.updateEditable();
