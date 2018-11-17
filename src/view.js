@@ -367,25 +367,6 @@ class View {
 
     await this.updateEditable();
     await this.updateStyleEditor();
-    this.updatePopup();
-  }
-
-  updatePopup() {
-    let content = '<div class="container"><div class="row"><p>'
-                + this.t('introduction')
-                + '</p></div></div>';
-    if (!this._grid.getPopup()) {
-      this._grid.bindPopup(content)
-    } else {
-      this._grid.setPopupContent(content)
-    }
-
-    if (this.model.authenticated && this.mode != 'bbox' && this._grid.count() > 0 && this._featuresLayer.count() == 0) {
-      var bounds = this._grid.getBounds();
-      this._grid.openPopup(bounds.getCenter());
-    } else {
-      this._grid.closePopup();
-    }
   }
 
   on(event, handler) {
