@@ -2,6 +2,7 @@ class Api {
   constructor(url) {
     this.url = url;
     this.mapsUrl = '/maps'
+    this.errorHandler = null
   }
 
   get apiUrl() {
@@ -41,7 +42,7 @@ class Api {
       }
 
       return json;
-    });
+    }).catch(this.errorHandler);
   }
 
   async _get(url, headers) {
