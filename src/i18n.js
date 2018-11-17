@@ -14,7 +14,7 @@ const i18n = {
         help: 'Click on the map to place a marker.'
       },
       'PolylineEditor': {
-        help: 'Clock on the map to draw a route. Finish it by clicking again on the last point.'
+        help: 'Clock on the map to draw a route.'
       },
       'PolygonEditor': {
         help: 'Click on your map to mark an area. At least three points are necessary.',
@@ -22,9 +22,6 @@ const i18n = {
       'RectangleEditor': {
         help: 'Draw a rectangle as a foundation for your map.',
       },
-
-      // popup
-      introduction: 'This map extract will be your new Aktionskarte. You can use the toolbar on left to place rally routes, markers or mark an area.',
     }
   },
   de: {
@@ -43,14 +40,15 @@ const i18n = {
 
       // Editable
       marker: 'Marker',
-      line: 'Route',
+      line: 'Strecke',
       polygon: 'Gebiet',
+      Finish: 'Speichern',
       Cancel: 'Abbrechen',
       'MarkerEditor': {
         help: 'Klicke auf die Karte um den Marker zu platzieren.'
       },
       'PolylineEditor': {
-        help: 'Klicke auf die Karte um eine Route zu malen. Beende sie indem du den letzten Punkt nochmal anklickst.',
+        help: 'Klicke auf die Karte um eine Strecke zu malen.',
       },
       'PolygonEditor': {
         help: 'Klicke auf deine Karte um ein Gebiet zu markieren. Mindestens drei Punkte sind erforderlich.',
