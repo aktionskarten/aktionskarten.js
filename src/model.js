@@ -83,6 +83,9 @@ class FeatureModel {
     let idx = features.indexOf(this);
     if (idx !== -1) {
       features.slice(idx, 1);
+      if (this.id) {
+        this.map.fire('featureDeleted', this.id);
+      }
       return true;
     }
     return false;
@@ -113,6 +116,10 @@ class FeatureCollection {
         return val;
       }
     });
+  }
+
+  get map() {
+    return this._map;
   }
 
   get(id) {
@@ -165,10 +172,18 @@ class FeatureCollection {
    * Adds a feature to this collection
    * @param {object} - Valid GeoJSON feature object
    */
-  add(feature) {
-    let entry = new FeatureModel(this, feature);
-    this._features.push(entry);
-    return entry;
+  async add(geojson) {
+    if (this.get(geojson.id)) {
+      console.log('Already added')
+      return;
+    }
+
+    let feature = new FeatureModel(this, geojson);
+    this._features.push(feature);
+    await feature.save();
+
+    this.map.fire('featureAdded', feature);
+    return feature;
   }
 
   /**
@@ -180,6 +195,8 @@ class FeatureCollection {
         await feature.save();
       }
     });
+
+    return true;
   }
 }
 
@@ -240,7 +257,6 @@ class MapModel {
     let date = now.getFullYear() + '-' + (now.getMonth()+1) + '-' + now.getDate()
     let time = now.getHours() + ':' + now.getMinutes()
     this.datetime =  date + ' ' + time
-
   }
 
   on(type, fn) {
@@ -304,10 +320,25 @@ class MapModel {
     return (await this.features()).get(id);
   }
 
-  async addFeature(feature) {
-    return (await this.features()).add(feature);
+  async addFeature(geojson) {
+    let feature = (await this.features()).add(geojson);
+    return feature;
   }
 
+  async updateFeature(geojson) {
+    let id = geojson.properties.id;
+    let feature = (await this.features()).get(id);
+    feature.geojson = geojson;
+    this.fire('featureUpdated', feature);
+    return feature;
+  }
+
+  async deleteFeature(id) {
+    let feature = (await this.features()).get(id);
+    if (feature) {
+      feature.remove(true);
+    }
+  }
 
   /**
    * Authenticate for this map to get write capabilities
