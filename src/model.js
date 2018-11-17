@@ -45,8 +45,9 @@ class FeatureModel {
    * @async
    * @return {Promise<bool>} Success of operation
    */
-  async save() {
-    if (this._state != 'dirty') {
+  async save(locally) {
+    if (this._state != 'dirty' || locally) {
+      this._state = 'persistent';
       return true;
     }
 
@@ -73,8 +74,8 @@ class FeatureModel {
    * @async
    * @return {Promise<bool>} Success of operation
    */
-  async remove() {
-    if (this.id) {
+  async remove(locally) {
+    if (this.id && !locally) {
     let resp = await this._api.removeFeature(this.token, this.map.id, this.id);
       if (!resp.ok) {
         return false;
