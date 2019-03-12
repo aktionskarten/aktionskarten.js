@@ -46,6 +46,16 @@ var ContainerMixin = {
     this.feature.on('editable:disable', this.removeOverlay, this);
     this.feature.on('editable:drawing:cancel', this.removeOverlay, this);
     this.feature.on('editable:drawing:commit', this.removeOverlay, this);
+
+    // refresh if it's finishable (add finish button)
+    this.feature.on('editable:vertex:new', (e)=> {
+      console.log('editable:vertex:new')
+      let minVertices = this.feature.editor.MIN_VERTEX-1
+      let finishable = e.vertex.getLastIndex() >= minVertices
+      if (finishable) {
+        this.addOverlay()
+      }
+    })
   },
 
   addOverlay: function() {
@@ -87,15 +97,6 @@ var ContainerMixin = {
                     .on('click', callback, this)
                     .disableClickPropagation();
     }
-
-    // refresh if it's finishable (add finish button)
-    this.feature.on('editable:vertex:new', (e)=> {
-      let minVertices = this.feature.editor.MIN_VERTEX-1
-      let finishable = e.vertex.getLastIndex() >= minVertices
-      if (finishable) {
-        this.addOverlay()
-      }
-    })
   },
 
   setOverlayButtons: function(buttons) {
