@@ -1,6 +1,7 @@
 language: node_js
 install: npm i
-
+node_js:
+  - '11'
 script:
   - npm run build
 
