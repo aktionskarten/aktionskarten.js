@@ -10,7 +10,7 @@
     "leaflet-draw": "^1.0.4",
     "leaflet-editable": "^1.2.0",
     "leaflet-path-drag": "^1.1.0",
-    "leaflet-styleeditor": "github:dwilhelm89/Leaflet.StyleEditor",
+    "leaflet-styleeditor": "^0.1.10-beta",
     "socket.io-client": "^2.1.0",
     "webpack-cli": "^3.1.2"
   },
