@@ -1,9 +1,10 @@
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const path = require('path');
 const webpack = require('webpack');
+const CompressionPlugin = require('compression-webpack-plugin');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 module.exports = {
   entry: {
@@ -17,7 +18,6 @@ module.exports = {
     libraryTarget: 'umd',
     globalObject: 'this'
   },
-  devtool: 'source-map',
   devServer: {
     contentBase: './dist'
   },
@@ -27,12 +27,12 @@ module.exports = {
       filename: "[name].css",
       chunkFilename: "[id].css"
     }),
-    new UglifyJsPlugin(),
     new HtmlWebpackPlugin({
-      chunksSortMode: 'manual',
-      chunks: ['leaflet', 'lib'],
       template: 'src/demo.html'
-    })
+    }),
+    //new CompressionPlugin(),
+//    new BundleAnalyzerPlugin()
+
   ],
   module: {
     rules: [
@@ -54,5 +54,11 @@ module.exports = {
         ]
       }
     ]
-  }
+  },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src/'),
+  //    'leaflet$': 'leaflet/dist/leaflet.js',
+    },
+  },
 };
