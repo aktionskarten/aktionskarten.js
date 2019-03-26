@@ -15,7 +15,7 @@ Demo
 
 You can find a demo at github pages:
 
-  https://aktionskarten.github.io/aktionkarten.js/dist/
+  https://aktionskarten.github.io/aktionskarten.js/dist/
 
 Quickstart
 ----------

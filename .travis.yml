@@ -1,0 +1,16 @@
+language: node_js
+install: npm i
+node_js:
+  - '11'
+script:
+  - npm run build
+
+deploy:
+  provider: npm
+  email: kohllisti@riseup.net
+  api_key:
+    secure: Co7ajBkeuUJvCO3iIVkBXGHPPiypr8X1LjY8w3OzqdDPD22PFND5HET25aMk/JkGjRFARsYRJ7e0x2EcBIvNV0F1MtXlPTNYNytIssIeko09MIV7RiAMis9lO0+C9+xcv6Ty8VycETve+jFq+PXQDNYBL0LVhky4TR+z26ibwmgwyIuKtpx0D867a5niRLX1EQ6x3mLhMzJcCMHmce90gzeBg6kI+ffRMpaiFTLq0Ua7Ybf4k7mDrdxlP+Q9aP2L9lnpXSMPwEPJvLEQbHIjC9LHOFgWgxMXKLYoHmndKhooA/sDRv7PsWtbMCXYxIrbyKR3z7ZE1LUjGxMPVRDJ9Z3a/lo9KEHwSLBa9Iqt275Hk4VN3YKR/oBVYXF6iU2zX00K4vKpUx1vVPIlSEVYzrREa32QQ4oyqRAomM9ZXHxrq5+9vd1oqrMpwUooobeq2tUgoJgGWByPPwoW8JLw67fDBsate1hzv1q8if5PQKF1usiY/xjFUBKd2iia/JTKahE+DkE7B1jFMUwoXxIEoypgGhvQft9z0g0HJBK/+WfjYFLbo3nv4rGkvI8s5E0U4VP1Q264MGoWrz+YOZ925E9EBBNHGRDIywohF/xTXr9kwQom+Ut3hZAcLUU16PjZU1Wzff6u3Wh6vKwMTfiP8Xp9U9fEKKxg636B5jxntso=
+  on:
+    tags: true
+    repo: aktionskarten/aktionskarten.js
+    branch: master

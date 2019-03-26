@@ -1,17 +1,16 @@
 {
   "name": "aktionskarten.js",
-  "version": "0.0.0",
-  "description": "",
-  "private": true,
+  "version": "0.0.1",
+  "description": "aktionskarten.js is a client library for creating interactive maps for aktionskarten.org",
   "main": "src/index.js",
   "dependencies": {
-    "AktionskartenMarker": "github:KartographischeAktion/AktionskartenMarker",
+    "AktionskartenMarker": "github:aktionskarten/AktionskartenMarker#gh-pages",
     "i18next": "^12.0.0",
     "leaflet": "^1.3.4",
     "leaflet-draw": "^1.0.4",
     "leaflet-editable": "^1.2.0",
     "leaflet-path-drag": "^1.1.0",
-    "leaflet-styleeditor": "github:dwilhelm89/Leaflet.StyleEditor",
+    "leaflet-styleeditor": "^0.1.10-beta",
     "socket.io-client": "^2.1.0",
     "webpack-cli": "^3.1.2"
   },
