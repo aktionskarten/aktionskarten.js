@@ -140,6 +140,12 @@ class FeatureCollection {
     }
   }
 
+  /**
+   * Returns the number of Features in the FeatureCollection
+   */
+  count() {
+    return this._features.length;
+  }
 
   /**
    * Returns valid GeoJSON FeatureCollection object containing instance data
