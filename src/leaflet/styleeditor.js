@@ -1,8 +1,8 @@
 import 'leaflet-styleeditor'
-import 'AktionskartenMarker'
+import 'aktionskarten-marker'
 
 import 'leaflet-styleeditor/dist/css/Leaflet.StyleEditor.min.css'
-import 'AktionskartenMarker/AktionskartenMarker.css'
+import 'aktionskarten-marker/AktionskartenMarker.css'
 import './styleeditor.css'
 
 
