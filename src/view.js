@@ -161,10 +161,7 @@ class View {
     });
 
     let i18nOptions = {lng: lng, fallbackLng: 'en', resources: locales, debug: true}
-    i18next.init(i18nOptions, (err, t) => {
-      // make instance accessable
-      this._map.i18next = i18next;
-
+    this._map.i18next = i18next.createInstance(i18nOptions, (err, t) => {
       L.control.attribution({position: 'topright'}).addTo(this._map);
 
       // add zoom control
