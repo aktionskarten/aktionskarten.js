@@ -225,7 +225,7 @@ class MapModel {
     // which will add dynamically setter+getter for each property.
     this._states = {}
     this.data = {'attributes':[]}
-    let keys = ['id', 'name', 'description', 'datetime', 'date', 'time', 'attributes', 'bbox', 'place', 'token', 'hash', 'exports']
+    let keys = ['id', 'name', 'description', 'datetime', 'date', 'time', 'attributes', 'bbox', 'place', 'token', 'hash', 'thumbnail']
     for (let key of keys) {
       Object.defineProperty(this, key, {
         set: (val) => {
@@ -416,6 +416,23 @@ class MapModel {
     await this._api.removeMap(this.token, this.id);
     this._map.id = null;
   }
+
+  renderLink(file_type, version) {
+    let url = this._api.urlFor(this.id, 'render', true) + '/' + file_type;
+    if (version) {
+      url += '/' + version
+    }
+    return url
+  }
+
+  downloadLink(file_type, version) {
+    let url = this._api.url + this._api.urlFor(this.id) + '.' + file_type;
+    if (version) {
+      url += '/' + version
+    }
+    return url
+  }
+
 }
 
 export {MapModel, FeatureModel}
