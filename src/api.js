@@ -9,10 +9,14 @@ class Api {
     return this.url + '/api';
   }
 
-  urlFor(id, endpoint) {
+  urlFor(id, endpoint, external) {
     let url =  this.mapsUrl + '/' + id;
     if (endpoint) {
       url += '/' + (Array.isArray(endpoint) ? endpoint.join('/') : endpoint)
+    }
+
+    if (external) {
+      return this.apiUrl + url
     }
     return url;
   }
