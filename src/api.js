@@ -22,7 +22,10 @@ class Api {
   }
 
   _fetch(method, url, headers, data) {
-    let _headers = {"Content-Type": "application/json"};
+    let _headers = {
+      "Accept": "application/json",
+      "Content-Type": "application/json"
+    };
     if (headers) {
       Object.assign(_headers, headers);
     }
