@@ -80,11 +80,6 @@ class View {
         pointToLayer: (feature, latlng) => {
           try {
             let markerType = this._controls.style.options.markerType;
-            if (!('icon' in feature.properties)) {
-              feature.properties.icon = markerType.options.markers['default'][0]
-              feature.properties.iconColor = markerType.options.colorRamp[0]
-              feature.properties.iconSize = markerType.options.size['medium']
-            }
             return L.marker(latlng, {icon: markerType.createMarkerIcon(feature.properties)});
           } catch (err) {
             console.log("Could not find marker options. AktionskartenMarkerType not instantiated. AktionskartenMarkerType not instantiated");
@@ -461,8 +456,20 @@ class View {
 
       var type = e.layerType,
           layer = e.layer,
-          geojson = layer.toGeoJSON();
+          properties = {};
 
+
+      // set defaults if it's a marker
+      if (layer instanceof L.Marker) {
+        let markerType = this._controls.style.options.markerType;
+        properties = {
+          icon: markerType.options.markers['default'][0],
+          iconColor: markerType.options.colorRamp[0],
+          iconSize: markerType.options.size['medium']
+        }
+      }
+
+      let geojson = Object.assign(layer.toGeoJSON(), {'properties': properties});
       let feature = await this.model.addFeature(geojson)
 
       // remove drawn feature, it gets added through model events
