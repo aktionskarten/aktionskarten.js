@@ -90,7 +90,9 @@ class View {
           layer.id = layer.options.id = feature.properties.id;
 
           if ('label' in feature.properties) {
-            layer.bindTooltip(feature.properties.label, {permanent: true, interactive: true});
+            let label = feature.properties.label;
+            layer.options.label = label;
+            layer.bindTooltip(label, {permanent: true, interactive: true});
           }
 
           let removeHandler = async (e) => {
