@@ -82,7 +82,7 @@ class FeatureModel {
     let features = this._collection._features;
     let idx = features.indexOf(this);
     if (idx !== -1) {
-      features.slice(idx, 1);
+      features.splice(idx, 1);
       if (this.id) {
         this.map.fire('featureDeleted', this.id);
       }
