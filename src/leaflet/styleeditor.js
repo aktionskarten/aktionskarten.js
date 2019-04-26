@@ -159,8 +159,12 @@ function styleEditor() {
     ],
     showTooltip: false,
     markerType: L.StyleEditor.marker.AktionskartenMarker,
-    useGrouping: false // otherwise a change style applies to all
-                       // auto-added featues
+    useGrouping: false, // otherwise a change style applies to all
+                        // auto-added featues
+    strings: {
+      tooltip: 'X',
+      tooltipNext: 'X'
+    }
   };
 
   return new L.Control.StyleEditor(options)
