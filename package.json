@@ -4,20 +4,20 @@
   "description": "aktionskarten.js is a client library for creating interactive maps for aktionskarten.org",
   "main": "src/index.js",
   "dependencies": {
-    "aktionskarten-marker": "0.0.3",
+    "aktionskarten-marker": "0.0.4",
     "i18next": "^12.0.0",
-    "leaflet": "^1.4.0",
+    "leaflet": "^1.5.1",
     "leaflet-draw": "^1.0.4",
     "leaflet-editable": "^1.2.0",
     "leaflet-path-drag": "^1.1.0",
-    "leaflet-styleeditor": "^0.1.10-beta",
+    "leaflet-styleeditor": "^0.1.11",
     "socket.io-client": "^2.1.0",
-    "webpack-cli": "^3.1.2"
+    "webpack-cli": "^3.3.2"
   },
   "devDependencies": {
     "@babel/core": "^7.4.3",
     "@babel/preset-env": "^7.4.3",
-    "babel-loader": "^8.0.5",
+    "babel-loader": "^8.0.6",
     "clean-webpack-plugin": "^0.1.19",
     "compression-webpack-plugin": "^2.0.0",
     "cross-env": "^5.2.0",
@@ -26,9 +26,9 @@
     "file-loader": "^1.1.11",
     "html-webpack-plugin": "^3.2.0",
     "mini-css-extract-plugin": "^0.4.5",
-    "webpack": "^4.30.0",
+    "webpack": "^4.32.0",
     "webpack-bundle-analyzer": "^3.3.2",
-    "webpack-dev-server": "^3.3.1"
+    "webpack-dev-server": "^3.4.1"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
