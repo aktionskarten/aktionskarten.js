@@ -458,8 +458,7 @@ class View {
 
       var type = e.layerType,
           layer = e.layer,
-          properties = {};
-
+          properties = filterProperties(layer.options);
 
       // set defaults if it's a marker
       if (layer instanceof L.Marker) {
