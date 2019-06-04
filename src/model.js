@@ -217,6 +217,10 @@ class MapModel {
     this._api = api;
     this._evented = new L.Evented();
 
+    let now = new Date()
+    let date = now.getFullYear() + '-' + (now.getMonth()+1) + '-' + now.getDate()
+    let time = now.getHours() + ':' + now.getMinutes()
+
     // add properties dynamically so that we can check if a map property is
     // dirty (has been changed and not yet persistently saved to backend
     // (this is used in grid calculation, to calulate new grids on bbox change)
@@ -224,7 +228,7 @@ class MapModel {
     // Furthermore we can now use data for property binding frameworks like vue
     // which will add dynamically setter+getter for each property.
     this._states = {}
-    this.data = {'attributes':[]}
+    this.data = {'attributes':[], datetime: date+ ' ' + time}
     let keys = ['id', 'name', 'description', 'datetime', 'date', 'time', 'attributes', 'bbox', 'place', 'token', 'hash', 'thumbnail']
     for (let key of keys) {
       Object.defineProperty(this, key, {
@@ -258,11 +262,6 @@ class MapModel {
         this.time = values[1];
       }
     });
-
-    let now = new Date()
-    let date = now.getFullYear() + '-' + (now.getMonth()+1) + '-' + now.getDate()
-    let time = now.getHours() + ':' + now.getMinutes()
-    this.datetime =  date + ' ' + time
   }
 
   on(type, fn) {
