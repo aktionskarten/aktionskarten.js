@@ -73,73 +73,6 @@ let ButtonElement = L.StyleEditor.formElements.FormElement.extend({
 })
 
 
-// You're not able to configure forms through options. Something in the
-// following way would be nice if it would be supported out-of-the-box.
-//
-// options: {
-//   'forms': {
-//     'geometry': {
-//       opacity: false,
-//       dashArray: (elem) => elem.feature.geometry.type == 'Polygon'
-//     },
-//     'marker': {
-//       'popupContent': false,
-//       'tooltipContent': MyOwnToolTipClassDerivedFromFormElement
-//     }
-//   }
-// }
-//
-// So basically depending on the value exclude element from render. You could
-// even change order by that. Supported types could be:
-// * boolean
-// * function: call function and check boolean return value
-// * class of type FormElement: add or override this element
-//
-// For now we hack GeometryForm and MarkerForm to customize rendering
-//
-L.StyleEditor.forms.GeometryForm.include({
-  options: {
-    formElements: {
-      'tooltipContent': TooltipContentElement,
-      'color': L.StyleEditor.formElements.ColorElement,
-      'fillColor': L.StyleEditor.formElements.ColorElement,
-      'opacity': L.StyleEditor.formElements.OpacityElement,
-      'fillOpacity': L.StyleEditor.formElements.OpacityElement,
-      'dashArray': L.StyleEditor.formElements.DashElement,
-      'weight': L.StyleEditor.formElements.WeightElement,
-      'delete': ButtonElement,
-    }
-  },
-  showFormElements: function () {
-    var util = this.options.styleEditorOptions.util,
-        curr = util.getCurrentElement(),
-        elems = this.options.initializedElements,
-        selected = [];
-    if (curr.feature.geometry.type == 'Polygon') {
-      let keys = ['color', 'opacity', 'weight', 'dashArray'];
-      selected = elems.filter(x=>keys.indexOf(x.options.styleOption)<0);
-    } else {
-      selected = elems.filter(x=>!x.options.styleOption.startsWith('fill'));
-    }
-
-    for (let elem of selected) {
-      elem.show();
-    }
-  }
-});
-
-L.StyleEditor.forms.MarkerForm.include({
-  options: {
-    formElements: {
-      'tooltipContent': TooltipContentElement,
-      'icon': L.StyleEditor.formElements.IconElement,
-      'color': L.StyleEditor.formElements.ColorElement,
-      'size': L.StyleEditor.formElements.SizeElement,
-      'delete': ButtonElement,
-    }
-  },
-});
-
 
 //
 // Translate title with i18next
@@ -154,6 +87,25 @@ L.StyleEditor.formElements.FormElement.addInitHook(function() {
 
 function styleEditor() {
   let options = {
+    forms: {
+      geometry: {
+        'tooltipContent': TooltipContentElement,
+        'color': (elem) => !(elem instanceof L.Polygon),
+        'fillColor': true,
+        'opacity': (elem) => !(elem instanceof L.Polygon),
+        'fillOpacity': true,
+        'dashArray': (elem) => !(elem instanceof L.Polygon),
+        'weight': (elem) => !(elem instanceof L.Polygon),
+        'delete': ButtonElement,
+      },
+      marker: {
+        'tooltipContent': TooltipContentElement,
+        'icon': true,
+        'color': true,
+        'size': true,
+        'delete': ButtonElement,
+      }
+    },
     colorRamp: [
       '#e04f9e', '#fe0000', '#ee9c00', '#ffff00', '#00e13c', '#00a54c', '#00adf0', '#7e55fc', '#1f4199', '#7d3411'
     ],
