@@ -35,7 +35,7 @@ class View {
 
     // if we have no grid yet, enforce bbox mode so
     // the user is adding one
-    if (!this._grid || this._grid.count() == 0) {
+    if (!this.model.bbox) {
       mode = 'bbox';
     }
 
