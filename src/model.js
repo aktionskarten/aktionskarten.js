@@ -102,7 +102,10 @@ class FeatureCollection {
    */
   constructor(map, geojson) {
     this._map = map;
+    this._features = [];
+    if (geojson) {
     this._features = geojson.features.map((f) => new FeatureModel(this, f));
+    }
     this.features = new Proxy(this._features, {
       get(target, prop) {
         const val = target[prop];
@@ -180,7 +183,7 @@ class FeatureCollection {
    */
   async add(geojson) {
     if (this.get(geojson.id)) {
-      console.log('Already added')
+      console.warn('Feature already added')
       return;
     }
 
@@ -245,8 +248,10 @@ class MapModel {
         configurable: false
       });
 
-      this.data[key] = map[key]
-      this._states[key] = 'persistent'
+      if (map && key in map) {
+        this.data[key] = map[key]
+        this._states[key] = 'persistent'
+      }
     }
 
     // update hash on feature changes
@@ -378,7 +383,6 @@ class MapModel {
    * Publishs a map
    */
   publish() {
-    console.log("published: ", this.published)
     if (!this.published) {
       this.published = true;
       return this.save();
@@ -402,6 +406,7 @@ class MapModel {
       this.data.token = ''
       this.data.secret = ''
       json = await this._api.createMap(data);
+      this.fire('created', json);
     } else {
       json = await this._api.updateMap(this.token, data);
     }
