@@ -291,12 +291,16 @@ class MapModel {
    */
   static async get(api, id, secret) {
     let map, token;
+
+    if (!id) {
+      return;
+    }
+
     if (secret) {
       token = await api.loginForMap(id, secret)
     }
-    if (id) {
-      map = await api.getMap(id, token)
-    }
+
+    map = await api.getMap(id, token)
     return new MapModel(api, map);
   }
 
