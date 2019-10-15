@@ -92,8 +92,12 @@ class Api {
     return this._get(this.mapsUrl);
   }
 
-  getMap(id) {
-    return this._get(this.urlFor(id));
+  getMap(id, token) {
+    let headers;
+    if (token) {
+      headers = this._genHeaders(id, token);
+    }
+    return this._get(this.urlFor(id), headers);
   }
 
   createMap(data) {
@@ -110,8 +114,12 @@ class Api {
     return this._del(this.urlFor(mapId), {}, headers);
   }
 
-  getFeatures(mapId) {
-    return this._get(this.urlFor(mapId, 'features'));
+  getFeatures(mapId, token) {
+    let headers;
+    if (token) {
+      headers = this._genHeaders(mapId, token);
+    }
+    return this._get(this.urlFor(mapId, 'features'), headers);
   }
 
   addFeature(token, mapId, geojson) {
@@ -130,8 +138,12 @@ class Api {
     return this._del(this.urlFor(mapId, ['features', feature]), {}, headers);
   }
 
-  getGrid(mapId) {
-    return this._get(this.urlFor(mapId, 'grid'));
+  getGrid(mapId, token) {
+    let headers;
+    if (token) {
+      headers = this._genHeaders(mapId, token);
+    }
+    return this._get(this.urlFor(mapId, 'grid'), headers);
   }
 
   getGridForBBox(bbox) {

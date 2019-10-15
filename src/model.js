@@ -102,7 +102,10 @@ class FeatureCollection {
    */
   constructor(map, geojson) {
     this._map = map;
+    this._features = [];
+    if (geojson) {
     this._features = geojson.features.map((f) => new FeatureModel(this, f));
+    }
     this.features = new Proxy(this._features, {
       get(target, prop) {
         const val = target[prop];
@@ -180,7 +183,7 @@ class FeatureCollection {
    */
   async add(geojson) {
     if (this.get(geojson.id)) {
-      console.log('Already added')
+      console.warn('Feature already added')
       return;
     }
 
@@ -245,8 +248,10 @@ class MapModel {
         configurable: false
       });
 
-      this.data[key] = map[key]
-      this._states[key] = 'persistent'
+      if (map && key in map) {
+        this.data[key] = map[key]
+        this._states[key] = 'persistent'
+      }
     }
 
     // update hash on feature changes
@@ -284,17 +289,24 @@ class MapModel {
    * @param  {string}            - map id to fetch
    * @return {Promise<MapModel>} - Instance of MapModel for corresponding map id
    */
-  static async get(api, id) {
-    let map;
-    if (id) {
-      map = await api.getMap(id)
+  static async get(api, id, secret) {
+    let map, token;
+
+    if (!id) {
+      return;
     }
+
+    if (secret) {
+      token = await api.loginForMap(id, secret)
+    }
+
+    map = await api.getMap(id, token)
     return new MapModel(api, map);
   }
 
 
   async reload() {
-    let map = await this._api.getMap(this.id)
+    let map = await this._api.getMap(this.id, this.token)
     Object.assign(this, map);
   }
 
@@ -302,7 +314,7 @@ class MapModel {
     if (this._states['bbox'] == 'dirty') {
       return await this._api.getGridForBBox(this.bbox);
     }
-    return await this._api.getGrid(this.id);
+    return await this._api.getGrid(this.id, this.token);
   }
 
   /**
@@ -314,7 +326,7 @@ class MapModel {
     // and do lazy loading of features
     return (async () => {
       if (!this._features) {
-        let entries = await this._api.getFeatures(this.id);
+        let entries = await this._api.getFeatures(this.id, this.token);
         this._features = new FeatureCollection(this, entries);
       }
       return this._features;
@@ -375,7 +387,6 @@ class MapModel {
    * Publishs a map
    */
   publish() {
-    console.log("published: ", this.published)
     if (!this.published) {
       this.published = true;
       return this.save();
@@ -399,6 +410,7 @@ class MapModel {
       this.data.token = ''
       this.data.secret = ''
       json = await this._api.createMap(data);
+      this.fire('created', json);
     } else {
       json = await this._api.updateMap(this.token, data);
     }
@@ -409,6 +421,11 @@ class MapModel {
 
     for (let [key, value] of Object.entries(json)) {
       this.data[key] = value;
+    }
+
+    if (json.secret) {
+      this.secret = json.secret
+      this.login(json.secret);
     }
 
     if (this._features) {
