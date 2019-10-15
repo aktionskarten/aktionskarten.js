@@ -228,8 +228,8 @@ class MapModel {
     // Furthermore we can now use data for property binding frameworks like vue
     // which will add dynamically setter+getter for each property.
     this._states = {}
-    this.data = {'attributes':[], datetime: date+ ' ' + time}
-    let keys = ['id', 'name', 'description', 'datetime', 'date', 'time', 'attributes', 'bbox', 'place', 'token', 'hash', 'thumbnail']
+    this.data = {'attributes':[], datetime: date+ ' ' + time, published: false}
+    let keys = ['id', 'name', 'description', 'datetime', 'date', 'time', 'attributes', 'bbox', 'place', 'token', 'hash', 'thumbnail', 'lifespan', 'published']
     for (let key of keys) {
       Object.defineProperty(this, key, {
         set: (val) => {
@@ -372,6 +372,17 @@ class MapModel {
   }
 
   /**
+   * Publishs a map
+   */
+  publish() {
+    console.log("published: ", this.published)
+    if (!this.published) {
+      this.published = true;
+      return this.save();
+    }
+  }
+
+  /**
    * Persistently save outstanding changes of this map and if loaded features as
    * well.
    * @async
@@ -380,7 +391,7 @@ class MapModel {
   async save() {
     // filter only certain props through object destructuring and property
     // shorthand, see https://stackoverflow.com/questions/17781472/#39333479
-    let data = (({ id, name, description, date, time, datetime, attributes, bbox, place}) => ({ id, name, description, date, time, datetime, attributes, bbox, place}))(this);
+    let data = (({ id, name, description, date, time, datetime, attributes, bbox, place, lifespan, published}) => ({ id, name, description, date, time, datetime, attributes, bbox, place, lifespan, published}))(this);
     let handler = this._api.updateMap;
 
     let json;
