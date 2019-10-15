@@ -1,34 +1,34 @@
 {
   "name": "aktionskarten.js",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "aktionskarten.js is a client library for creating interactive maps for aktionskarten.org",
   "main": "src/index.js",
   "dependencies": {
-    "aktionskarten-marker": "0.0.5",
+    "aktionskarten-marker": "0.0.6",
     "i18next": "^12.0.0",
     "leaflet": "^1.5.1",
     "leaflet-draw": "^1.0.4",
     "leaflet-editable": "^1.2.0",
     "leaflet-path-drag": "^1.1.0",
     "leaflet-styleeditor": "^0.1.13",
-    "socket.io-client": "^2.1.0",
-    "webpack-cli": "^3.3.6"
+    "socket.io-client": "^2.3.0",
+    "webpack-cli": "^3.3.9"
   },
   "devDependencies": {
-    "@babel/core": "^7.5.4",
-    "@babel/preset-env": "^7.5.4",
+    "@babel/core": "^7.6.4",
+    "@babel/preset-env": "^7.6.3",
     "babel-loader": "^8.0.6",
     "clean-webpack-plugin": "^0.1.19",
     "compression-webpack-plugin": "^2.0.0",
-    "cross-env": "^5.2.0",
+    "cross-env": "^5.2.1",
     "css-loader": "^2.1.1",
     "extract-text-webpack-plugin": "^3.0.2",
     "file-loader": "^1.1.11",
     "html-webpack-plugin": "^3.2.0",
     "mini-css-extract-plugin": "^0.4.5",
-    "webpack": "^4.33.0",
-    "webpack-bundle-analyzer": "^3.3.2",
-    "webpack-dev-server": "^3.7.2"
+    "webpack": "^4.41.2",
+    "webpack-bundle-analyzer": "^3.5.2",
+    "webpack-dev-server": "^3.8.2"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
