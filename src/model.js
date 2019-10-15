@@ -220,10 +220,6 @@ class MapModel {
     this._api = api;
     this._evented = new L.Evented();
 
-    let now = new Date()
-    let date = now.getFullYear() + '-' + (now.getMonth()+1) + '-' + now.getDate()
-    let time = now.getHours() + ':' + now.getMinutes()
-
     // add properties dynamically so that we can check if a map property is
     // dirty (has been changed and not yet persistently saved to backend
     // (this is used in grid calculation, to calulate new grids on bbox change)
@@ -231,8 +227,10 @@ class MapModel {
     // Furthermore we can now use data for property binding frameworks like vue
     // which will add dynamically setter+getter for each property.
     this._states = {}
-    this.data = {'attributes':[], datetime: date+ ' ' + time, published: false}
-    let keys = ['id', 'name', 'description', 'datetime', 'date', 'time', 'attributes', 'bbox', 'place', 'token', 'hash', 'thumbnail', 'lifespan', 'published']
+    let now = new Date();
+    now.setMinutes(0);
+    this.data = {'attributes':[], datetime: now, published: false}
+    let keys = ['id', 'name', 'description', 'datetime', 'attributes', 'bbox', 'place', 'token', 'hash', 'thumbnail', 'lifespan', 'published']
     for (let key of keys) {
       Object.defineProperty(this, key, {
         set: (val) => {
@@ -262,9 +260,7 @@ class MapModel {
     // update date and time if you change datetime
     this.on('datetimeChanged', (e) => {
       if (e.value) {
-        let values = e.value.split(' ');
-        this.date = values[0];
-        this.time = values[1];
+        this.datetime = new Date(e.value);
       }
     });
   }
@@ -402,8 +398,11 @@ class MapModel {
   async save() {
     // filter only certain props through object destructuring and property
     // shorthand, see https://stackoverflow.com/questions/17781472/#39333479
-    let data = (({ id, name, description, date, time, datetime, attributes, bbox, place, lifespan, published}) => ({ id, name, description, date, time, datetime, attributes, bbox, place, lifespan, published}))(this);
-    let handler = this._api.updateMap;
+    let data = (({ id, name, description, attributes, bbox, place, lifespan, published}) => ({ id, name, description, attributes, bbox, place, lifespan, published}))(this);
+
+    if (this.datetime instanceof Date) {
+      data.datetime = this.datetime.toISOString().replace("Z", "+00:00");
+    }
 
     let json;
     if (!this.id) {
