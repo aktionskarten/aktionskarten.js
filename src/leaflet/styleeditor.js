@@ -35,7 +35,7 @@ let TooltipContentElement = L.StyleEditor.formElements.FormElement.extend({
   _setStyle: function () {
     let marker = this.options.styleEditorOptions.util.getCurrentElement()
     let label = this.options.input.value
-    if (marker && marker.getTooltip && marker.bindTooltip) {
+    if (marker && marker.getTooltip && marker.bindTooltip && label) {
       let tooltip = marker.getTooltip()
       if (tooltip) {
         tooltip.setContent(label)
@@ -44,6 +44,9 @@ let TooltipContentElement = L.StyleEditor.formElements.FormElement.extend({
       }
       marker.options = marker.options || {}
       marker.options.label = label
+    } else if(marker.unbindTooltip && !label) {
+      marker.unbindTooltip();
+      marker.options.label = ''
     }
     this.setStyle(label)
   }
