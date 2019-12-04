@@ -107,7 +107,7 @@ class FeatureCollection {
   constructor(map, geojson) {
     this._map = map;
     this._features = [];
-    if (!!geojson && geojson.length > 0) {
+    if (Array.isArray(geojson.features)) {
       this._features = geojson.features.map((f) => new FeatureModel(this, f));
     }
     this.features = new Proxy(this._features, {
@@ -186,12 +186,12 @@ class FeatureCollection {
    * @param {object} - Valid GeoJSON feature object
    */
   async add(geojson) {
-    if (this.get(geojson.id)) {
-      console.warn('Feature already added')
+    var feature = this.get(geojson.id)
+    if (feature) {
       return;
     }
 
-    let feature = new FeatureModel(this, geojson);
+    feature = new FeatureModel(this, geojson);
     this._features.push(feature);
 
     this.map.fire('featureAdded', feature);
@@ -205,6 +205,7 @@ class FeatureCollection {
     for (let feature of this._features) {
       if (feature._state == 'dirty') {
         await feature.save();
+        this.map.fire('featureUpdated', feature);
       }
     };
 
@@ -357,7 +358,7 @@ class MapModel {
   }
 
   async addFeature(geojson) {
-    let feature = (await this.features()).add(geojson);
+    let feature = await (await this.features()).add(geojson);
     return feature;
   }
 

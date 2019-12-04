@@ -55,16 +55,18 @@ L.FeatureLayer = L.GeoJSON.extend({
 
       // the following is basically same as addData for single features but
       // returns the actual created layer
-      var options = this.options;
+      var options = this.options || {};
       if (options.filter && !options.filter(geojson)) {
         return;
       }
 
       var layer = L.GeoJSON.geometryToLayer(geojson, options);
       if (!layer) {
+        console.warn('layer creation error for', geojson)
         return;
       }
       layer.feature = L.GeoJSON.asFeature(geojson);
+      layer.id = id
 
       layer.defaultOptions = layer.options;
       this.resetStyle(layer);
@@ -89,7 +91,6 @@ L.FeatureLayer = L.GeoJSON.extend({
           strOld = JSON.stringify(sortedOld),
           strNew = JSON.stringify(sortedNew);
       if (strOld == strNew) {
-        console.log("same");
         return;
       }
 
