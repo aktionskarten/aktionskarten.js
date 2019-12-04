@@ -2,7 +2,6 @@ const CleanWebpackPlugin = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const path = require('path');
 const webpack = require('webpack');
-const CompressionPlugin = require('compression-webpack-plugin');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 
 module.exports = {
@@ -25,8 +24,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: 'src/demo.html'
     }),
-    //new CompressionPlugin(),
-//    new BundleAnalyzerPlugin()
+    //new BundleAnalyzerPlugin()
 
   ],
   module: {
@@ -42,7 +40,10 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        use: "css-loader"
+        use: [
+          {loader: 'style-loader'},
+          {loader: 'css-loader'},
+        ]
       },
       {
         test: /\.(png|svg|jpg|gif)$/,
@@ -55,7 +56,6 @@ module.exports = {
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src/'),
-  //    'leaflet$': 'leaflet/dist/leaflet.js',
     },
   },
 };

@@ -6,20 +6,17 @@
   </body>
 
   <script>
+  const url = 'http://127.0.0.1:5000'
   var api, model, view;
   window.onload  = async function() {
-    api = new Aktionskarten.Api('https://staging.aktionskarten.org');
-    model = await Aktionskarten.MapModel.get(api, 'test123');
-    view = new Aktionskarten.View('map', model)
+    var hash = window.location.hash.substring(1)
+    var [id, secret] = hash.split('/')
 
-    await view.init();
+    api = new Aktionskarten.Api(url)
+    model = await Aktionskarten.MapModel.get(api, id, secret)
+    view = new Aktionskarten.View('map', model, 'bbox')
 
-    model.auth('31RBpNwscIMqeGdPv0xO8Lo6')
-
-    // you now can do the follwing through the console
-    //
-    // login:     model.auth('TOKEN_STRING')
-    // modes:     view.mode = 'bbox' OR view.mode = ''
+    await view.init('en');
   };
   </script>
 </html>
