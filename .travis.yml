@@ -27,7 +27,7 @@ before_script:
 script:
   - npm run build
   - http-server dist &
-  - bash -c 'while ! nc -zv 127.0.0.1 5000; do sleep 1; done;'
+  - bash -c 'while ! wget -q -t 1 http://127.0.0.1:5000/api/maps; do echo waiting; sleep 1; done;'
   - npm run test
 
 after_script:
