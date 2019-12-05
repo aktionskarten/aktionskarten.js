@@ -16,7 +16,7 @@ test('page - draw bbox', async t => {
   await model.save()
 
 	const browser = await puppeteer.launch({
-    //headless: false
+//    headless: false
   });
 	const page = await browser.newPage();
   await page.setViewport({ width: 1440, height: 900 });
@@ -61,7 +61,7 @@ test('page - draw marker', async t => {
   await model.save()
 
 	const browser = await puppeteer.launch({
-    headless: false
+//    headless: false
   });
 	const page = await browser.newPage();
   await page.setViewport({ width: 1440, height: 900 });
