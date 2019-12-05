@@ -87,12 +87,12 @@ class View {
           return L.marker(latlng);
         },
         onEachFeature: (feature, layer) => {
-          layer.options.id = layer.id
+          layer.id = layer.options.id = feature.properties.id;
 
           if ('label' in feature.properties) {
             let label = feature.properties.label;
             layer.options.label = label;
-            layer.bindTooltip(label, {permanent: true, direction: bottom, className: 'label'});
+            layer.bindTooltip(label, {permanent: true, interactive: true});
           }
 
           let removeHandler = async (e) => {
