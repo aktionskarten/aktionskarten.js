@@ -2,8 +2,32 @@ language: node_js
 install: npm i
 node_js:
   - '11'
+sudo: required
+
+services:
+  - docker
+
+env:
+  DOCKER_COMPOSE_VERSION: 1.23.2
+
+before_install:
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+
+before_script:
+  - cd deploy/docker && docker-compose up -d --build
+  - docker ps
+
 script:
   - npm run build
+  - http-server dist &
+  - npm run test
+
+after_script:
+  - docker-compose down
+  - pkill -f http-server
 
 deploy:
   provider: npm
