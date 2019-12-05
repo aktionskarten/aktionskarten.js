@@ -92,7 +92,7 @@ class View {
           if ('label' in feature.properties) {
             let label = feature.properties.label;
             layer.options.label = label;
-            layer.bindTooltip(label, {permanent: true, interactive: true});
+            layer.bindTooltip(label, {permanent: true, direction: 'bottom', className: 'label'});
           }
 
           let removeHandler = async (e) => {
@@ -156,6 +156,9 @@ class View {
       attributionControl: false,
       editable: true,
     });
+
+    // only needed for Aktionskartenmarker in editable.js
+    this._map.view = this
 
     let i18nOptions = {lng: lng, fallbackLng: 'en', resources: locales, debug: true}
     this._map.i18next = i18next.createInstance(i18nOptions, (err, t) => {
