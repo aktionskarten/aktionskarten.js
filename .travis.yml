@@ -4,6 +4,10 @@ node_js:
   - '11'
 sudo: required
 
+cache:
+  directories:
+  - docker_images
+
 services:
   - docker
 
