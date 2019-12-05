@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  backend:
+    image: kombinat451/aktionskarten-backend-app:latest
+    environment:
+      - FLASK_ENV=testing
+    ports:
+      - '5000:5000'
+    depends_on:
+      - db
+      - redis
+
+  db:
+    image: kombinat451/aktionskarten-backend-db:latest
+
+  redis:
+    image: redis
+    expose:
+      - 6379
+

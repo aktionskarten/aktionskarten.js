@@ -8,7 +8,7 @@ services:
   - docker
 
 env:
-  DOCKER_COMPOSE_VERSION: 1.23.2
+  DOCKER_COMPOSE_VERSION: 1.25.0
 
 before_install:
   - sudo rm /usr/local/bin/docker-compose
@@ -17,12 +17,13 @@ before_install:
   - sudo mv docker-compose /usr/local/bin
 
 before_script:
-  - cd deploy/docker && docker-compose up -d --build
+  - docker-compose up -d --build
   - docker ps
 
 script:
   - npm run build
   - http-server dist &
+  - sleep 2
   - npm run test
 
 after_script:
