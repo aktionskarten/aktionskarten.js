@@ -18,12 +18,12 @@ before_install:
 
 before_script:
   - docker-compose up -d --build
-  - docker ps
+  - docker-compose ps
 
 script:
   - npm run build
   - http-server dist &
-  - sleep 2
+  - bash -c 'while !</dev/tcp/backend/5000; do sleep 1; done;'
   - npm run test
 
 after_script:
