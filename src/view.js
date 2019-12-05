@@ -231,6 +231,8 @@ class View {
 
     // styleeditor
     this._map.on('styleeditor:changed', this.onStyleChanged, this);
+    this._map.on('styleeditor:hidden', this.onDrawingUpdateCancel, this)
+
   }
 
   _registerSocketIOEventHandlers() {
@@ -507,6 +509,15 @@ class View {
 
     console.log("edited");
   }
+
+  onDrawingUpdateCancel(e) {
+    let style = this._controls.style;
+    let current = style.options.util.getCurrentElement();
+    if (current) {
+      current.disableEdit();
+    }
+  }
+
 
   async onStyleChanged(e) {
     let id = e.id;
