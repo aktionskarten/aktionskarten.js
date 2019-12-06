@@ -104,3 +104,19 @@ test.serial('Delete map', async t => {
   await model.remove()
   t.falsy(model.id)
 });
+
+
+test.serial('Date and time in maps', async t => {
+  let date = new Date('2035-01-01');
+  const model = new MapModel(api, {
+    'name': 'foo',
+    'datetime': date.toISOString()
+  });
+  t.is(model.datetime.getTime(), date.getTime())
+
+  await model.save()
+  t.is(model.datetime.getTime(), date.getTime())
+
+  const model2 = await MapModel.get(api, model.id, model.secret)
+  t.is(model2.datetime.getTime(), date.getTime())
+});
