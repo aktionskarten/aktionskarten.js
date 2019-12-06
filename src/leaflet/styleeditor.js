@@ -40,7 +40,7 @@ let TooltipContentElement = L.StyleEditor.formElements.FormElement.extend({
       if (tooltip) {
         tooltip.setContent(label)
       } else {
-        marker.bindTooltip(label, {permanent: true, interactive: true})
+        marker.bindTooltip(label, {permanent: true, direction: 'bottom', className: 'label'});
       }
       marker.options = marker.options || {}
       marker.options.label = label

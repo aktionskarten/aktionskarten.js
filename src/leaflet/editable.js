@@ -195,7 +195,10 @@ let MarkerControl = BaseControl.extend({
       title: 'Place a new marker',
     },
     callback(editable) {
-      editable.startMarker().editor.connect();
+      // HACK: Should be handled differntly in StyleEditor...
+      let style = this._map.view._controls.style;
+      let icon = style.getDefaultIcon()
+      editable.startMarker(null, {icon:icon}).editor.connect();
     }
 })
 L.Editable.MarkerEditor.include({

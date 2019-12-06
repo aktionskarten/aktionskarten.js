@@ -92,7 +92,7 @@ class View {
           if ('label' in feature.properties) {
             let label = feature.properties.label;
             layer.options.label = label;
-            layer.bindTooltip(label, {permanent: true, interactive: true});
+            layer.bindTooltip(label, {permanent: true, direction: 'bottom', className: 'label'});
           }
 
           let removeHandler = async (e) => {
@@ -158,6 +158,9 @@ class View {
       attributionControl: false,
       editable: true,
     });
+
+    // only needed for Aktionskartenmarker in editable.js
+    this._map.view = this
 
     let i18nOptions = {lng: lng, fallbackLng: 'en', resources: locales, debug: true}
     this._map.i18next = i18next.createInstance(i18nOptions, (err, t) => {
@@ -234,6 +237,8 @@ class View {
 
     // styleeditor
     this._map.on('styleeditor:changed', this.onStyleChanged, this);
+    this._map.on('styleeditor:hidden', this.onDrawingUpdateCancel, this)
+
   }
 
   _registerSocketIOEventHandlers() {
@@ -510,6 +515,15 @@ class View {
 
     console.log("edited", feature.id);
   }
+
+  onDrawingUpdateCancel(e) {
+    let style = this._controls.style;
+    let current = style.options.util.getCurrentElement();
+    if (current) {
+      current.disableEdit();
+    }
+  }
+
 
   async onStyleChanged(e) {
     let id = e.id;
