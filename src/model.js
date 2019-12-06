@@ -226,8 +226,8 @@ class MapModel {
     this._evented = new EventEmitter();
 
     // fallback to now if no datetime is set
-    let datetime ;
-    if ('datetime' in map) {
+    let datetime;
+    if (map && 'datetime' in map) {
       datetime = map.datetime;
     } else {
       let now = new Date();
