@@ -2,8 +2,33 @@ language: node_js
 install: npm i
 node_js:
   - '11'
+sudo: required
+
+services:
+  - docker
+
+env:
+  DOCKER_COMPOSE_VERSION: 1.25.0
+
+before_install:
+  - sudo rm /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+
+before_script:
+  - docker-compose up -d --build
+  - docker-compose ps
+
 script:
   - npm run build
+  - http-server dist &
+  - bash -c 'while ! wget -q -t 1 http://127.0.0.1:5000/api/maps; do echo waiting; sleep 1; done;'
+  - npm run test
+
+after_script:
+  - docker-compose down
+  - pkill -f http-server
 
 deploy:
   provider: npm

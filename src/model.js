@@ -1,4 +1,5 @@
 import Api from './api'
+import {EventEmitter} from 'eventemitter3'
 import {sortObj} from './utils'
 
 /** Class representing a GeoJSON feature of a map / collection */
@@ -29,7 +30,10 @@ class FeatureModel {
   }
 
   get id() {
-    return this._geojson.properties.id;
+    if (this.geojson.properties && 'id' in this._geojson.properties) {
+      return this._geojson.properties.id;
+    }
+    return null;
   }
 
   get map() {
@@ -103,8 +107,8 @@ class FeatureCollection {
   constructor(map, geojson) {
     this._map = map;
     this._features = [];
-    if (geojson) {
-    this._features = geojson.features.map((f) => new FeatureModel(this, f));
+    if (Array.isArray(geojson.features)) {
+      this._features = geojson.features.map((f) => new FeatureModel(this, f));
     }
     this.features = new Proxy(this._features, {
       get(target, prop) {
@@ -182,28 +186,28 @@ class FeatureCollection {
    * @param {object} - Valid GeoJSON feature object
    */
   async add(geojson) {
-    if (this.get(geojson.id)) {
-      console.warn('Feature already added')
+    var feature = this.get(geojson.id)
+    if (feature) {
       return;
     }
 
-    let feature = new FeatureModel(this, geojson);
+    feature = new FeatureModel(this, geojson);
     this._features.push(feature);
-    await feature.save();
 
     this.map.fire('featureAdded', feature);
     return feature;
   }
 
   /**
-   * Persistently saves all outsanding changes of this collection
+   * Persistently saves all outstanding changes of this collection
    */
-  save() {
-    this._features.forEach(async (feature) => {
+  async save() {
+    for (let feature of this._features) {
       if (feature._state == 'dirty') {
         await feature.save();
+        this.map.fire('featureUpdated', feature);
       }
-    });
+    };
 
     return true;
   }
@@ -218,7 +222,8 @@ class MapModel {
    */
   constructor(api, map) {
     this._api = api;
-    this._evented = new L.Evented();
+    //this._evented = new L.Evented();
+    this._evented = new EventEmitter();
 
     // add properties dynamically so that we can check if a map property is
     // dirty (has been changed and not yet persistently saved to backend
@@ -229,8 +234,8 @@ class MapModel {
     this._states = {}
     let now = new Date();
     now.setMinutes(0);
-    this.data = {'attributes':[], datetime: now, published: false}
-    let keys = ['id', 'name', 'description', 'datetime', 'attributes', 'bbox', 'place', 'token', 'hash', 'thumbnail', 'lifespan', 'published']
+    this.data = {'attributes':[], datetime: now.toISOString(), published: false}
+    let keys = ['id', 'name', 'description', 'attributes', 'bbox', 'place', 'token', 'hash', 'thumbnail', 'lifespan', 'published']
     for (let key of keys) {
       Object.defineProperty(this, key, {
         set: (val) => {
@@ -256,13 +261,22 @@ class MapModel {
     this.on('featureChanged', (e) => {
       this.reload();
     })
+  }
 
-    // update date and time if you change datetime
-    this.on('datetimeChanged', (e) => {
-      if (e.value) {
-        this.datetime = new Date(e.value);
-      }
-    });
+  get datetime() {
+    return new Date(this.data.datetime);
+  }
+
+  set datetime(val) {
+    let date = val;
+    if (val instanceof Date) {
+      date = val.toISOString();
+    }
+    if (this.data.datetime != date) {
+      this.data.datetime = date;
+      this._states['datetime'] = 'dirty';
+      this.fire('datetimeChanged', this.datetime)
+    }
   }
 
   on(type, fn) {
@@ -274,7 +288,7 @@ class MapModel {
   }
 
   fire(type, data) {
-    this._evented.fire(type, {value: data});
+    this._evented.emit(type, {value: data});
   }
 
   /**
@@ -297,6 +311,11 @@ class MapModel {
     }
 
     map = await api.getMap(id, token)
+    if (!map) {
+      console.warn("map not found",id)
+      return;
+    }
+    map.token = token;
     return new MapModel(api, map);
   }
 
@@ -320,21 +339,26 @@ class MapModel {
   async features() {
     // async keyword not possible in getter, therefor capture in anon async func
     // and do lazy loading of features
-    return (async () => {
-      if (!this._features) {
-        let entries = await this._api.getFeatures(this.id, this.token);
-        this._features = new FeatureCollection(this, entries);
+    if (!this._features) {
+      let entries = [];
+      if (!!this.id) {
+        entries = await this._api.getFeatures(this.id, this.token);
       }
-      return this._features;
-    })();
+      this._features = new FeatureCollection(this, entries);
+    }
+    return this._features;
   }
 
   async getFeature(id) {
+    if (!id) {
+      console.warn("MapModel.getFeature - invalid id")
+      return;
+    }
     return (await this.features()).get(id);
   }
 
   async addFeature(geojson) {
-    let feature = (await this.features()).add(geojson);
+    let feature = await (await this.features()).add(geojson);
     return feature;
   }
 
@@ -360,6 +384,10 @@ class MapModel {
    * @return {Promise<bool>}
    */
   async login(secret) {
+    if (!this.id) {
+      return;
+    }
+
     if (secret) {
       this.token = await this._api.loginForMap(this.id, secret)
       if (!!this.token) {
@@ -398,18 +426,19 @@ class MapModel {
   async save() {
     // filter only certain props through object destructuring and property
     // shorthand, see https://stackoverflow.com/questions/17781472/#39333479
-    let data = (({ id, name, description, attributes, bbox, place, lifespan, published}) => ({ id, name, description, attributes, bbox, place, lifespan, published}))(this);
+    let data = (({ id, name, datetime, description, attributes, bbox, place, lifespan, published}) => ({ id, name, datetime, description, attributes, bbox, place, lifespan, published}))(this.data);
 
-    if (this.datetime instanceof Date) {
-      data.datetime = this.datetime.toISOString().replace("Z", "+00:00");
+    if (data.datetime) {
+      data.datetime = data.datetime.replace("Z", "+00:00");
     }
 
     let json;
+    let created = false;
     if (!this.id) {
       this.data.token = ''
       this.data.secret = ''
       json = await this._api.createMap(data);
-      this.fire('created', json);
+      created = true;
     } else {
       json = await this._api.updateMap(this.token, data);
     }
@@ -419,17 +448,19 @@ class MapModel {
     }
 
     for (let [key, value] of Object.entries(json)) {
-      this.data[key] = value;
+      this[key] = value;
+      this._states[key] = 'persistent'
     }
 
     if (json.secret) {
       this.secret = json.secret
-      this.login(json.secret);
+      await this.login(json.secret);
     }
 
-    if (this._features) {
-      return await this._features.save();
-    }
+    await (await this.features()).save();
+
+    this.fire((created) ? 'created' : 'updated');
+
     return true;
   }
 
@@ -440,7 +471,9 @@ class MapModel {
    */
   async remove() {
     await this._api.removeMap(this.token, this.id);
-    this._map.id = null;
+    this.id = null;
+    this.secret = null;
+    this.token = null;
   }
 
   renderLink(file_type, version) {

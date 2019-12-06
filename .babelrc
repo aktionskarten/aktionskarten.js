@@ -1,0 +1,10 @@
+{
+  "presets": ["@babel/preset-env","@ava/stage-4"],
+  "plugins": [
+    ["@babel/plugin-transform-runtime",
+      {
+        "regenerator": true
+      }
+    ]
+  ],
+}

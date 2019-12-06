@@ -128,13 +128,15 @@ class View {
       //
       this.on('featureAdded', (e) => {
         let feature = e.value
-        console.log("featureAdded", feature);
-        featuresLayer.addFeature(feature.geojson);
+        if (feature.id) {
+          console.log("featureAdded", feature.id);
+          featuresLayer.addFeature(feature.geojson);
+        }
       });
 
       this.on('featureUpdated', (e) => {
         let feature = e.value
-        console.log("featureAdded", feature);
+        console.log("featureUpdated", feature.id);
         featuresLayer.updateFeature(feature.geojson);
       });
 
@@ -208,6 +210,7 @@ class View {
 
           // add features
           let features = await this.model.features()
+        console.log("adding features: ", features)
           if (features) {
             this._featuresLayer.addData(features.geojson);
           }
@@ -247,7 +250,6 @@ class View {
         this.fire('disconnect');
       });
       this._socket.on('map-updated', (data) => {
-        // TODO: use idChanged event
         this._socket.emit('leave', this.model.id);
         Object.assign(this.model, data);
         this._socket.emit('join', this.model.id);
@@ -366,8 +368,6 @@ class View {
       return;
     }
 
-    console.log("enable edit");
-
     if (current) {
       this.hideEditor();
     }
@@ -478,8 +478,11 @@ class View {
       let geojson = Object.assign(layer.toGeoJSON(), {'properties': properties});
       let feature = await this.model.addFeature(geojson)
 
+      await this.model.save()
+
       // remove drawn feature, it gets added through model events
       this._map.editTools.featuresLayer.clearLayers();
+      //var layer = this._featuresLayer.addFeature(feature.geojson);
 
       // find and make new feature editable
       this._featuresLayer.eachLayer(layer => {
@@ -488,7 +491,7 @@ class View {
         }
       });
 
-      console.log("added");
+      console.log("added", feature.id);
   }
 
   async onDrawingUpdate(e) {
@@ -510,7 +513,7 @@ class View {
     layer.feature = feature.geojson
     await feature.save()
 
-    console.log("edited");
+    console.log("edited", feature.id);
   }
 
   onDrawingUpdateCancel(e) {
@@ -545,7 +548,7 @@ class View {
       }
     });
 
-    console.log("styled", feature)
+    console.log("styled", feature.id)
     this.fire('styleChanged', id);
   }
 

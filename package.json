@@ -4,38 +4,58 @@
   "description": "aktionskarten.js is a client library for creating interactive maps for aktionskarten.org",
   "main": "src/index.js",
   "dependencies": {
-    "aktionskarten-marker": "0.0.6",
+    "aktionskarten-marker": "1.0.1",
+    "eventemitter3": "^4.0.0",
     "i18next": "^12.0.0",
-    "leaflet": "^1.5.1",
+    "leaflet": "^1.6.0",
     "leaflet-draw": "^1.0.4",
     "leaflet-editable": "^1.2.0",
     "leaflet-path-drag": "^1.1.0",
     "leaflet-styleeditor": "^0.1.13",
     "socket.io-client": "^2.3.0",
-    "webpack-cli": "^3.3.9"
+    "webpack-cli": "^3.3.10"
   },
   "devDependencies": {
-    "@babel/core": "^7.6.4",
-    "@babel/preset-env": "^7.6.3",
+    "@babel/core": "^7.7.4",
+    "@babel/plugin-transform-runtime": "^7.7.4",
+    "@babel/polyfill": "^7.7.0",
+    "@babel/preset-env": "^7.7.4",
+    "@babel/preset-es2015": "^7.0.0-beta.53",
+    "@babel/register": "^7.7.4",
+    "@babel/runtime": "^7.7.4",
+    "ava": "^2.4.0",
     "babel-loader": "^8.0.6",
     "clean-webpack-plugin": "^0.1.19",
     "compression-webpack-plugin": "^2.0.0",
     "cross-env": "^5.2.1",
+    "cross-fetch": "^3.0.4",
     "css-loader": "^2.1.1",
     "extract-text-webpack-plugin": "^3.0.2",
     "file-loader": "^1.1.11",
     "html-webpack-plugin": "^3.2.0",
+    "http-server": "^0.12.0",
     "mini-css-extract-plugin": "^0.4.5",
+    "puppeteer": "^2.0.0",
+    "style-loader": "^1.0.1",
     "webpack": "^4.41.2",
     "webpack-bundle-analyzer": "^3.5.2",
     "webpack-dev-server": "^3.8.2"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "ava -vs",
     "dev": "cross-env NODE_ENV=development webpack-dev-server --open --hot",
-    "build": "webpack --production --progress --hide-modules"
+    "build": "webpack --mode=production --progress --hide-modules"
   },
   "keywords": [],
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "ava": {
+    "require": [
+      "@babel/register"
+    ],
+    "files": [
+      "tests/*",
+      "!tests/utils.js"
+    ]
+  }
 }
