@@ -225,16 +225,25 @@ class MapModel {
     //this._evented = new L.Evented();
     this._evented = new EventEmitter();
 
+    // fallback to now if no datetime is set
+    let datetime ;
+    if ('datetime' in map) {
+      datetime = map.datetime;
+    } else {
+      let now = new Date();
+      now.setMinutes(0);
+      datetime = now.toISOString()
+    }
+
     // add properties dynamically so that we can check if a map property is
     // dirty (has been changed and not yet persistently saved to backend
     // (this is used in grid calculation, to calulate new grids on bbox change)
     //
     // Furthermore we can now use data for property binding frameworks like vue
     // which will add dynamically setter+getter for each property.
+    //
+    this.data = {'attributes':[], datetime: datetime, published: false}
     this._states = {}
-    let now = new Date();
-    now.setMinutes(0);
-    this.data = {'attributes':[], datetime: now.toISOString(), published: false}
     let keys = ['id', 'name', 'description', 'attributes', 'bbox', 'place', 'token', 'hash', 'thumbnail', 'lifespan', 'published']
     for (let key of keys) {
       Object.defineProperty(this, key, {
