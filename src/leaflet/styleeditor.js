@@ -6,11 +6,29 @@ import 'aktionskarten-marker/AktionskartenMarker.css'
 import './styleeditor.css'
 
 
-L.Control.StyleEditor.include({
-  isEnabled () {
-    let ui = this.options.controlUI;
-    return ui && L.DomUtil.hasClass(ui, 'enabled');
-  }
+L.StyleEditor.marker.Marker.include({
+    getIconOptions: function () {
+      //if (this.options.styleEditorOptions.currentElement) {
+      //  this.options.iconOptions = this.options.styleEditorOptions.currentElement.target.options.icon.options
+      //}
+      // this was an if but if you select something else as an icon
+      // currentElement may be set but icon does not exist an therefor this
+      // fails. Workaround: try/catch
+      try {
+        this.options.iconOptions = this.options.styleEditorOptions.currentElement.target.options.icon.options
+      } catch (e) {}
+
+      if (Object.keys(this.options.iconOptions).length > 0) {
+        return this.options.iconOptions
+      }
+
+      this.options.iconOptions.iconColor = this._getDefaultMarkerColor()
+      this.options.iconOptions.iconSize = this.options.styleEditorOptions.markerType.options.size.small
+      this.options.iconOptions.icon = this.options.styleEditorOptions.util.getDefaultMarkerForColor(this.options.iconOptions.iconColor)
+
+      this.options.iconOptions = this._ensureMarkerIcon(this.options.iconOptions)
+      return this.options.iconOptions
+    },
 });
 
 //
