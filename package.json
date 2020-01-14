@@ -1,6 +1,6 @@
 {
   "name": "aktionskarten.js",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "aktionskarten.js is a client library for creating interactive maps for aktionskarten.org",
   "main": "src/index.js",
   "dependencies": {
@@ -11,7 +11,7 @@
     "leaflet-draw": "^1.0.4",
     "leaflet-editable": "^1.2.0",
     "leaflet-path-drag": "^1.1.0",
-    "leaflet-styleeditor": "^0.1.13",
+    "leaflet-styleeditor": "^0.1.15",
     "socket.io-client": "^2.3.0",
     "webpack-cli": "^3.3.10"
   },
@@ -37,9 +37,9 @@
     "mini-css-extract-plugin": "^0.4.5",
     "puppeteer": "^2.0.0",
     "style-loader": "^1.0.1",
-    "webpack": "^4.41.2",
+    "webpack": "^4.41.5",
     "webpack-bundle-analyzer": "^3.5.2",
-    "webpack-dev-server": "^3.8.2"
+    "webpack-dev-server": "^3.10.1"
   },
   "scripts": {
     "test": "ava -vs",
