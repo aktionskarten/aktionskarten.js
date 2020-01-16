@@ -131,6 +131,7 @@ function styleEditor() {
       '#e04f9e', '#fe0000', '#ee9c00', '#ffff00', '#00e13c', '#00a54c', '#00adf0', '#7e55fc', '#1f4199', '#7d3411'
     ],
     showTooltip: false,
+    openOnLeafletEditable: false,
     markerType: L.StyleEditor.marker.AktionskartenMarker,
     useGrouping: false, // otherwise a change style applies to all
                         // auto-added featues
