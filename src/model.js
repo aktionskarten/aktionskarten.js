@@ -244,7 +244,7 @@ class MapModel {
     //
     this.data = {'attributes':[], datetime: datetime, published: false}
     this._states = {}
-    let keys = ['id', 'name', 'description', 'attributes', 'bbox', 'place', 'token', 'hash', 'thumbnail', 'lifespan', 'published']
+    let keys = ['id', 'name', 'description', 'attributes', 'bbox', 'place', 'token', 'hash', 'thumbnail', 'lifespan', 'published', 'version']
     for (let key of keys) {
       Object.defineProperty(this, key, {
         set: (val) => {
@@ -489,7 +489,10 @@ class MapModel {
     let url = this._api.urlFor(this.id, 'render', true) + '/' + file_type;
     if (version) {
       url += '/' + version
+    } else {
+      version = this.version
     }
+    url += '?'+version   // prevent caching
     return url
   }
 
@@ -497,7 +500,10 @@ class MapModel {
     let url = this._api.url + this._api.urlFor(this.id) + '.' + file_type;
     if (version) {
       url += '/' + version
+    } else {
+      version = this.version
     }
+    url += '?'+version   // prevent caching
     return url
   }
 
