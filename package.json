@@ -16,13 +16,14 @@
     "webpack-cli": "^3.3.10"
   },
   "devDependencies": {
+    "@ava/babel-preset-stage-4": "^4.0.0",
     "@babel/core": "^7.7.4",
     "@babel/plugin-transform-runtime": "^7.7.4",
     "@babel/polyfill": "^7.7.0",
     "@babel/preset-env": "^7.7.4",
     "@babel/register": "^7.7.4",
     "@babel/runtime": "^7.7.4",
-    "ava": "^2.4.0",
+    "ava": "^3.3.0",
     "babel-loader": "^8.0.6",
     "clean-webpack-plugin": "^0.1.19",
     "compression-webpack-plugin": "^3.1.0",
