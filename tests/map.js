@@ -40,7 +40,7 @@ test.serial.cb('Map change events', t => {
   t.plan(9);
 
   const model = new MapModel(api);
-  const now = new Date()
+  const date = new Date('2035-01-01');
   const name = 'foo'
   const place = 'bar'
   const description = 'yea'
@@ -61,11 +61,11 @@ test.serial.cb('Map change events', t => {
   })
 
   model.on('datetimeChanged', data => {
-    t.is(now.toISOString(), model.datetime.toISOString())
-    t.is(now.toISOString(), data['value'].toISOString())
+    t.is(date.toISOString(), model.datetime.toISOString())
+    t.is(date.toISOString(), data['value'].toISOString())
   })
 
-  model.datetime = now
+  model.datetime = date
   model.name = name
   model.place = place
   model.description = description
