@@ -2,7 +2,7 @@ language: node_js
 install: npm i
 node_js:
   - '11'
-sudo: required
+os: linux
 
 services:
   - docker
@@ -34,8 +34,8 @@ deploy:
   provider: npm
   edge: true # use dpl v2
   email: kohllisti@riseup.net
-  api_token: Dzd2f/VjHQKxUXd+dFeBFdJcrE1CxP+V96u7bscXdkpeKalE7luZ/Mf3XSfp0qOHfRZiJZPidua0465cpSJDsNLFRf2gZckTdTMw+CaMU3+mXQfcJ7dyos9o4NaFXt7i6eSsQC/RyPtQr7TvObTOrHf+t0SoFdK8LlrGu7c8/WN5hVoNYb6Ww6mk2vFrJXI9rfay6P4yoKdNX3MsujI7sfHojac0vXR3XKbMfXsnk5DerBug67axeUfsL85y8IsfZCrc73Zkyx2by+ps4nD+mW8OZheoUgKb1WOEiFjXwrWK6eEta+X8T444csnkAw6GoLeqIlNVQojpPFHjiOLgy6kkWatWwsY0Q7xOCK9oFGDzsjWpKO81OFEa72yMFcRVsjfND3vTTJzOJlHLhJi6Tz81/wCjA07Hb6hD1ImkGm0srKVJ+8gvkQtOGsuTPsSTQ7Hy3elAxXULxeKPaKEv/n4WA8o+RvRGKoLmWhzVjWNE3mlCL/9seqcuapF7V4fe3YT9IUrNcnxdOqcTAXa30wFKMS6nt4UeaoUkhQIcNVqgg8nNDRaCfDBRAx0AZLPWPLjCNSQVwpzYEhAaUUxNq5IyH8t0pkddEC5CTrZiN7ZvoK8LiBxqHuMPMvi3pfiq8+vlkppEPd/bhndC7eXIwevPm22jiw22QMxHjCyl2nk=
+  api_token:
+    secure: Dzd2f/VjHQKxUXd+dFeBFdJcrE1CxP+V96u7bscXdkpeKalE7luZ/Mf3XSfp0qOHfRZiJZPidua0465cpSJDsNLFRf2gZckTdTMw+CaMU3+mXQfcJ7dyos9o4NaFXt7i6eSsQC/RyPtQr7TvObTOrHf+t0SoFdK8LlrGu7c8/WN5hVoNYb6Ww6mk2vFrJXI9rfay6P4yoKdNX3MsujI7sfHojac0vXR3XKbMfXsnk5DerBug67axeUfsL85y8IsfZCrc73Zkyx2by+ps4nD+mW8OZheoUgKb1WOEiFjXwrWK6eEta+X8T444csnkAw6GoLeqIlNVQojpPFHjiOLgy6kkWatWwsY0Q7xOCK9oFGDzsjWpKO81OFEa72yMFcRVsjfND3vTTJzOJlHLhJi6Tz81/wCjA07Hb6hD1ImkGm0srKVJ+8gvkQtOGsuTPsSTQ7Hy3elAxXULxeKPaKEv/n4WA8o+RvRGKoLmWhzVjWNE3mlCL/9seqcuapF7V4fe3YT9IUrNcnxdOqcTAXa30wFKMS6nt4UeaoUkhQIcNVqgg8nNDRaCfDBRAx0AZLPWPLjCNSQVwpzYEhAaUUxNq5IyH8t0pkddEC5CTrZiN7ZvoK8LiBxqHuMPMvi3pfiq8+vlkppEPd/bhndC7eXIwevPm22jiw22QMxHjCyl2nk=
   on:
     tags: true
     repo: aktionskarten/aktionskarten.js
-    branch: master
