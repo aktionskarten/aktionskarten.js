@@ -3,6 +3,7 @@ install: npm i
 node_js:
   - '11'
 os: linux
+sudo: required
 
 services:
   - docker
