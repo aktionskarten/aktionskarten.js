@@ -507,6 +507,10 @@ class MapModel {
     return url
   }
 
+  customLink(suffix) {
+    return this._api.url + this._api.urlFor(this.id) + '/' + suffix;
+  }
+
 }
 
 export {MapModel, FeatureModel}
