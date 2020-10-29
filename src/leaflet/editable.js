@@ -11,63 +11,73 @@ L.Editable.RectangleEditor.include({
   _forceRatio: true,
   _isLandscape: true,
   _extendBounds: L.Editable.RectangleEditor.prototype.extendBounds,
-  unforceRatio() {
-    this._forceRatio = false;
+  forceRatio() {
+    return this._forceRatio;
+  },
+  setForceRatio(forced) {
+    this._forceRatio = forced;
+    if (forced) {
+      this.enforceRatio();
+    }
   },
   setLandscape() {
-    forceRatio();
     this._isLandscape = true;
+    this.forceRatio();
   },
   setPortrait() {
-    forceRatio();
     this._isLandscape = false;
+    this.forceRatio();
   },
   extendBounds(e) {
-    // Use default implementation if no ratio is enforced.
-    if (!this._forceRatio) {
-      return this._extendBounds.call(this, e);
+    if (this._forceRatio) {
+      return this.enforceRatio(e.vertex, e.latlng);
     }
+
+    // Use default implementation if no ratio is enforced.
+    return this._extendBounds.call(this, e);
+  },
+  enforceRatio(selected, newLatLng) {
+    selected  = selected || this.getLatLngs()[0][0].__vertex;
+    newLatLng = newLatLng || selected.getLatLng();
 
     // We are interested in enforced DIN A4 paper ratios. This means our
     // rectangle can be printed easily. The ratio is 1/sqrt(2) for landscape
     // letters and the inverse for portray.
     var ratio = 1240 / 1754.
 
-    // A rectangle can be defined through two opposite points (current,
-    // opposite)
-    var current        = e.vertex,
-        currentLatLng  = e.latlng,
-        currentIndex   = current.getIndex(),
-        oppositeIndex  = (currentIndex + 2) % 4,
-        oppositeLatLng = current.latlngs[oppositeIndex],
-        opposite       = oppositeLatLng.__vertex;
-
     // If we are in portray mode, use multiplicative inverse to fix ratio
     if (!this._isLandscape) {
       ratio = Math.pow(ratio, -1)
     }
 
-    // Update opposite point to keep ratio
-    var a = this.map.latLngToLayerPoint(currentLatLng),
+    // A rectangle can be defined through two points on a diagonal:
+    // selected+opposite
+    var oppositeIndex  = (selected.getIndex() + 2) % 4,
+        oppositeLatLng = selected.latlngs[oppositeIndex],
+        opposite       = oppositeLatLng.__vertex;
+
+    // Recalculate opposite point to keep ratio
+    var a = this.map.latLngToLayerPoint(newLatLng),
         b = this.map.latLngToLayerPoint(oppositeLatLng),
         width = Math.abs(b.x - a.x),
-        sign = (a.y < b.y) ? +1 : -1;
+        sign = (a.y < b.y) ? +1 : -1,
+        oppositeNew = new L.Point(b.x, a.y + width*ratio*sign);
 
     // Transform to WSG84 (latlng)
-    var oppositeNew = new L.Point(b.x, a.y + width*ratio*sign);
     oppositeLatLng = this.map.layerPointToLatLng(oppositeNew);
 
-    // Update Vertexes (markers)
-    var next     = current.getNext(),
-        previous = current.getPrevious();
+    // Update Vertexes in-place (markers)
+    var next = selected.getNext(),
+        prev = selected.getPrevious();
     opposite.latlng.update(oppositeLatLng);
-    previous.latlng.update([currentLatLng.lat, oppositeLatLng.lng]);
-    next.latlng.update([oppositeLatLng.lat, currentLatLng.lng]);
-
-    // Update Rectangle
-    var bounds = new L.LatLngBounds(currentLatLng, oppositeLatLng);
-    this.updateBounds(bounds);
+    prev.latlng.update([newLatLng.lat, oppositeLatLng.lng]);
+    next.latlng.update([oppositeLatLng.lat, newLatLng.lng]);
     this.refreshVertexMarkers();
+
+    // Update and redraw Rectangle
+    var bounds = new L.LatLngBounds(newLatLng, oppositeLatLng);
+    this.updateBounds(bounds);
+    this.refresh();
   }
 });
 
