@@ -1,5 +1,6 @@
 import 'leaflet-editable'
 import 'leaflet-path-drag'
+import L from './leaflet'
 import './editable.css'
 
 //
