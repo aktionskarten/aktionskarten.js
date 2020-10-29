@@ -3,33 +3,69 @@ import 'leaflet-path-drag'
 import './editable.css'
 
 //
-// Limit Rectangle to only be able to create rectangles of DIN A4 ratio
+// RectangleEditor - Add option to enforce DIN A4 landscape or potrait mode
+// ratios for rectangles.
 //
 L.Editable.RectangleEditor.include({
+  _forceRatio: true,
+  _isLandscape: true,
+  _extendBounds: L.Editable.RectangleEditor.prototype.extendBounds,
+  unforceRatio() {
+    this._forceRatio = false;
+  },
+  setLandscape() {
+    forceRatio();
+    this._isLandscape = true;
+  },
+  setPortrait() {
+    forceRatio();
+    this._isLandscape = false;
+  },
   extendBounds(e) {
-    var index = e.vertex.getIndex(),
-        next = e.vertex.getNext(),
-        previous = e.vertex.getPrevious(),
-        oppositeIndex = (index + 2) % 4,
-        opposite = e.vertex.latlngs[oppositeIndex],
-        a = this.map.latLngToLayerPoint(e.latlng),
-        b = this.map.latLngToLayerPoint(opposite),
-        width = Math.abs(b.x - a.x),
-        ratio =  1240 / 1754.; // 1./Math.sqrt(2)
-
-    if (a.y < b.y) {
-      b = new L.Point(b.x, a.y + width*ratio);
-    } else {
-      b = new L.Point(b.x, a.y - width*ratio);
+    // Use default implementation if no ratio is enforced.
+    if (!this._forceRatio) {
+      return this._extendBounds.call(this, e);
     }
 
-    opposite = this.map.layerPointToLatLng(b);
-    previous.latlng.update([e.latlng.lat, opposite.lng]);
-    next.latlng.update([opposite.lat, e.latlng.lng]);
+    // We are interested in enforced DIN A4 paper ratios. This means our
+    // rectangle can be printed easily. The ratio is 1/sqrt(2) for landscape
+    // letters and the inverse for portray.
+    var ratio = 1240 / 1754.
 
-    var bounds = new L.LatLngBounds(e.latlng, opposite);
+    // A rectangle can be defined through two opposite points (current,
+    // opposite)
+    var current        = e.vertex,
+        currentLatLng  = e.latlng,
+        currentIndex   = current.getIndex(),
+        oppositeIndex  = (currentIndex + 2) % 4,
+        oppositeLatLng = current.latlngs[oppositeIndex],
+        opposite       = oppositeLatLng.__vertex;
+
+    // If we are in portray mode, use multiplicative inverse to fix ratio
+    if (!this._isLandscape) {
+      ratio = Math.pow(ratio, -1)
+    }
+
+    // Update opposite point to keep ratio
+    var a = this.map.latLngToLayerPoint(currentLatLng),
+        b = this.map.latLngToLayerPoint(oppositeLatLng),
+        width = Math.abs(b.x - a.x),
+        sign = (a.y < b.y) ? +1 : -1;
+
+    // Transform to WSG84 (latlng)
+    var oppositeNew = new L.Point(b.x, a.y + width*ratio*sign);
+    oppositeLatLng = this.map.layerPointToLatLng(oppositeNew);
+
+    // Update Vertexes (markers)
+    var next     = current.getNext(),
+        previous = current.getPrevious();
+    opposite.latlng.update(oppositeLatLng);
+    previous.latlng.update([currentLatLng.lat, oppositeLatLng.lng]);
+    next.latlng.update([oppositeLatLng.lat, currentLatLng.lng]);
+
+    // Update Rectangle
+    var bounds = new L.LatLngBounds(currentLatLng, oppositeLatLng);
     this.updateBounds(bounds);
-    this.updateLatLngs(bounds);
     this.refreshVertexMarkers();
   }
 });
