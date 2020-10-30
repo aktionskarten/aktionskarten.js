@@ -59,17 +59,18 @@ L.Editable.RectangleEditor.include({
   },
   setForceRatio(forced) {
     this._forceRatio = forced;
-    if (forced) {
+    if (!this.feature.isEmpty() && forced) {
       this.enforceRatio();
+      this.enforceBounds();
     }
   },
   setLandscape() {
     this._isLandscape = true;
-    this.forceRatio();
+    this.setForceRatio(true);
   },
   setPortrait() {
     this._isLandscape = false;
-    this.forceRatio();
+    this.setForceRatio(true);
   },
   extendBounds(e) {
     if (this._forceRatio) {
