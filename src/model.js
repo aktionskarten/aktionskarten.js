@@ -335,7 +335,7 @@ class MapModel {
   }
 
   async grid() {
-    if (this._states['bbox'] == 'dirty') {
+    if (this._states['bbox'] == 'dirty' && !!this.bbox) {
       return await this._api.getGridForBBox(this.bbox);
     }
     return await this._api.getGrid(this.id, this.token);
