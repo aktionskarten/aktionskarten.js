@@ -161,6 +161,20 @@ var ContainerMixin = {
     // add help text (try to translate if t function is available)
     this.overlay.add('p', 'small', t(this.name + '.help') + '<br />');
 
+
+    // add selection
+    let selections = this.options.selections || []
+    if (selections.length > 0) {
+      var elem = this.overlay.add('select', '', '');
+      for (let select of selections) {
+        let option = this.overlay.add('option', '', select.label, elem);
+        if (select.selected) {
+          option.setAttribute('selected', true)
+        }
+        option.on('click', select.callback, this)
+      }
+    }
+
     // add buttons
     let buttons = this.options.buttons || [{}]
 
@@ -190,6 +204,11 @@ var ContainerMixin = {
 
   setOverlayButtons: function(buttons) {
     this.options.buttons = buttons || [{}];
+    this.addOverlay();
+  },
+
+  setOverlaySelections: function(selections) {
+    this.options.selections = selections || [];
     this.addOverlay();
   },
 
