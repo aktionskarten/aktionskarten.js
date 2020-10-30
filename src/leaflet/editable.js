@@ -3,6 +3,43 @@ import 'leaflet-path-drag'
 import L from './leaflet'
 import './editable.css'
 
+
+L.Rectangle.include({
+  height() {
+    if (!this. _map) {
+      return 0;
+    }
+    var bounds = this.getBounds(),
+        bottomLeft = this._map.latLngToLayerPoint(bounds.getSouthWest()),
+        topRight = this._map.latLngToLayerPoint(bounds.getNorthEast())
+    return Math.abs(bottomLeft.y-topRight.y);
+  },
+  width() {
+    if (!this. _map) {
+      return 0;
+    }
+    var bounds = this.getBounds(),
+        bottomLeft = this._map.latLngToLayerPoint(bounds.getSouthWest()),
+        topRight = this._map.latLngToLayerPoint(bounds.getNorthEast())
+    return Math.abs(bottomLeft.x-topRight.x);
+  },
+  ratio() {
+    return this.height()/this.width();
+  },
+  _isRatio(ratio) {
+    return Math.abs(this.ratio() -  ratio) < 0.1;
+  },
+  isLandscape() {
+    return this._isRatio(1240/1754.)
+  },
+  isPortrait() {
+    return this._isRatio(1754/1240.)
+  },
+  isEmpty() {
+    return !this.width() || !this.height();
+  }
+});
+
 //
 // RectangleEditor - Add option to enforce DIN A4 landscape or potrait mode
 // ratios for rectangles.
