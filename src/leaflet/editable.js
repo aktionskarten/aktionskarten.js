@@ -125,11 +125,16 @@ L.Editable.RectangleEditor.include({
 //
 var ContainerMixin = {
 
+  closeOnCommit: true,
+
   initOverlay: function() {
     this.feature.on('editable:enable', this.showOverlay, this);
     this.feature.on('editable:disable', this.removeOverlay, this);
     this.feature.on('editable:drawing:cancel', this.removeOverlay, this);
-    this.feature.on('editable:drawing:commit', this.removeOverlay, this);
+
+    if (this.closeOnCommit) {
+      this.feature.on('editable:drawing:commit', this.removeOverlay, this);
+    }
 
     // refresh if it's finishable (add finish button)
     this.feature.on('editable:vertex:new', (e)=> {
