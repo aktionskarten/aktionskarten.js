@@ -63,8 +63,6 @@ class View {
     });
 
     this.on('bboxChanged', async (e) => {
-      grid.clearLayers();
-      grid.addData(await this.model.grid());
       this._updateUI();
     });
 
@@ -210,7 +208,6 @@ class View {
 
           // add features
           let features = await this.model.features()
-        console.log("adding features: ", features)
           if (features) {
             this._featuresLayer.addData(features.geojson);
           }
@@ -221,14 +218,25 @@ class View {
   }
 
   _registerLeafletEventHandlers() {
+    var events  = [
+      'editable:drawing:start',
+      'editable:drawing:cancel',
+      'editable:vertex:dragend',
+      'editable:drawing:commit',
+      'editable:dragend',
+      'styleeditor:changed',
+      'styleeditor:hidden',
+    ];
+
+    for (const e of events) {
+      console.log("registering event " + e)
+      this._map.on(e, () => console.log("Event", e))
+    }
+
     // general
     this._map.on('click', this.onClick, this);
     this._map.on('editable:drawing:start', this.onDrawingStart, this);
     this._map.on('editable:drawing:cancel', this.onDrawingCancel, this);
-
-    // editable - rect object
-    this._map.on('editable:vertex:dragend', this.onDrawingBbox, this);
-    this._map.on('editable:drawing:commit', this.onDrawingBbox, this);
 
     // editable - geo objects
     this._map.on('editable:drawing:commit', this.onDrawingCommit, this);
@@ -268,6 +276,8 @@ class View {
   }
 
   async updateEditable() {
+    console.log("update editable")
+
     let editable = this._controls.editable;
     if (!editable) {
       return;
@@ -291,41 +301,81 @@ class View {
 
     // remove old bbox, we gonna create a new one later one
     if (this._bboxRect) {
-      this._bboxRect.editor.disable();
+      this._bboxRect.disableEdit();
+      this._map.removeLayer(this._bboxRect);
       this._bboxRect = null;
     }
-
 
     if (this.mode == 'bbox') {
       if (!this.model.authenticated) {
         return;
       }
 
-      let buttons = [{
-        label: this.t(this._grid.count() > 0 ? 'Redraw' : 'Draw'),
-        color: 'secondary',
-        callback: (e) => {
-          this._map.editTools.featuresLayer.clearLayers();
-          this._bboxRect.editor.startDrawing()
-        },
-      }];
+      if (this._bboxRect) {
+        return;
+      }
 
-      if (this._grid.count() > 0) {
-        buttons.push({
+      // Either create rectangle from bbox or start with an empty one
+      let rect;
+      if (!!this.model.bbox) {
+        let southEast = this.model.bbox.slice(0,2).reverse()
+        let northWest = this.model.bbox.slice(2,4).reverse()
+        let bounds = new L.LatLngBounds(southEast, northWest);
+        rect = L.rectangle(bounds).addTo(this._map)
+      } else {
+        rect = tools.createRectangle([[0,0],[0,0]]);
+      }
+
+      let buttons = [
+        {
+          label: this.t(rect.isEmpty() ? 'Draw' : 'Redraw'),
+          color: 'secondary',
+          callback: (e) => rect.editor.redraw()
+        },
+        {
           label: this.t('Continue'),
           color: 'primary',
           callback: async (e) => {
-            this.mode = '';
-            await this.model.save();
+            let bounds = rect.getBounds();
+            let latlngs = [bounds.getSouthWest(), bounds.getNorthEast()];
+            let coords = L.GeoJSON.latLngsToCoords(latlngs)
+            let bbox = [].concat.apply([], coords);
+            await this.onDrawingBbox(bbox);
           }
-        });
+        }
+      ]
+
+      let isLandscape = rect.isLandscape(),
+          isPortrait  = rect.isPortrait(),
+          selections  = [
+        {
+          label: this.t('Landscape Mode'),
+          callback: () => rect.editor.setLandscape(),
+          selected: isLandscape
+        },
+        {
+          label: this.t('Portrait Mode'),
+          callback: () => rect.editor.setPortrait(),
+          selected: isPortrait
+        },
+        {
+          label: this.t('No restrictions'),
+          callback: () => rect.editor.setForceRatio(false),
+          selected: !rect.isEmpty() && !isLandscape && !isPortrait
+        },
+      ];
+
+      rect.enableEdit(this._map)
+
+      rect.editor.setOverlaySelections(selections);
+      rect.editor.setOverlayButtons(buttons);
+
+      // start drawing if we have no valid bounds
+      if (rect.isEmpty()) {
+        rect.editor.startDrawing()
       }
 
-      if (!this._bboxRect) {
-        let rect = tools.createRectangle([[0,0],[0,0]]);
-        rect.enableEdit(this._map).setOverlayButtons(buttons);
-        this._bboxRect = rect;
-      }
+      this._bboxRect = rect;
     }
   }
 
@@ -394,6 +444,16 @@ class View {
 
     await this.updateEditable();
     await this.updateStyleEditor();
+
+    // only show grid if we actually don't alter it
+    if (this.mode != 'bbox') {
+      let grid = await this.model.grid()
+      if (grid) {
+        this._grid.addData(grid);
+      }
+    } else {
+        this._grid.clearLayers();
+    }
   }
 
   on(event, handler) {
@@ -436,28 +496,22 @@ class View {
     }
   }
 
-  onDrawingBbox(e) {
+  async onDrawingBbox(bounds) {
     if (this.mode != 'bbox') {
       return;
     }
 
-    var layer = e.layer,
-        geojson = layer.toGeoJSON();
+    this.model.bbox = bounds;
+    await this.model.save();
 
-    if (geojson.geometry.type != "Polygon") {
-      console.warn("Invalid geometry type");
-      return;
-    }
+    this.mode = ''
 
-    let bounds = layer.getBounds();
-    let rect = [bounds.getSouthEast(), bounds.getNorthWest()];
-    this.model.bbox = [].concat.apply([], L.GeoJSON.latLngsToCoords(rect));
-
-    console.log("bbox changed", e);
+    console.log("bbox changed", bounds);
   }
 
   async onDrawingCommit(e) {
       if (this.mode == 'bbox') {
+        this._bboxRect.editor.enforceBounds();
         return;
       }
 
@@ -495,10 +549,16 @@ class View {
   }
 
   async onDrawingUpdate(e) {
+    if (this.mode == 'bbox') {
+      this._bboxRect.editor.enforceBounds();
+      return;
+    }
+
     let layer = e.layer,
         id = layer.id;
 
     if (!id) {
+      console.warn("no id");
       return
     }
 
