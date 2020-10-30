@@ -45,6 +45,7 @@ L.Rectangle.include({
 // ratios for rectangles.
 //
 L.Editable.RectangleEditor.include({
+  closeOnCommit: false,
   _forceRatio: true,
   _isLandscape: true,
   _extendBounds: L.Editable.RectangleEditor.prototype.extendBounds,
