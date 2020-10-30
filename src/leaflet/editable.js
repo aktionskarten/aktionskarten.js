@@ -49,6 +49,11 @@ L.Editable.RectangleEditor.include({
   _forceRatio: true,
   _isLandscape: true,
   _extendBounds: L.Editable.RectangleEditor.prototype.extendBounds,
+  enforceBounds() {
+    if (!this.feature.isEmpty()) {
+      this.map.fitBounds(this.getDefaultLatLngs())
+    }
+  },
   forceRatio() {
     return this._forceRatio;
   },
@@ -116,7 +121,16 @@ L.Editable.RectangleEditor.include({
     var bounds = new L.LatLngBounds(newLatLng, oppositeLatLng);
     this.updateBounds(bounds);
     this.refresh();
-  }
+  },
+  redraw() {
+    var corner = L.latLng([0, 0]);
+    var bounds = new L.LatLngBounds(corner, corner);
+    this.updateBounds(bounds);
+    this.updateLatLngs(bounds);
+    this.refresh();
+    this.reset()
+    this.startDrawing()
+  },
 });
 
 
