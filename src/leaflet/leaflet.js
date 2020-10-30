@@ -141,8 +141,9 @@ L.HTMLContainer = L.Class.extend({
 
   },
 
-  add(tagName, className, content) {
-    let elem = L.DomUtil.create(tagName, className, this._container);
+  add(tagName, className, content, container) {
+    container = container || this._container
+    let elem = L.DomUtil.create(tagName, className, container);
 
     // HTMLElement has no event subscription  method, add with same defintion
     // like for leaflet
