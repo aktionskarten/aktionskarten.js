@@ -12,9 +12,13 @@
     var hash = window.location.hash.substring(1)
     var [id, secret] = hash.split('/')
 
+    if (!id) {
+      alert('You need to provide a map id as url: '+window.location.href+'#<map_id>/<map_secret>')
+    }
+
     api = new Aktionskarten.Api(url)
     model = await Aktionskarten.MapModel.get(api, id, secret)
-    view = new Aktionskarten.View('map', model, 'bbox')
+    view = new Aktionskarten.View('map', model)
 
     await view.init('en');
   };
