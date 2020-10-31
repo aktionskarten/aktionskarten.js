@@ -35,6 +35,12 @@ L.Rectangle.include({
   },
   isEmpty() {
     return !this.width() || !this.height();
+  },
+  bbox() {
+    let bounds = this.getBounds();
+    let latlngs = [bounds.getSouthWest(), bounds.getNorthEast()];
+    let coords = L.GeoJSON.latLngsToCoords(latlngs)
+    return [].concat.apply([], coords);
   }
 });
 
