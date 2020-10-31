@@ -1,4 +1,4 @@
-aktionskarten.js [![Build Status](https://travis-ci.org/aktionskarten/aktionskarten.js.svg?branch=master)](https://travis-ci.org/aktionskarten/aktionskarten.js)
+aktionskarten.js [![Build Status](https://travis-ci.org/aktionskarten/aktionskarten.js.svg?branch=main)](https://travis-ci.org/aktionskarten/aktionskarten.js)
 ============
 
 aktionskarten.js is our client library for creating interactive maps for
