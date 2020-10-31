@@ -93,7 +93,7 @@ class View {
                   feature = await this.model.getFeature(id),
                   style = this._controls.style;
               style.removeEditClickEvents(layer);
-              style.hideEditor();
+              this.hideEditor();
               await feature.remove();
           };
           layer.on('triggered', L.DomEvent.stop).on('triggered', async (e) => {
@@ -383,6 +383,9 @@ class View {
 
   hideEditor(id) {
     let style = this._controls.style;
+    if (!style.isEnabled()) {
+      return;
+    }
     let current = style.options.util.getCurrentElement();
     if (current) {
       if (id && id != current.id) {
@@ -464,7 +467,7 @@ class View {
     let current = style.options.util.getCurrentElement();
     if (current) {
       current.disableEdit();
-      style.hideEditor();
+      this.hideEditor();
     }
   }
 
