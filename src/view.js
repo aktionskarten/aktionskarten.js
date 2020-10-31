@@ -336,16 +336,19 @@ class View {
 
       let selections  = [
         {
+          value: 'landscape',
           label: this.t('Landscape Mode'),
           callback: () => editor.setMode('landscape'),
           selected: () => editor.mode() == 'landscape'
         },
         {
+          value: 'portrait',
           label: this.t('Portrait Mode'),
           callback: () => editor.setMode('portrait'),
           selected: () => editor.mode() == 'portrait'
         },
         {
+          value: '',
           label: this.t('No restrictions'),
           callback: () => editor.setMode(''),
           selected: () => !editor.mode()

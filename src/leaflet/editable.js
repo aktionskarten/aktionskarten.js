@@ -177,16 +177,22 @@ var ContainerMixin = {
     let selections = this.options.selections || []
     if (selections.length > 0) {
       var elem = this.overlay.add('select', '', '');
+
       for (let select of selections) {
         let option = this.overlay.add('option', '', select.label, elem);
+        option.setAttribute('value', select.value)
 
         // listen for refresh events to select/unselect
         let selected = select.selected || (() => false);
         this.feature.on('refresh', e => option.selected = selected());
-
-        // install callback for click events
-        option.on('click', select.callback, this)
       }
+
+      // call callbacks for change events (if option is selected)
+      elem.on('change', (e)=> {
+        var option = selections.find((elem) => elem.value == e.target.value)
+        option.callback.bind(this)()
+      }, this)
+
     }
 
     // add buttons
