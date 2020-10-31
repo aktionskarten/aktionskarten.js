@@ -50,7 +50,7 @@ class View {
     return (s) => s
   }
 
-  async _addGridLayer() {
+  _addGridLayer() {
     let grid = new L.GeoJSON(null, {
       interactive: false,
       style: (f) => f.properties
@@ -64,8 +64,8 @@ class View {
     grid.addTo(this._map);
   }
 
-  async _addFeatureLayer() {
-    if (!this._featuresLayerLayer) {
+  _addFeatureLayer() {
+    if (!this._featuresLayer) {
       let featuresLayer = new L.FeatureLayer(null, {
         // copies style and id to feature.options
         style: (f) => f.properties,
@@ -176,8 +176,8 @@ class View {
           this._updateUI();
 
           // init layers
-          await this._addGridLayer();
-          await this._addFeatureLayer();
+          this._addGridLayer();
+          this._addFeatureLayer();
 
           // init socketio
           this._socket = io.connect(this.model._api.url);
@@ -442,6 +442,9 @@ class View {
     } else {
       this._grid.clearLayers();
     }
+
+    // ensure features will be rendered on top of grid
+    this._featuresLayer.bringToFront()
   }
 
   on(event, handler) {
