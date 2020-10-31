@@ -555,6 +555,15 @@ class View {
     layer.feature = feature.geojson
     await feature.save()
 
+    // Update placement of label
+    if ('label' in geojson.properties) {
+      let label = geojson.properties.label;
+      layer.options.label = label;
+      layer.unbindTooltip();
+      layer.bindTooltip(label, {permanent: true, direction: 'bottom', className: 'label'});
+    }
+
+
     console.log("edited", feature.id);
   }
 
