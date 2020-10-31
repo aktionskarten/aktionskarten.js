@@ -157,6 +157,10 @@ var ContainerMixin = {
     this.feature.on('editable:drawing:commit', refresher);
     this.feature.on('editable:drawing:start', refresher);
     this.feature.on('editable:vertex:new', refresher);
+
+    // use translate function if available otherwise provide identity
+    let i18next = this.map.i18next;
+    this.t = (s) => (i18next) ? i18next.t(s) : s
   },
 
   addOverlay: function() {
@@ -165,10 +169,6 @@ var ContainerMixin = {
     } else {
       this.overlay.clear();
     }
-
-    // use translate function if available otherwise provide identity
-    let i18next = this.map.i18next;
-    let t = (s) => (i18next) ? i18next.t(s) : s
 
     // add help text (try to translate if t function is available)
     this.overlay.add('p', 'small', this.t(this.name + '.help') + '<br />');
