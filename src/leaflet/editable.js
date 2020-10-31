@@ -23,11 +23,9 @@ L.Rectangle.include({
         topRight = this._map.latLngToLayerPoint(bounds.getNorthEast())
     return Math.abs(bottomLeft.x-topRight.x);
   },
-  ratio() {
-    return this.height()/this.width();
-  },
   _isRatio(ratio) {
-    return Math.abs(this.ratio() -  ratio) < 0.1;
+    let _ratio = this.height()/this.width();
+    return Math.abs(_ratio -  ratio) < 0.1;
   },
   isLandscape() {
     return this._isRatio(1240/1754.)
