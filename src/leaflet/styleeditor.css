@@ -25,7 +25,7 @@
 }
 
 .leaflet-styleeditor-select {
-  padding: 24px;
+  width: 100%
 }
 
 .leaflet-styleeditor-select-option {
@@ -33,19 +33,18 @@
 }
 
 .leaflet-styleeditor-select-option-wrapper {
-  width: 150px;
+  margin-top: 0;
 }
 
 .leaflet-styleeditor-tooltip-wrapper {
   position: absolute;
   left: 50%;
+  transform: translate(-50%, 0);
   top: 5%;
-  width: 40%;
+  bottom: auto;
 }
 
 .leaflet-styleeditor-tooltip {
-  position: relative;
-  left: -50%;
   border: none;
   background-color: rgba(255, 255, 255, 0.6);
   color: #000;
@@ -66,15 +65,6 @@
   background: none;
 }
 
-/*
-@keyframes fade {
-    to {
-    opacity: 0.5;
-  }
+input.form-control[type=text] {
+  width: 100%;
 }
-
-.leaflet-styleeditor-marker-selected {
-  animation: fade 1s infinite alternate;
-}
-
-/* #00ad87 */
