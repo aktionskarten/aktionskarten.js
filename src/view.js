@@ -13,11 +13,7 @@ class View {
     // private properties for Leaflet
     this._grid = null
     this._controls = {}
-
-    // if we don't have a bbox, set mode to bbox
-    if (mode) {
-      this._mode = mode;
-    }
+    this.mode = mode;
 
     // refresh controls on login
     this.on('authenticated', e => {
@@ -27,16 +23,14 @@ class View {
   }
 
   set mode(mode) {
-    console.log("setting mode to ", mode);
-
-    if (this._mode == mode) {
-      return;
-    }
-
     // if we have no grid yet, enforce bbox mode so
     // the user is adding one
     if (!this.model.bbox) {
       mode = 'bbox';
+    }
+
+    if (this._mode == mode) {
+      return;
     }
 
     this._mode = mode;
@@ -198,14 +192,6 @@ class View {
             editable: editable(),
           }
 
-          // add grid
-          let grid = await this.model.grid()
-          if (grid) {
-            this._grid.addData(grid);
-          } else {
-            this.mode = 'bbox';
-          }
-
           // add features
           let features = await this.model.features()
           if (features) {
@@ -246,7 +232,6 @@ class View {
     // styleeditor
     this._map.on('styleeditor:changed', this.onStyleChanged, this);
     this._map.on('styleeditor:hidden', this.onDrawingUpdateCancel, this)
-
   }
 
   _registerSocketIOEventHandlers() {
@@ -276,8 +261,6 @@ class View {
   }
 
   async updateEditable() {
-    console.log("update editable")
-
     let editable = this._controls.editable;
     if (!editable) {
       return;
@@ -326,46 +309,48 @@ class View {
         rect = tools.createRectangle([[0,0],[0,0]]);
       }
 
+      rect.enableEdit(this._map)
+      let editor = rect.editor;
+
       let buttons = [
         {
           label: this.t(rect.isEmpty() ? 'Draw' : 'Redraw'),
           color: 'secondary',
-          callback: (e) => rect.editor.redraw()
+          callback: (e) => editor.redraw()
         },
         {
           label: this.t('Continue'),
           color: 'primary',
-          callback: async (e) => {
-            let bounds = rect.getBounds();
-            let latlngs = [bounds.getSouthWest(), bounds.getNorthEast()];
-            let coords = L.GeoJSON.latLngsToCoords(latlngs)
-            let bbox = [].concat.apply([], coords);
-            await this.onDrawingBbox(bbox);
-          }
+          enabled: () => !rect.isEmpty(),
+          callback: (e) => this.onDrawingBbox(rect.bbox())
         }
       ]
 
-      let isLandscape = rect.isLandscape(),
-          isPortrait  = rect.isPortrait(),
-          selections  = [
+      if (rect.isLandscape()) {
+        editor.setMode('landscape')
+      } else if(rect.isPortrait()) {
+        editor.setMode('portrait')
+      } else if(!rect.isEmpty()) {
+        editor.setMode('')
+      }
+
+      let selections  = [
         {
           label: this.t('Landscape Mode'),
-          callback: () => rect.editor.setLandscape(),
-          selected: isLandscape
+          callback: () => editor.setMode('landscape'),
+          selected: () => editor.mode() == 'landscape'
         },
         {
           label: this.t('Portrait Mode'),
-          callback: () => rect.editor.setPortrait(),
-          selected: isPortrait
+          callback: () => editor.setMode('portrait'),
+          selected: () => editor.mode() == 'portrait'
         },
         {
           label: this.t('No restrictions'),
-          callback: () => rect.editor.setForceRatio(false),
-          selected: !rect.isEmpty() && !isLandscape && !isPortrait
+          callback: () => editor.setMode(''),
+          selected: () => !editor.mode()
         },
       ];
-
-      rect.enableEdit(this._map)
 
       rect.editor.setOverlaySelections(selections);
       rect.editor.setOverlayButtons(buttons);
@@ -452,7 +437,7 @@ class View {
         this._grid.addData(grid);
       }
     } else {
-        this._grid.clearLayers();
+      this._grid.clearLayers();
     }
   }
 
@@ -484,13 +469,10 @@ class View {
   }
 
   onDrawingStart(e) {
-    console.log("editable:drawing:start")
     this.hideEditor();
-    console.log("editable:drawing:started")
   }
 
   onDrawingCancel(e) {
-    console.log('editable:drawing:cancel', e)
     if (e.layer) {
       e.layer.remove();
     }

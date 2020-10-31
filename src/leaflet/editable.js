@@ -50,34 +50,31 @@ L.Rectangle.include({
 //
 L.Editable.RectangleEditor.include({
   closeOnCommit: false,
-  _forceRatio: true,
-  _isLandscape: true,
+  _mode: 'landscape',
   _extendBounds: L.Editable.RectangleEditor.prototype.extendBounds,
   enforceBounds() {
     if (!this.feature.isEmpty()) {
       this.map.fitBounds(this.getDefaultLatLngs())
     }
   },
-  forceRatio() {
-    return this._forceRatio;
+  mode() {
+    return this._mode;
   },
-  setForceRatio(forced) {
-    this._forceRatio = forced;
-    if (!this.feature.isEmpty() && forced) {
+  setMode(mode) {
+    if (['', 'portrait', 'landscape'].indexOf(mode) < 0) {
+      console.warn('invalid mode');
+      return;
+    }
+
+    this._mode = mode;
+
+    if (!!mode) {
       this.enforceRatio();
       this.enforceBounds();
     }
   },
-  setLandscape() {
-    this._isLandscape = true;
-    this.setForceRatio(true);
-  },
-  setPortrait() {
-    this._isLandscape = false;
-    this.setForceRatio(true);
-  },
   extendBounds(e) {
-    if (this._forceRatio) {
+    if (!!this.mode()) {
       return this.enforceRatio(e.vertex, e.latlng);
     }
 
@@ -94,7 +91,7 @@ L.Editable.RectangleEditor.include({
     var ratio = 1240 / 1754.
 
     // If we are in portray mode, use multiplicative inverse to fix ratio
-    if (!this._isLandscape) {
+    if (this.mode() == 'portrait') {
       ratio = Math.pow(ratio, -1)
     }
 
@@ -156,15 +153,10 @@ var ContainerMixin = {
       this.feature.on('editable:drawing:commit', this.removeOverlay, this);
     }
 
-    // refresh if it's finishable (add finish button)
-    this.feature.on('editable:vertex:new', (e)=> {
-      console.log('editable:vertex:new')
-      let minVertices = this.feature.editor.MIN_VERTEX-1
-      let finishable = e.vertex.getLastIndex() >= minVertices
-      if (finishable) {
-        this.addOverlay()
-      }
-    })
+    let refresher = e => this.feature.fire('refresh')
+    this.feature.on('editable:drawing:commit', refresher);
+    this.feature.on('editable:drawing:start', refresher);
+    this.feature.on('editable:vertex:new', refresher);
   },
 
   addOverlay: function() {
@@ -179,8 +171,7 @@ var ContainerMixin = {
     let t = (s) => (i18next) ? i18next.t(s) : s
 
     // add help text (try to translate if t function is available)
-    this.overlay.add('p', 'small', t(this.name + '.help') + '<br />');
-
+    this.overlay.add('p', 'small', this.t(this.name + '.help') + '<br />');
 
     // add selection
     let selections = this.options.selections || []
@@ -188,42 +179,58 @@ var ContainerMixin = {
       var elem = this.overlay.add('select', '', '');
       for (let select of selections) {
         let option = this.overlay.add('option', '', select.label, elem);
-        if (select.selected) {
-          option.setAttribute('selected', true)
-        }
+
+        // listen for refresh events to select/unselect
+        let selected = select.selected || (() => false);
+        this.feature.on('refresh', e => option.selected = selected());
+
+        // install callback for click events
         option.on('click', select.callback, this)
       }
     }
 
     // add buttons
-    let buttons = this.options.buttons || [{}]
-
-    let vertices = this._drawnLatLngs || []
-    if (vertices.length >= this.MIN_VERTEX) {
-      let btn = {
-        label: t('Finish'),
-        color: 'primary',
-        callback: this.tools.commitDrawing.bind(this.tools),
-      };
-
-      // only add if not already contained
-      if (!buttons.find(elem => elem.label == btn.label)) {
-        buttons.push(btn);
-      }
-    }
-
+    let buttons = this.options.buttons || this.getDefaultButtons();
     for (let button of buttons) {
-      let label = button.label || t('Cancel');
-      let color = button.color || 'danger';
-      let callback = button.callback || this.tools.stopDrawing.bind(this.tools)
-      this.overlay.add('button', 'btn btn-sm btn-'+color, label)
-                    .on('click', callback, this)
-                    .disableClickPropagation();
+      let label = button.label;
+      let color = button.color || 'primary';
+      let btn = this.overlay.add('button', 'btn btn-sm btn-'+color, label)
+
+      // listen for refresh events to enable/disable button
+      let enabled = button.enabled || (() => true);
+      this.feature.on('refresh', e => btn.disabled = !enabled());
+
+      // install callback for click events
+      btn.on('click', button.callback, this).disableClickPropagation();
     }
+
+
+    // apply all dynamic properties (like selected or enabled)
+    this.feature.fire('refresh');
+  },
+
+  getDefaultButtons() {
+    return [
+      {
+        label: this.t('Cancel'),
+        color: 'danger',
+        callback: this.tools.stopDrawing.bind(this.tools)
+      },
+      {
+        label: this.t('Finish'),
+        enabled: () => this.finishable(),
+        callback: this.tools.commitDrawing.bind(this.tools)
+      }
+    ];
+  },
+
+  finishable() {
+    let vertices = this._drawnLatLngs || [];
+    return vertices.length >= this.MIN_VERTEX;
   },
 
   setOverlayButtons: function(buttons) {
-    this.options.buttons = buttons || [{}];
+    this.options.buttons = buttons || [];
     this.addOverlay();
   },
 
