@@ -137,8 +137,8 @@ var TooltipMixin = {
 
     this._tooltip = L.DomUtil.get('tooltip');
     if (!this._tooltip) {
-      console.warn("no tooltip container. Add a <div id=\"tooltip\"></div>.");
-      return;
+      this._tooltip = L.DomUtil.create('div', '', this.map.getContainer());
+      this._tooltip.id = 'tooltip';
     }
 
     // use translate function if available otherwise provide identity
