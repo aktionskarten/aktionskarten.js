@@ -163,4 +163,46 @@ L.HTMLContainer = L.Class.extend({
 });
 
 
+L.Rectangle.include({
+  height() {
+    if (!this. _map) {
+      return 0;
+    }
+    var bounds = this.getBounds(),
+        bottomLeft = this._map.latLngToLayerPoint(bounds.getSouthWest()),
+        topRight = this._map.latLngToLayerPoint(bounds.getNorthEast())
+    return Math.abs(bottomLeft.y-topRight.y);
+  },
+  width() {
+    if (!this. _map) {
+      return 0;
+    }
+    var bounds = this.getBounds(),
+        bottomLeft = this._map.latLngToLayerPoint(bounds.getSouthWest()),
+        topRight = this._map.latLngToLayerPoint(bounds.getNorthEast())
+    return Math.abs(bottomLeft.x-topRight.x);
+  },
+  _isRatio(ratio) {
+    let _ratio = this.height()/this.width();
+    return Math.abs(_ratio -  ratio) < 0.1;
+  },
+  isLandscape() {
+    return this._isRatio(1240/1754.)
+  },
+  isPortrait() {
+    return this._isRatio(1754/1240.)
+  },
+  isEmpty() {
+    return !this.width() || !this.height();
+  },
+  bbox() {
+    let bounds = this.getBounds();
+    let latlngs = [bounds.getSouthWest(), bounds.getNorthEast()];
+    let coords = L.GeoJSON.latLngsToCoords(latlngs)
+    return [].concat.apply([], coords);
+  }
+});
+
+
+
 export default L
