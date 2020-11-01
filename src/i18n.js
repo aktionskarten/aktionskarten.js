@@ -64,7 +64,10 @@ const i18n = {
       Continue: 'Weiter',
       'Landscape Mode': 'Querformat',
       'Portrait Mode': 'Hochformat',
-      'No restrictions': 'Beliebig'
+      'No restrictions': 'Beliebig',
+
+      // tooltip
+      'Hold mouse pressed to draw a rectangle': 'Maus gedrückt halten um ein Rechteck zu malen'
     },
   },
 }
