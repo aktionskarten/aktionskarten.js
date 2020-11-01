@@ -28,3 +28,18 @@ span.leaflet-toolbar-editable-polygon {
 span.leaflet-toolbar-editable-marker {
   background-position: -63px;
 }
+
+#tooltip {
+  display: none;
+  position: absolute;
+  background: #666;
+  color: white;
+  opacity: 0.5;
+  padding: 10px;
+  border: 1px dashed #999;
+  font-family: sans-serif;
+  font-size: 12px;
+  height: 20px;
+  line-height: 20px;
+  z-index: 1000;
+}

@@ -2,8 +2,17 @@ import 'leaflet-editable'
 import 'leaflet-path-drag'
 import L from './leaflet'
 import './editable.css'
+import {ContainerMixin, TooltipMixin} from './mixins'
 
 
+// Add tooltip functionality to all editors
+L.Editable.BaseEditor.include(TooltipMixin);
+L.Editable.BaseEditor.addInitHook(TooltipMixin.initTooltip)
+
+
+// Add container functionality to all editors
+L.Editable.BaseEditor.include(ContainerMixin);
+L.Editable.BaseEditor.addInitHook(ContainerMixin.initOverlay)
 
 //
 // RectangleEditor - Add option to enforce DIN A4 landscape or potrait mode
@@ -11,6 +20,7 @@ import './editable.css'
 //
 L.Editable.RectangleEditor.include({
   closeOnCommit: false,
+  tooltipLabel: 'Hold mouse pressed to draw a rectangle',
   _mode: 'landscape',
   _extendBounds: L.Editable.RectangleEditor.prototype.extendBounds,
   enforceBounds() {
@@ -98,140 +108,6 @@ L.Editable.RectangleEditor.include({
 
 
 //
-// ContainerMixin enables you to provide a help text which will be rendered
-// on top of your map. See implementation below for examples
-//
-var ContainerMixin = {
-
-  closeOnCommit: true,
-
-  initOverlay: function() {
-    this.feature.on('editable:enable', this.showOverlay, this);
-    this.feature.on('editable:disable', this.removeOverlay, this);
-    this.feature.on('editable:drawing:cancel', this.removeOverlay, this);
-
-    if (this.closeOnCommit) {
-      this.feature.on('editable:drawing:commit', this.removeOverlay, this);
-    }
-
-    let refresher = e => this.feature.fire('refresh')
-    this.feature.on('editable:drawing:commit', refresher);
-    this.feature.on('editable:drawing:start', refresher);
-    this.feature.on('editable:vertex:new', refresher);
-
-    // use translate function if available otherwise provide identity
-    let i18next = this.map.i18next;
-    this.t = (s) => (i18next) ? i18next.t(s) : s
-  },
-
-  addOverlay: function() {
-    if (!this.overlay) {
-      this.overlay = new L.HTMLContainer(this.map.getContainer());
-    } else {
-      this.overlay.clear();
-    }
-
-    // add help text (try to translate if t function is available)
-    this.overlay.add('p', 'small', this.t(this.name + '.help') + '<br />');
-
-    // add selection
-    let selections = this.options.selections || []
-    if (selections.length > 0) {
-      var elem = this.overlay.add('select', '', '');
-
-      for (let select of selections) {
-        let option = this.overlay.add('option', '', select.label, elem);
-        option.setAttribute('value', select.value)
-
-        // listen for refresh events to select/unselect
-        let selected = select.selected || (() => false);
-        this.feature.on('refresh', e => option.selected = selected());
-      }
-
-      // call callbacks for change events (if option is selected)
-      elem.on('change', (e)=> {
-        var option = selections.find((elem) => elem.value == e.target.value)
-        option.callback.bind(this)()
-      }, this)
-
-    }
-
-    // add buttons
-    let buttons = this.options.buttons || this.getDefaultButtons();
-    for (let button of buttons) {
-      let label = button.label;
-      let color = button.color || 'primary';
-      let btn = this.overlay.add('button', 'btn btn-sm btn-'+color, label)
-
-      // listen for refresh events to enable/disable button
-      let enabled = button.enabled || (() => true);
-      this.feature.on('refresh', e => btn.disabled = !enabled());
-
-      // install callback for click events
-      btn.on('click', button.callback, this).disableClickPropagation();
-    }
-
-
-    // apply all dynamic properties (like selected or enabled)
-    this.feature.fire('refresh');
-  },
-
-  getDefaultButtons() {
-    return [
-      {
-        label: this.t('Cancel'),
-        color: 'danger',
-        callback: this.tools.stopDrawing.bind(this.tools)
-      },
-      {
-        label: this.t('Finish'),
-        enabled: () => this.finishable(),
-        callback: this.tools.commitDrawing.bind(this.tools)
-      }
-    ];
-  },
-
-  finishable() {
-    let vertices = this._drawnLatLngs || [];
-    return vertices.length >= this.MIN_VERTEX;
-  },
-
-  setOverlayButtons: function(buttons) {
-    this.options.buttons = buttons || [];
-    this.addOverlay();
-  },
-
-  setOverlaySelections: function(selections) {
-    this.options.selections = selections || [];
-    this.addOverlay();
-  },
-
-  showOverlay: function() {
-    if (!this.overlay) {
-      this.addOverlay();
-    }
-
-    // HACK: only show for new features (not saved ones). Should be in View
-    if (this.feature.id) {
-      return;
-    }
-
-    this.overlay.show();
-  },
-
-  removeOverlay: function() {
-    if (this.overlay) {
-      this.overlay.remove()
-    }
-  }
-};
-
-// Add container functionality to all editors
-L.Editable.BaseEditor.include(ContainerMixin);
-L.Editable.BaseEditor.addInitHook(ContainerMixin.initOverlay)
-
-
-//
 // Custom Controls
 //
 let BaseControl = L.Control.extend({
@@ -303,6 +179,7 @@ let MarkerControl = BaseControl.extend({
       editable.startMarker(null, {icon:icon}).editor.connect();
     }
 })
+
 L.Editable.MarkerEditor.include({
   name: 'MarkerEditor'
 })
