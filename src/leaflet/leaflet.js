@@ -163,6 +163,10 @@ L.HTMLContainer = L.Class.extend({
 });
 
 
+L.Rectangle.mergeOptions({
+  draggable: true,
+});
+
 L.Rectangle.include({
   height() {
     if (!this. _map) {
