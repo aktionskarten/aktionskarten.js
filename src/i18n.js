@@ -10,6 +10,7 @@ const i18n = {
       marker: 'Marker',
       line: 'Route',
       polygon: 'Area',
+      text: 'Text',
       'MarkerEditor': {
         help: 'Click on the map to place a marker.'
       },

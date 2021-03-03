@@ -1,9 +1,23 @@
 import i18next from 'i18next';
 import locales from './i18n'
 
-import {L, styleEditor, editable} from './leaflet'
+import debounce from 'lodash.debounce'
+import {L, styleEditor, editable, FeatureLayer} from './leaflet'
 import io from 'socket.io-client'
 import { filterProperties } from './utils'
+
+//function debounce(func, wait, immediate) {
+//    var timeout;
+//    return function() {
+//        var context = this, args = arguments;
+//        clearTimeout(timeout);
+//        timeout = setTimeout(function() {
+//            timeout = null;
+//            if (!immediate) func.apply(context, args);
+//        }, wait);
+//        if (immediate && !timeout) func.apply(context, args);
+//    };
+//}
 
 class View {
   constructor(mapElemId, data, mode) {
@@ -53,7 +67,8 @@ class View {
   _addGridLayer() {
     let grid = new L.GeoJSON(null, {
       interactive: false,
-      style: (f) => f.properties
+      style: (f) => f.properties,
+      pointToLayer: () => {} // ignore scale label markers
     });
 
     this.on('bboxChanged', async (e) => {
@@ -66,7 +81,7 @@ class View {
 
   _addFeatureLayer() {
     if (!this._featuresLayer) {
-      let featuresLayer = new L.FeatureLayer(null, {
+      let featuresLayer = new FeatureLayer(null, {
         // copies style and id to feature.options
         style: (f) => f.properties,
         pointToLayer: (feature, latlng) => {
@@ -81,11 +96,11 @@ class View {
         onEachFeature: (feature, layer) => {
           layer.id = layer.options.id = feature.properties.id;
 
-          if ('label' in feature.properties) {
-            let label = feature.properties.label;
-            layer.options.label = label;
-            layer.bindTooltip(label, {permanent: true, direction: 'bottom', className: 'label'});
-          }
+          //if ('label' in feature.properties) {
+          //  let label = feature.properties.label;
+          //  layer.options.label = label;
+          //  layer.bindTooltip(label, {permanent: true, direction: 'bottom', className: 'label'});
+          //}
 
           let removeHandler = async (e) => {
               let layer = e.sourceTarget,
@@ -165,10 +180,17 @@ class View {
       this.center();
 
       // add tiles
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      //L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      //  maxZoom: 18,
+      //  detectRetina: true,
+      //  attribution: 'Tiles &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+      //    '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a> '
+      //}).addTo(this._map);
+
+      L.tileLayer('http://localhost:8080/styles/osm-bright/{z}/{x}/{y}{r}.png', {
         maxZoom: 18,
         detectRetina: true,
-        attribution: 'Tiles &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+        attribution: 'Tiles &copy; <a href="http://openmaptiles.org/">OpenMapTiles</a> <a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors</a>, ' +
           '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a> '
       }).addTo(this._map);
 
@@ -195,6 +217,8 @@ class View {
           // add features
           let features = await this.model.features()
           if (features) {
+            console.log("adding data", features.geojson)
+            // FIX max2 exception
             this._featuresLayer.addData(features.geojson);
           }
 
@@ -230,7 +254,10 @@ class View {
     this._map.on('editable:vertex:dragend', this.onDrawingUpdate, this)
 
     // styleeditor
-    this._map.on('styleeditor:changed', this.onStyleChanged, this);
+    //this._map.on('styleeditor:changed', this.onStyleChanged, this);
+    //this._map.on('styleeditor:changed', L.Util.throttle(this.onStyleChanged, 500, this));
+    this._map.on('styleeditor:changed', debounce(e=>this.onStyleChanged(e), 1000, {trailing: true}));
+    // TODO commit on hide
     this._map.on('styleeditor:hidden', this.onDrawingUpdateCancel, this)
   }
 
@@ -304,14 +331,13 @@ class View {
         let southEast = this.model.bbox.slice(0,2).reverse()
         let northWest = this.model.bbox.slice(2,4).reverse()
         let bounds = new L.LatLngBounds(southEast, northWest);
-        rect = L.rectangle(bounds).addTo(this._map)
+        rect = L.bbox(bounds).addTo(this._map)
+        rect.enableEdit(this._map)
       } else {
-        rect = tools.createRectangle([[0,0],[0,0]]);
+        rect = this._map.editTools.startBBox();
       }
 
-      rect.enableEdit(this._map)
       let editor = rect.editor;
-
       let buttons = [
         {
           label: this.t(rect.isEmpty() ? 'Draw' : 'Redraw'),
@@ -359,9 +385,9 @@ class View {
       rect.editor.setOverlayButtons(buttons);
 
       // start drawing if we have no valid bounds
-      if (rect.isEmpty()) {
-        rect.editor.startDrawing()
-      }
+      // if (rect.isEmpty()) {
+      //   rect.editor.startDrawing()
+      // }
 
       this._bboxRect = rect;
     }
@@ -415,7 +441,6 @@ class View {
     layer.enableEdit();
     style.initChangeStyle({'target': layer});
 
-
     style.options.util.setCurrentElement(layer);
   }
 
@@ -427,6 +452,21 @@ class View {
 
     console.log("Refreshing UI (mode="+this.mode+', authenticated='+this.model.authenticated+')');
 
+    // only show grid if we actually don't alter it
+    if (this.mode != 'bbox') {
+      let grid = await this.model.grid()
+      if (grid) {
+        this._grid.addData(grid);
+      }
+    } else {
+      this._grid && this._grid.clearLayers();
+    }
+
+    // ensure features will be rendered on top of grid
+    if (this._featuresLayer) {
+    this._featuresLayer.bringToFront()
+    }
+
     // adjust map extract
     if (this._grid && this._grid.count() > 0) {
       let bounds = this._grid.getBounds();
@@ -436,18 +476,6 @@ class View {
     await this.updateEditable();
     await this.updateStyleEditor();
 
-    // only show grid if we actually don't alter it
-    if (this.mode != 'bbox') {
-      let grid = await this.model.grid()
-      if (grid) {
-        this._grid.addData(grid);
-      }
-    } else {
-      this._grid.clearLayers();
-    }
-
-    // ensure features will be rendered on top of grid
-    this._featuresLayer.bringToFront()
   }
 
   on(event, handler) {
@@ -502,7 +530,7 @@ class View {
 
   async onDrawingCommit(e) {
       if (this.mode == 'bbox') {
-        this._bboxRect.editor.enforceBounds();
+        //this._bboxRect.editor.enforceBounds();
         return;
       }
 
@@ -541,9 +569,11 @@ class View {
 
   async onDrawingUpdate(e) {
     if (this.mode == 'bbox') {
-      this._bboxRect.editor.enforceBounds();
+      //this._bboxRect.editor.enforceBounds();
       return;
     }
+
+    console.log("drawing update")
 
     let layer = e.layer,
         id = layer.id;
@@ -565,12 +595,12 @@ class View {
     await feature.save()
 
     // Update placement of label
-    if ('label' in geojson.properties) {
-      let label = geojson.properties.label;
-      layer.options.label = label;
-      layer.unbindTooltip();
-      layer.bindTooltip(label, {permanent: true, direction: 'bottom', className: 'label'});
-    }
+    //if ('label' in geojson.properties) {
+    //  let label = geojson.properties.label;
+    //  layer.options.label = label;
+    //  layer.unbindTooltip();
+    //  layer.bindTooltip(label, {permanent: true, direction: 'bottom', className: 'label'});
+    //}
 
 
     console.log("edited", feature.id);
@@ -594,12 +624,20 @@ class View {
         filtered = filterProperties(e.options),
         properties = Object.assign({'id': id, 'map_id': feature.map.id}, filtered)
 
-    if(layer) {
+    if (layer.overlay) {
+      console.log("fontRatio", layer.overlay.getSize().fontRatio)
+      properties['fontRatio'] = layer.overlay.getSize().fontRatio
+    }
+
+    if (layer) {
       layer.feature.properties = properties;
     }
 
     let geojson = Object.assign(e.toGeoJSON(), {'properties': properties})
-    feature.geojson = geojson;
+    feature.geojson = geojson;  // label+text may change geometry
+    layer.feature = feature.geojson
+    console.log("properties", geojson)
+
     await feature.save()
 
     this._featuresLayer.eachLayer(layer => {
@@ -609,6 +647,7 @@ class View {
     });
 
     console.log("styled", feature.id)
+      window.feature = feature
     this.fire('styleChanged', id);
   }
 

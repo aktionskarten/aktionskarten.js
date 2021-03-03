@@ -1,4 +1,5 @@
-import L from './leaflet'
+import {L} from './leaflet'
+import {HTMLContainer} from './container'
 
 //
 // ContainerMixin enables you to provide a help text which will be rendered
@@ -29,18 +30,19 @@ var ContainerMixin = {
 
   addOverlay: function() {
     if (!this.overlay) {
-      this.overlay = new L.HTMLContainer(this.map.getContainer());
+      this.overlay = new HTMLContainer(this.map.getContainer());
     } else {
       this.overlay.clear();
     }
 
     // add help text (try to translate if t function is available)
     this.overlay.add('p', 'small', this.t(this.name + '.help') + '<br />');
+    var row  = this.overlay.add('div', 'row justify-content-center', '');
 
     // add selection
     let selections = this.options.selections || []
     if (selections.length > 0) {
-      var elem = this.overlay.add('select', '', '');
+      var elem = this.overlay.add('select', '', '', row);
 
       for (let select of selections) {
         let option = this.overlay.add('option', '', select.label, elem);
@@ -64,7 +66,7 @@ var ContainerMixin = {
     for (let button of buttons) {
       let label = button.label;
       let color = button.color || 'primary';
-      let btn = this.overlay.add('button', 'btn btn-sm btn-'+color, label)
+      let btn = this.overlay.add('button', 'btn btn-sm btn-'+color, label, row)
 
       // listen for refresh events to enable/disable button
       let enabled = button.enabled || (() => true);
