@@ -1,7 +1,7 @@
-import {sortObj} from '../utils'
-import 'leaflet'
-
+import * as L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
+
+console.log('LEAFLET', L)
 
 //
 // we're using webpack, therefor  fix dynamic url functionality by statically
@@ -22,12 +22,12 @@ L.Path.mergeOptions({
   opacity: 0.8
 });
 
-L.Polygon.mergeOptions({
-  fillColor: '#fe0000',
-  fillOpacity: 0.6,
-  weight: 0,
-  opacity: 0
-});
+//L.Polygon.mergeOptions({
+//  fillColor: '#fe0000',
+//  fillOpacity: 0.6,
+//  weight: 0,
+//  opacity: 0
+//});
 
 L.LayerGroup.include({
   count: function() {
@@ -35,81 +35,16 @@ L.LayerGroup.include({
     }
 });
 
-// Map features (editable through Leaflet.Draw and Leaflet.StyleEditor)
-// are normally a FeatureGroup but GeoJSON extends FeatureGroup and gives
-// us functionality to populate with geojson data
-L.FeatureLayer = L.GeoJSON.extend({
-    contains(id) {
-      var layer;
-      this.eachLayer((_layer) => {
-        if (_layer.id == id) {
-          layer = _layer;
-        }
-      })
-
-      return layer;
-    },
-    addFeature(geojson) {
-      let id = geojson.properties.id;
-      if (!!this.contains(id)) { return; }
-
-      // the following is basically same as addData for single features but
-      // returns the actual created layer
-      var options = this.options || {};
-      if (options.filter && !options.filter(geojson)) {
-        return;
-      }
-
-      var layer = L.GeoJSON.geometryToLayer(geojson, options);
-      if (!layer) {
-        console.warn('layer creation error for', geojson)
-        return;
-      }
-      layer.feature = L.GeoJSON.asFeature(geojson);
-      layer.id = id
-
-      layer.defaultOptions = layer.options;
-      this.resetStyle(layer);
-
-      if (options.onEachFeature) {
-        options.onEachFeature(geojson, layer);
-      }
-
-      this.addLayer(layer);
-      return layer;
-    },
-    updateFeature(geojson) {
-      let id = geojson.properties.id;
-      let layer = this.contains(id);
-      if (!layer) {
-        this.addFeature(geojson);
-        return;
-      }
-
-      let sortedOld = sortObj(layer.feature),
-          sortedNew = sortObj(geojson),
-          strOld = JSON.stringify(sortedOld),
-          strNew = JSON.stringify(sortedNew);
-      if (strOld == strNew) {
-        return;
-      }
-
-      this.deleteFeature(id);
-      this.addFeature(geojson);
-    },
-    deleteFeature(id) {
-      let found = this.contains(id);
-      if (!!found) {
-          this.removeLayer(found);
-      }
-    },
+L.Map.include({
+  bar: 'yea'
 });
+
 
 
 //
 // With HTMLContainer you can provide an overlay on your map.
 //
-L.HTMLContainer = L.Class.extend({
+const HTMLContainer = L.Class.extend({
   initialize(root) {
     this._root = root;
     this._wrapper = L.DomUtil.create('div', 'leaflet-styleeditor-tooltip-wrapper')
@@ -163,9 +98,9 @@ L.HTMLContainer = L.Class.extend({
 });
 
 
-L.Rectangle.mergeOptions({
-  draggable: true,
-});
+//L.Rectangle.mergeOptions({
+//  draggable: true,
+//});
 
 L.Rectangle.include({
   height() {
@@ -208,5 +143,4 @@ L.Rectangle.include({
 });
 
 
-
-export default L
+export {L, HTMLContainer}

@@ -29,6 +29,10 @@ span.leaflet-toolbar-editable-marker {
   background-position: -63px;
 }
 
+span.leaflet-toolbar-editable-text {
+  background-position: -63px;
+}
+
 #tooltip {
   display: none;
   position: absolute;

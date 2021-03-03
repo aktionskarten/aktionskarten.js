@@ -7,6 +7,7 @@
 
   <script>
   const url = 'http://localhost:5000'
+  //const url = 'https://staging.aktionskarten.org'
   var api, model, view;
   window.onload  = async function() {
     var hash = window.location.hash.substring(1)
@@ -20,7 +21,8 @@
     model = await Aktionskarten.MapModel.get(api, id, secret)
     view = new Aktionskarten.View('map', model)
 
-    await view.init('en');
+    await view.init('de');
+    view.mode = 'bbox'
   };
   </script>
 </html>
