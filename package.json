@@ -46,7 +46,7 @@
   },
   "scripts": {
     "test": "ava -vs",
-    "dev": "cross-env NODE_ENV=development webpack server",
+    "dev": "cross-env NODE_ENV=development webpack serve",
     "build": "webpack build"
   },
   "keywords": [],
