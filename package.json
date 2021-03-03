@@ -13,8 +13,8 @@
     "leaflet-editable-scaled-rect": "^0.0.1",
     "leaflet-path-drag": "^1.1.0",
     "leaflet-styleeditor": "^0.1.21",
-    "leaflet-text": "../leaflet-text-overlay",
-    "leaflet-text-editable": "../leaflet-text-overlay-editable",
+    "leaflet-text": "^0.0.2",
+    "leaflet-text-editable": "^0.0.1",
     "socket.io-client": "^3.1.2",
     "webpack-cli": "^4.5.0"
   },
