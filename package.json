@@ -13,7 +13,7 @@
     "leaflet-editable-scaled-rect": "^0.0.1",
     "leaflet-path-drag": "^1.1.0",
     "leaflet-styleeditor": "^0.1.21",
-    "leaflet-text": "^0.0.2",
+    "leaflet-text": "git+https://github.com/aktionskarten/leaflet-text.git#WIP",
     "leaflet-text-editable": "^0.0.1",
     "socket.io-client": "^3.1.2",
     "webpack-cli": "^4.5.0"
