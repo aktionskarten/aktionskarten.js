@@ -1,7 +1,6 @@
 import * as L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-
-console.log('LEAFLET', L)
+import 'leaflet-groupedlayercontrol'
 
 //
 // we're using webpack, therefor  fix dynamic url functionality by statically

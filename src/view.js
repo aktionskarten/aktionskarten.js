@@ -77,6 +77,7 @@ class View {
 
     this._grid = grid;
     grid.addTo(this._map);
+    this._controlLayers.addOverlay(this._grid, "default", "Grid");
   }
 
   _addFeatureLayer() {
@@ -173,26 +174,46 @@ class View {
     this._map.i18next = i18next.createInstance(i18nOptions, (err, t) => {
       L.control.attribution({position: 'topright'}).addTo(this._map);
 
-      // add zoom control
-      var zoom = new L.Control.Zoom({ position: 'topright' });
-      this._map.addControl(zoom);
-
       this.center();
 
       // add tiles
-      //L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      //  maxZoom: 18,
-      //  detectRetina: true,
-      //  attribution: 'Tiles &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
-      //    '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a> '
-      //}).addTo(this._map);
 
-      L.tileLayer('http://localhost:8080/styles/osm-bright/{z}/{x}/{y}{r}.png', {
-        maxZoom: 18,
-        detectRetina: true,
-        attribution: 'Tiles &copy; <a href="http://openmaptiles.org/">OpenMapTiles</a> <a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors</a>, ' +
-          '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a> '
-      }).addTo(this._map);
+      const createMapTileLayer = function(id) {
+        return L.tileLayer('http://localhost:8080/styles/'+id+'/{z}/{x}/{y}{r}.png', {
+          maxZoom: 18,
+          detectRetina: true,
+          attribution: 'Tiles &copy; <a href="http://openmaptiles.org/">OpenMapTiles</a> <a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors</a>, ' +
+            '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a> '
+        })
+      }
+
+      const baseLayers = {
+        'OSM Bright':  createMapTileLayer('osm-bright'),
+        'Basic':       createMapTileLayer('basic-preview'),
+        'OSM Liberty': createMapTileLayer('osm-liberty'),
+        'Dark Matter': createMapTileLayer('dark-matter'),
+        'Positron':    createMapTileLayer('positron'),
+      };
+
+      if (true) {
+        baseLayers['Classic'] =  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 18,
+          detectRetina: true,
+          attribution: 'Tiles &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+            '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a> '
+        })
+      }
+
+      baseLayers['OSM Bright'].addTo(this._map);
+
+      const layerOptions = {exclusiveGroups: ['Grid'], position: 'bottomright'}
+      const controlLayers = L.control.groupedLayers(baseLayers, {}, layerOptions);
+      controlLayers.addTo(this._map);
+      this._controlLayers = controlLayers;
+
+      // add zoom control
+      var zoom = new L.Control.Zoom({ position: 'topright' });
+      this._map.addControl(zoom);
 
       this._map.whenReady(async () => {
           this._updateUI();
