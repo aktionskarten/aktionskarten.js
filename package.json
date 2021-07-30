@@ -11,6 +11,7 @@
     "leaflet-draw": "^1.0.4",
     "leaflet-editable": "^1.2.0",
     "leaflet-editable-scaled-rect": "^0.0.1",
+    "leaflet-groupedlayercontrol": "^0.6.1",
     "leaflet-path-drag": "^1.1.0",
     "leaflet-styleeditor": "^0.1.21",
     "leaflet-text": "git+https://github.com/aktionskarten/leaflet-text.git#WIP",
