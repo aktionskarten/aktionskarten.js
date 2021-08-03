@@ -54,7 +54,7 @@ module.exports = {
   },
   resolve: {
     symlinks: false,
-    // modules: [path.resolve('node_modules')],   // prevent use of different leaflet versions if packages use them in their package.json
+    modules: [path.resolve('node_modules')],   // prevent use of different leaflet versions if packages use them in their package.json
     alias: {
       // leaflet: path.join(__dirname, 'node_modules/leaflet'),
       '@': path.resolve(__dirname, './src/'),
