@@ -188,14 +188,14 @@ class View {
       }
 
       const baseLayers = {
-        'OSM Bright':  createMapTileLayer('osm-bright'),
+        'Bright':      createMapTileLayer('osm-bright'),
         'Basic':       createMapTileLayer('basic-preview'),
-        'OSM Liberty': createMapTileLayer('osm-liberty'),
-        'Dark Matter': createMapTileLayer('dark-matter'),
-        'Positron':    createMapTileLayer('positron'),
+        'Positron':    createMapTileLayer('positron')
+        //'Liberty':     createMapTileLayer('osm-liberty'),
+        //'Dark Matter': createMapTileLayer('dark-matter'),
       };
 
-      if (true) {
+      if (false) {
         baseLayers['Classic'] =  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           maxZoom: 18,
           detectRetina: true,
@@ -203,8 +203,6 @@ class View {
             '<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a> '
         })
       }
-
-      baseLayers['OSM Bright'].addTo(this._map);
 
       const layerOptions = {exclusiveGroups: ['Grid'], position: 'bottomright'}
       const controlLayers = L.control.groupedLayers(baseLayers, {}, layerOptions);
@@ -217,6 +215,13 @@ class View {
 
       this._map.whenReady(async () => {
           this._updateUI();
+
+          const capitalize = (str) => str[0].toUpperCase() + str.slice(1);
+          const baseLayerName = capitalize(this.model.theme)
+          if (baseLayerName in baseLayers) {
+            baseLayers[baseLayerName].addTo(this._map);
+          }
+
 
           // init layers
           this._addGridLayer();
@@ -266,6 +271,7 @@ class View {
 
     // general
     this._map.on('click', this.onClick, this);
+    this._map.on('baselayerchange', this.onThemeChanged, this);
     this._map.on('editable:drawing:start', this.onDrawingStart, this);
     this._map.on('editable:drawing:cancel', this.onDrawingCancel, this);
 
@@ -534,6 +540,13 @@ class View {
     if (e.layer) {
       e.layer.remove();
     }
+  }
+
+  async onThemeChanged(e) {
+    const name = e.name.toLowerCase();
+    this.model.theme = name;
+    await this.model.save();
+    console.log("theme changed ", name);
   }
 
   async onDrawingBbox(bounds) {

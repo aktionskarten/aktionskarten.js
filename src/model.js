@@ -244,7 +244,7 @@ class MapModel {
     //
     this.data = {'attributes':[], datetime: datetime, published: false}
     this._states = {}
-    let keys = ['id', 'name', 'description', 'attributes', 'bbox', 'place', 'token', 'hash', 'thumbnail', 'lifespan', 'published', 'version']
+    let keys = ['id', 'name', 'description', 'attributes', 'bbox', 'place', 'token', 'hash', 'thumbnail', 'lifespan', 'published', 'version', 'theme']
     for (let key of keys) {
       Object.defineProperty(this, key, {
         set: (val) => {
@@ -435,7 +435,7 @@ class MapModel {
   async save() {
     // filter only certain props through object destructuring and property
     // shorthand, see https://stackoverflow.com/questions/17781472/#39333479
-    let data = (({ id, name, datetime, description, attributes, bbox, place, lifespan, published}) => ({ id, name, datetime, description, attributes, bbox, place, lifespan, published}))(this.data);
+    let data = (({ id, name, datetime, description, attributes, bbox, place, lifespan, published, theme}) => ({ id, name, datetime, description, attributes, bbox, place, lifespan, published, theme}))(this.data);
 
     if (data.datetime) {
       data.datetime = data.datetime.replace("Z", "+00:00");
