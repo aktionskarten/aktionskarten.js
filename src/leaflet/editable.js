@@ -291,7 +291,7 @@ function editable() {
     new MarkerControl(),
     new LineControl(),
     new PolygonControl(),
-    new TextControl()
+    //new TextControl()
   ];
 }
 
