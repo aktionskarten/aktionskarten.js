@@ -2,6 +2,7 @@ name: github-actions
 on: [push]
 
 jobs:
+  test:
     needs: get-tiles
     runs-on: ubuntu-latest
     services:
