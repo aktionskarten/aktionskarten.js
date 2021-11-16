@@ -42,7 +42,7 @@ jobs:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: maps
           FLASK_APP: app
-          FLASK_ENV: testing
+          FLASK_ENV: production
 
 
     steps:
