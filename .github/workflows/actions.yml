@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
       - name: Download mbtiles
         run: wget https://aktionskarten.github.io/tileserver-gl-data/tiles.mbtiles
       - name: Start containers
@@ -19,7 +19,7 @@ jobs:
       - name: Build
         run: npm run build
       - name: Run http-server
-        run: http-server dist &
+        run: npx http-server dist &
       - name: Wait for backend
         run: bash -c 'while ! wget -q -t 1 http://127.0.0.1:5000/api/maps; do echo waiting; sleep 1; done;'
       - name: Run tests
