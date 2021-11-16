@@ -16,7 +16,7 @@ services:
     env_file:
       - "postgres.env"
     ports:
-      - "5432:5432"
+      - "127.0.0.1:5432:5432"
   redis:
     image: "redis"
     ports:
@@ -28,7 +28,7 @@ services:
       - postgis
       - redis
     ports:
-      - "5000:5000"
+      - "127.0.0.1:5000:5000"
     environment:
       - POSTGRES_HOST=postgis
       - REDIS_HOST=redis
