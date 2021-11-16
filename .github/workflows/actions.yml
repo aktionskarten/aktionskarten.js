@@ -4,6 +4,13 @@ on: [push]
 jobs:
   get-tiles: 
     runs-on: ubuntu-latest
+    uses: actions/cache@v2
+    env:
+      cache-name: cache-tiles
+    with:
+      path: .
+      key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+      restore-keys: tiles
     steps:
       - name: Download mbtiles
         run: wget https://aktionskarten.github.io/tileserver-gl-data/tiles.mbtiles
@@ -11,6 +18,13 @@ jobs:
   test:
     needs: get-tiles
     runs-on: ubuntu-latest
+    uses: actions/cache@v2
+    env:
+      cache-name: cache-tiles
+    with:
+      path: .
+      key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+      restore-keys: tiles
     services:
       redis:
         image: redis
