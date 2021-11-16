@@ -25,7 +25,7 @@ jobs:
       - name: Docker compose logs
         run: docker-compose logs
       - name: Wait for backend
-        run: bash -c 'while ! wget -q -t 1 http://localhost:5000/api/maps; do echo waiting; sleep 1; done;'
+        run: bash -c 'while ! wget -q -t 1 http://backend:5000/api/maps; do echo waiting; sleep 1; done;'
       - name: Run tests
         run: npm run test
       - name: Stop containers
