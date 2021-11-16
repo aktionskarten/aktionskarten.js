@@ -1,0 +1,29 @@
+name: github-actions
+on: [push]
+jobs: 
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Start containers
+        run: docker-compose up -d --build
+      - name: Install node
+        run:  actions/setup-node@v2
+        with:
+          node-version: 11
+      - name: Install dependencies
+        run: npm i
+      - name: Build
+        run: npm run build
+      - name: Run http-server
+        run: http-server dist &
+      - name: Wait for backend
+        run: bash -c 'while ! wget -q -t 1 http://127.0.0.1:5000/api/maps; do echo waiting; sleep 1; done;'
+      - name: Run tests
+        run: npm run test
+      - name: Stop containers
+        run: docker-compose down
+      - name: Stop http-server
+        run: pkill -f htt-server
+
