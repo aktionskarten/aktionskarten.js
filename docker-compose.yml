@@ -3,32 +3,32 @@ services:
   tileserver-gl:
     image: "kombinat451/tileserver-gl"
     ports:
-      - "127.0.0.1:8085:80"
+      - "0.0.0.0:8085:80"
     volumes:
       - ./tileserver-gl:/data
       - type: bind
         source: ./tiles.mbtiles
         target: /data/tiles.mbtiles
-#  postgis:
-#    image: "postgis/postgis:13-3.1-alpine"
-#    volumes:
-#      - ./postgres-data:/var/lib/postgresql/data
-#    env_file:
-#      - "postgres.env"
-#    ports:
-#      - "127.0.0.1:5432:5432"
-#  redis:
-#    image: "redis"
-#    ports:
-#      - "127.0.0.1:6379:6379"
+  postgis:
+    image: "postgis/postgis:13-3.1-alpine"
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    env_file:
+      - "postgres.env"
+    ports:
+      - "0.0.0.0:5432:5432"
+  redis:
+    image: "redis"
+    ports:
+      - "0.0.0.0:6379:6379"
   backend:
     image: kombinat451/aktionskarten-backend-app
     depends_on:
       - tileserver-gl
-        #      - postgis
-        #      - redis
+      - postgis
+      - redis
     ports:
-      - "127.0.0.1:5000:5000"
+      - "0.0.0.0:5000:5000"
     environment:
       - POSTGRES_HOST=postgis
       - REDIS_HOST=redis
