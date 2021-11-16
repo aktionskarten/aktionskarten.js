@@ -16,19 +16,19 @@ services:
     env_file:
       - "postgres.env"
     ports:
-      - "127.0.0.1:5432:5432"
+      - "5432:5432"
   redis:
     image: "redis"
     ports:
       - "127.0.0.1:6379:6379"
-  web:
+  backend:
     image: kombinat451/aktionskarten-backend-app
     depends_on:
       - tileserver-gl
       - postgis
       - redis
     ports:
-      - "127.0.0.1:5000:5000"
+      - "5000:5000"
     environment:
       - POSTGRES_HOST=postgis
       - REDIS_HOST=redis
