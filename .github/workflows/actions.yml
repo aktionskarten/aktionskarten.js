@@ -3,6 +3,8 @@ on: [push]
 jobs: 
   test:
     runs-on: ubuntu-latest
+    env:
+      DOCKER_COMPOSE_VERSION: 1.25.0
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -10,6 +12,16 @@ jobs:
         run: wget https://aktionskarten.github.io/tileserver-gl-data/tiles.mbtiles
       - name: Start containers
         run: docker-compose up -d --build
+      - name: Show currend docker-compose version
+        run: docker-compose --version
+      - name: Delete docker-compose
+        run: sudo rm /usr/local/bin/docker-compose
+      - name: Download docker-compose
+        run: curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+      - name: Make docker-compose executable
+        run: chmod +x docker-compose
+      - name: Move docker compose to correct location
+        run: sudo mv docker-compose /usr/local/bin
       - name: Install node
         uses: actions/setup-node@v2
         with:
