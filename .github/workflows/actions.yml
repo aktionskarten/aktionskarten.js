@@ -4,40 +4,6 @@ on: [push]
 jobs:
   test:
     runs-on: ubuntu-latest
-    services:
-      redis:
-        image: redis
-        ports:
-          - 6379
-      postgis:
-        image: postgis/postgis:13-3.1-alpine
-        ports:
-          - 5432
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: maps
-      tileserver:
-        image: kombinat451/tileserver-gl
-        ports:
-          - 8085:80
-        volumes:
-          - tiles.mbtiles:/data/tiles.mbtiles
-      backend:
-        image: kombinat451/aktionskarten-backend-app
-        ports:
-          - 5000
-        env:
-          POSTGRES_HOST: postgis
-          REDIS_HOST: redis
-          TILESERVER_HOST: tileserver-gl:8085
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: maps
-          FLASK_APP: app
-          FLASK_ENV: production
-
-
     steps:
       - name: Download mbtiles
         run: wget https://aktionskarten.github.io/tileserver-gl-data/tiles.mbtiles
