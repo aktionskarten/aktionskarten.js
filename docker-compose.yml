@@ -29,7 +29,7 @@ services:
     environment:
       - POSTGRES_HOST=postgis
       - REDIS_HOST=redis
-      - TILESERVER_HOST=tileserver-gl:8080
+      - TILESERVER_HOST=tileserver-gl:8085
     env_file:
       - "postgres.env"
       - "backend.env"
