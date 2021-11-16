@@ -25,8 +25,8 @@ services:
     image: kombinat451/aktionskarten-backend-app
     depends_on:
       - tileserver-gl
-      - postgis
-      - redis
+        #      - postgis
+        #      - redis
     ports:
       - "127.0.0.1:5000:5000"
     environment:
