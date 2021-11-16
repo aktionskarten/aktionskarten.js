@@ -2,29 +2,8 @@ name: github-actions
 on: [push]
 
 jobs:
-  get-tiles: 
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/cache@v2
-        env:
-          cache-name: cache-tiles
-        with:
-          path: .
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: tiles
-      - name: Download mbtiles
-        run: wget https://aktionskarten.github.io/tileserver-gl-data/tiles.mbtiles
-
-  test:
     needs: get-tiles
     runs-on: ubuntu-latest
-    uses: actions/cache@v2
-    env:
-      cache-name: cache-tiles
-    with:
-      path: .
-      key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-      restore-keys: tiles
     services:
       redis:
         image: redis
@@ -60,10 +39,14 @@ jobs:
 
 
     steps:
+      - name: Download mbtiles
+        run: wget https://aktionskarten.github.io/tileserver-gl-data/tiles.mbtiles
       - name: LS
         run: ls -alh
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Start docker containers
+        run: docker-compose up
       - name: Show docker containers
         run: docker ps -a
       - name: Install node
