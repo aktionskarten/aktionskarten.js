@@ -47,7 +47,7 @@ jobs:
 
     steps:
       - name: LS
-        run: ls -alh /github/workspace
+        run: ls -alh 
       - name: Checkout
         uses: actions/checkout@v2
       - name: Show docker containers
