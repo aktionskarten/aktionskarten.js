@@ -4,14 +4,14 @@ on: [push]
 jobs:
   get-tiles: 
     runs-on: ubuntu-latest
-    uses: actions/cache@v2
-    env:
-      cache-name: cache-tiles
-    with:
-      path: .
-      key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
-      restore-keys: tiles
-    steps:
+   steps:
+      - uses: actions/cache@v2
+        env:
+          cache-name: cache-tiles
+        with:
+          path: .
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: tiles
       - name: Download mbtiles
         run: wget https://aktionskarten.github.io/tileserver-gl-data/tiles.mbtiles
 
@@ -61,7 +61,7 @@ jobs:
 
     steps:
       - name: LS
-        run: ls -alh 
+        run: ls -alh
       - name: Checkout
         uses: actions/checkout@v2
       - name: Show docker containers
