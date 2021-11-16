@@ -30,7 +30,7 @@ jobs:
         ports:
           - 8085:80
         volumes:
-          - ./tiles.mbtiles:/data/tiles.mbtiles
+          - tiles.mbtiles:/data/tiles.mbtiles
       backend:
         image: kombinat451/aktionskarten-backend-app
         ports:
