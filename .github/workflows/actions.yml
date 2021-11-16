@@ -5,12 +5,12 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
       - name: Download mbtiles
         run: wget https://aktionskarten.github.io/tileserver-gl-data/tiles.mbtiles
       - name: LS
         run: ls -alh
-      - name: Checkout
-        uses: actions/checkout@v2
       - name: Start docker containers
         run: docker-compose up
       - name: Show docker containers
