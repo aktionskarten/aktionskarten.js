@@ -1,30 +1,56 @@
 name: github-actions
 on: [push]
 
-jobs: 
-  test:
+jobs:
+  get-tiles: 
     runs-on: ubuntu-latest
-      #    services:
-      #      redis:
-      #        image: redis
-      #        ports:
-      #          - 6379
-      #      postgis:
-      #        image: postgis/postgis:13-3.1-alpine
-      #        ports:
-      #          - 5432
-      #        env:
-      #          POSTGRES_USER: postgres
-      #          POSTGRES_PASSWORD: postgres
-      #          POSTGRES_DB: maps
+    steps:
+      - name: Download mbtiles
+        run: wget https://aktionskarten.github.io/tileserver-gl-data/tiles.mbtiles
+
+
+  test:
+    needs: get-tiles
+    runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis
+        ports:
+          - 6379
+      postgis:
+        image: postgis/postgis:13-3.1-alpine
+        ports:
+          - 5432
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: maps
+      tileserver:
+        image: kombinat451/tileserver-gl
+        ports:
+          - 8085:80
+        volumes:
+          - type: bind
+            source: ./tiles.mbtiles
+            target: /data/tiles.mbtiles
+      backend:
+        image: kombinat451/aktionskarten-backend-app
+        ports:
+          - 5000
+        env:
+          POSTGRES_HOST: postgis
+          REDIS_HOST: redis
+          TILESERVER_HOST: tileserver-gl:8085
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: maps
+          FLASK_APP: app
+          FLASK_ENV: testing
+
 
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Download mbtiles
-        run: wget https://aktionskarten.github.io/tileserver-gl-data/tiles.mbtiles
-      - name: Start containers
-        run: docker-compose up -d --build
       - name: Show docker containers
         run: docker ps -a
       - name: Install node
@@ -43,8 +69,6 @@ jobs:
         run: bash -c 'while ! wget -q -t 1 http://backend:5000/api/maps; do echo waiting; sleep 1; done;'
       - name: Run tests
         run: npm run test
-      - name: Stop containers
-        run: docker-compose down
       - name: Stop http-server
         run: pkill -f http-server
 
