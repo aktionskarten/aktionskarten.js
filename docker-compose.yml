@@ -6,7 +6,9 @@ services:
       - "127.0.0.1:8085:80"
     volumes:
       - ./tileserver-gl:/data
-      - ${PWD}/tiles.mbtiles:/data/tiles/tiles.mbtiles
+      - type: bind
+        source: ./tiles.mbtiles
+        target: /data/tiles.mbtiles
   postgis:
     image: "postgis/postgis:13-3.1-alpine"
     volumes:
