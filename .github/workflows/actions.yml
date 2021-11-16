@@ -10,8 +10,6 @@ jobs:
         run: wget https://aktionskarten.github.io/tileserver-gl-data/tiles.mbtiles
       - name: Start containers
         run: docker-compose up -d --build
-      - name: Docker compose logs
-        run: docker-compose logs
       - name: Install node
         uses: actions/setup-node@v2
         with:
@@ -22,8 +20,10 @@ jobs:
         run: npm run build
       - name: Run http-server
         run: npx http-server dist &
+      - name: Docker compose logs
+        run: docker-compose logs
       - name: Wait for backend
-        run: bash -c 'while ! wget -q -t 1 http://127.0.0.1:5000/api/maps; do echo waiting; sleep 1; done;'
+        run: bash -c 'while ! wget -q -t 1 http://localhost:5000/api/maps; do echo waiting; sleep 1; done;'
       - name: Run tests
         run: npm run test
       - name: Stop containers
