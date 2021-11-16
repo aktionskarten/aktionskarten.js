@@ -78,6 +78,8 @@ jobs:
         run: npx http-server dist &
       - name: Docker compose logs
         run: docker-compose logs
+      - name: Docker backend logs
+        run: docker logs "${{ job.services.backend.id }}"
       - name: Wait for backend
         run: bash -c 'while ! wget -q -t 1 http://localhost:5000/api/maps; do echo waiting; sleep 1; done;'
       - name: Run tests
