@@ -3,5 +3,4 @@ dist/
 data/
 .npm/
 
-package-lock.json
 tiles.mbtiles
