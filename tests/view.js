@@ -177,19 +177,20 @@ test('page - draw marker', async t => {
   var model = new MapModel(api, {name: 'foo', bbox: bbox});
   await model.save()
 
-	const browser = await puppeteer.launch({
+  const browser = await puppeteer.launch({
 //    headless: false
   });
-	const page = await browser.newPage();
+  const page = await browser.newPage();
   await page.setViewport({ width: 1024, height: 544 });
 
   const id = model.id
   const secret = model.secret
   var url = 'http://'+process.env.AKTIONSKARTEN_JS_HOST+'/#'+id+'/'+secret;
+  console.warn(url)
   await page.goto(url)
 
   try {
-    await page.waitForSelector('.leaflet-toolbar-editable-marker')
+    await page.waitForSelector('.leaflet-toolbar-editable-marker', {timeout: 6000})
   } catch (error) {
     console.log("Controls not rendered.")
   }

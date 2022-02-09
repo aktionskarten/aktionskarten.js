@@ -33,6 +33,7 @@
     "cross-env": "^7.0.3",
     "cross-fetch": "^3.0.6",
     "css-loader": "^5.1.1",
+    "dotenv": "^16.0.0",
     "file-loader": "^6.2.0",
     "html-webpack-plugin": "^5.2.0",
     "http-server": "^0.12.3",
@@ -54,7 +55,8 @@
   "license": "MIT",
   "ava": {
     "require": [
-      "@babel/register"
+      "@babel/register",
+      "dotenv/config"
     ],
     "files": [
       "tests/*",
