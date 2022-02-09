@@ -1,36 +1,28 @@
-name: github-actions
-on: [push]
+name: tests 
+on:
+  push:
+    branches:
+      - '**'
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - 
+        name: Checkout repo
         uses: actions/checkout@v2
-      - name: Download mbtiles
-        run: wget https://aktionskarten.github.io/tileserver-gl-data/tiles.mbtiles
-      - name: LS
-        run: ls -alh
-      - name: Start docker containers
-        run: docker-compose up
-      - name: Show docker containers
-        run: docker ps -a
-      - name: Install node
+      - 
+        name: Set up node
         uses: actions/setup-node@v2
         with:
           node-version: 11
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
       - name: Install dependencies
         run: npm i
       - name: Build
         run: npm run build
-      - name: Run http-server
-        run: npx http-server dist &
-      - name: Docker compose logs
-        run: docker-compose logs
-      - name: Wait for backend
-        run: bash -c 'while ! wget -q -t 1 http://localhost:5000/api/maps; do echo waiting; sleep 1; done;'
       - name: Run tests
-        run: npm run test
-      - name: Stop http-server
-        run: pkill -f http-server
+        run: docker-compose run test
 
