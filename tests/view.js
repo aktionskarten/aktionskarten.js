@@ -44,7 +44,7 @@ test('page - draw bbox (landscape)', async t => {
 //    headless: false
   });
   const page = await browser.newPage();
-  await page.setDefaultNavigationTimeout(6000);
+  await page.setDefaultTimeout(6000);
   await page.setViewport({ width: 1024, height: 544 });
 
   const id = model.id
@@ -88,7 +88,7 @@ test('page - draw bbox (portrait)', async t => {
 //    headless: false
   });
   const page = await browser.newPage();
-  await page.setDefaultNavigationTimeout(6000);
+  await page.setDefaultTimeout(6000);
   await page.setViewport({ width: 1024, height: 544 });
 
   const id = model.id
@@ -137,7 +137,7 @@ test('page - draw bbox (no restrictions)', async t => {
 //    headless: false
   });
   const page = await browser.newPage();
-  await page.setDefaultNavigationTimeout(6000);
+  await page.setDefaultTimeout(6000);
   await page.setViewport({ width: 1024, height: 544 });
 
   const id = model.id
@@ -184,7 +184,7 @@ test('page - draw marker', async t => {
 //    headless: false
   });
   const page = await browser.newPage();
-  await page.setDefaultNavigationTimeout(6000);
+  await page.setDefaultTimeout(6000);
   await page.setViewport({ width: 1024, height: 544 });
 
   const id = model.id
