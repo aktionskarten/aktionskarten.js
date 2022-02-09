@@ -50,7 +50,8 @@ test('page - draw bbox (landscape)', async t => {
 
   const id = model.id
   const secret = model.secret
-  var url = new URL('/#'+id+'/'+secret, 'http://'+process.env.AKTIONSKARTEN_JS_HOST);
+  var url = new URL('http://'+process.env.AKTIONSKARTEN_JS_HOST+':'+process.env.AKTIONSKARTEN_JS_PORT+'/#'+id+'/'+secret) 
+	console.warn(url.href)
   await page.goto(url)
 
   await page.waitForTimeout(1000)
