@@ -3,6 +3,7 @@ import puppeteer from 'puppeteer';
 import {api, reset_db} from './utils'
 import {MapModel} from '../src/model'
 import haversine from 's-haversine';
+const { URL } = require('url');
 
 // Use to track xy coords in new tests. Add the folloing in your test case
 // await registerMouseEvents(page);
@@ -49,7 +50,7 @@ test('page - draw bbox (landscape)', async t => {
 
   const id = model.id
   const secret = model.secret
-  var url = 'http://'+process.env.AKTIONSKARTEN_JS_HOST+':8080/#'+id+'/'+secret;
+  var url = new URL('/#'+id+'/'+secret, 'http://'+process.env.AKTIONSKARTEN_JS_HOST);
   await page.goto(url)
 
   await page.waitForTimeout(1000)
