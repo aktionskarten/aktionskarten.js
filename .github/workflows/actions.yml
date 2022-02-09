@@ -24,5 +24,4 @@ jobs:
       - name: Build
         run: npm run build
       - name: Run tests
-        run: docker-compose run test
-
+        run: docker-compose run tests
