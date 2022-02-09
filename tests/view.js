@@ -43,12 +43,13 @@ test('page - draw bbox (landscape)', async t => {
 	const browser = await puppeteer.launch({
 //    headless: false
   });
-	const page = await browser.newPage();
+  const page = await browser.newPage();
+  await page.setDefaultNavigationTimeout(6000);
   await page.setViewport({ width: 1024, height: 544 });
 
   const id = model.id
   const secret = model.secret
-  var url = 'http://'+process.env.AKTIONSKARTEN_JS_HOST+'/#'+id+'/'+secret;
+  var url = process.env.AKTIONSKARTEN_JS_HOST+'/#'+id+'/'+secret;
   await page.goto(url)
 
   await page.waitForTimeout(1000)
@@ -86,12 +87,13 @@ test('page - draw bbox (portrait)', async t => {
 	const browser = await puppeteer.launch({
 //    headless: false
   });
-	const page = await browser.newPage();
+  const page = await browser.newPage();
+  await page.setDefaultNavigationTimeout(6000);
   await page.setViewport({ width: 1024, height: 544 });
 
   const id = model.id
   const secret = model.secret
-  var url = 'http://'+process.env.AKTIONSKARTEN_JS_HOST+'/#'+id+'/'+secret;
+  var url = process.env.AKTIONSKARTEN_JS_HOST+'/#'+id+'/'+secret;
   await page.goto(url)
 
   await page.waitForTimeout(1000)
@@ -134,12 +136,13 @@ test('page - draw bbox (no restrictions)', async t => {
 	const browser = await puppeteer.launch({
 //    headless: false
   });
-	const page = await browser.newPage();
+  const page = await browser.newPage();
+  await page.setDefaultNavigationTimeout(6000);
   await page.setViewport({ width: 1024, height: 544 });
 
   const id = model.id
   const secret = model.secret
-  var url = 'http://'+process.env.AKTIONSKARTEN_JS_HOST+'/#'+id+'/'+secret;
+  var url = process.env.AKTIONSKARTEN_JS_HOST+'/#'+id+'/'+secret;
   await page.goto(url)
 
   await page.waitForTimeout(1000)
@@ -181,16 +184,16 @@ test('page - draw marker', async t => {
 //    headless: false
   });
   const page = await browser.newPage();
+  await page.setDefaultNavigationTimeout(6000);
   await page.setViewport({ width: 1024, height: 544 });
 
   const id = model.id
   const secret = model.secret
-  var url = 'http://'+process.env.AKTIONSKARTEN_JS_HOST+'/#'+id+'/'+secret;
-  console.warn(url)
+  var url = process.env.AKTIONSKARTEN_JS_HOST+'/#'+id+'/'+secret;
   await page.goto(url)
 
   try {
-    await page.waitForSelector('.leaflet-toolbar-editable-marker', {timeout: 6000})
+    await page.waitForSelector('.leaflet-toolbar-editable-marker')
   } catch (error) {
     console.log("Controls not rendered.")
   }
