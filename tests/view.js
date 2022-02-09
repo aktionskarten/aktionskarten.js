@@ -48,7 +48,7 @@ test('page - draw bbox (landscape)', async t => {
 
   const id = model.id
   const secret = model.secret
-  var url = 'http://${AKTIONSKARTEN_JS_HOST}:${AKTIONSKARTEN_JS_PORT}/#'+id+'/'+secret;
+  var url = 'http://127.0.0.1:8080/#'+id+'/'+secret;
   await page.goto(url)
 
   await page.waitForTimeout(1000)
@@ -91,7 +91,7 @@ test('page - draw bbox (portrait)', async t => {
 
   const id = model.id
   const secret = model.secret
-  var url = 'http://${AKTIONSKARTEN_JS_HOST}:${AKTIONSKARTEN_JS_PORT}/#'+id+'/'+secret;
+  var url = 'http://127.0.0.1:8080/#'+id+'/'+secret;
   await page.goto(url)
 
   await page.waitForTimeout(1000)
@@ -139,7 +139,7 @@ test('page - draw bbox (no restrictions)', async t => {
 
   const id = model.id
   const secret = model.secret
-  var url = 'http://${AKTIONSKARTEN_JS_HOST}:${AKTIONSKARTEN_JS_PORT}/#'+id+'/'+secret;
+  var url = 'http://'+process.env.AKTIONSKARTEN_JS_HOST+'/#'+id+'/'+secret;
   await page.goto(url)
 
   await page.waitForTimeout(1000)
@@ -185,7 +185,7 @@ test('page - draw marker', async t => {
 
   const id = model.id
   const secret = model.secret
-  var url = 'http://${AKTIONSKARTEN_JS_HOST}:${AKTIONSKARTEN_JS_PORT}/#'+id+'/'+secret;
+  var url = 'http://'+process.env.AKTIONSKARTEN_JS_HOST+'/#'+id+'/'+secret;
   await page.goto(url)
 
   try {

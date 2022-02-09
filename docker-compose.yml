@@ -53,7 +53,10 @@ services:
     ports: 
       - 127.0.0.1:8080:80
   tests:
-    image: node
+    build: .
+    user: pptruser
+    cap_add:
+      - SYS_ADMIN
     depends_on:
       - backend
       - aktionskartenJs

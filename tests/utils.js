@@ -3,7 +3,7 @@ import {Api} from '../src/api'
 import puppeteer from 'puppeteer';
 
 
-const url = '${BACKEND_HOST}:${BACKEND_PORT}'
+const url = 'http://'+process.env.BACKEND_HOST+':'+process.env.BACKEND_PORT
 const api = new Api(url)
 
 //api.errorHandler = (err) => {
