@@ -37,18 +37,16 @@ module.exports = {
           }
         },
       },
-
       {
         test: /\.css$/i,
         use: ["style-loader", "css-loader"],
       },
       {
-        test: /\.(svg|png|jpe?g|gif)$/i,
-        use: [
-          {
-            loader: 'file-loader',
-          },
-        ],
+        test: /\.(png|svg|jpg|jpeg|gif)$/i,
+        type: 'asset/resource',
+        generator: {
+          filename: 'images/[name][ext]'
+        }
       },
     ],
   },
