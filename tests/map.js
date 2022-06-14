@@ -1,6 +1,7 @@
 import test from 'ava';
-import {api, reset_db} from './utils'
-import {MapModel} from '../src/model'
+import {api, reset_db} from './utils';
+import {MapModel} from '../src/model';
+import pEvent from 'p-event';
 
 // TODO:
 //   * parameter order in Api
@@ -12,31 +13,30 @@ test.beforeEach(async t => {
 });
 
 
-test.serial.cb('Create new map', t => {
+test.serial('Create new map', async t => {
   t.plan(5);
 
   const name = 'foo'
   const model = new MapModel(api);
 
-  model.on('created', value => {
-    t.is(model.name, name)
-    t.truthy(model.id)
-    t.pass();
-		t.end();
-  })
+  t.falsy(model.id)
+
+  model.name = name
+  model.save()
 
   model.on('idChanged', data => {
     t.truthy(data['value'])
   })
 
-  t.falsy(model.id)
+  const created = await pEvent(model, 'created')
+  t.is(model.name, name)
+  t.truthy(model.id)
+  t.pass();
 
-  model.name = name
-  model.save()
 });
 
 
-test.serial.cb('Map change events', t => {
+test.serial('Map change events', async t => {
   t.plan(9);
 
   const model = new MapModel(api);
@@ -71,7 +71,6 @@ test.serial.cb('Map change events', t => {
   model.description = description
 
   t.pass();
-	t.end();
 });
 
 
