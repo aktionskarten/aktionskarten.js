@@ -3,7 +3,7 @@ services:
   tileserver-gl:
     image: "kombinat451/tileserver-gl"
     ports:
-      - "127.0.0.1:8085:80"
+      - "0.0.0.0:8085:80"
     volumes:
       - ./tileserver-gl:/data
   postgis:
@@ -13,11 +13,11 @@ services:
     env_file:
       - "postgres.env"
     ports:
-      - "127.0.0.1:5432:5432"
+      - "0.0.0.0:5432:5432"
   redis:
     image: "redis"
     ports:
-      - "127.0.0.1:6379:6379"
+      - "0.0.0.0:6379:6379"
   web:
     image: kombinat451/aktionskarten-backend-app
     depends_on:
@@ -25,7 +25,8 @@ services:
       - postgis
       - redis
     ports:
-      - "127.0.0.1:5000:5000"
+      - "0.0.0.0:5000:5000"
+      - "[::]:5000:5000"
     environment:
       - POSTGRES_HOST=postgis
       - REDIS_HOST=redis
@@ -33,3 +34,9 @@ services:
     env_file:
       - "postgres.env"
       - "backend.env"
+  frontend:
+    image: nginx
+    volumes:
+      - ../dist/:/usr/share/nginx/html/
+    ports:
+      - "0.0.0.0:8080:80"
