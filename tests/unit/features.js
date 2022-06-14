@@ -1,6 +1,6 @@
 import test from 'ava';
-import {api, reset_db} from './utils'
-import {MapModel} from '../src/model'
+import {api, reset_db} from '../utils'
+import {MapModel} from '../../src/model'
 
 // TODO:
 //   * error check of feature in api (has to be type feature with geometry of type point/polygon..

@@ -2,7 +2,7 @@ import puppeteer from 'puppeteer';
 
 module.exports = async (t, run) => {
   const browser = await puppeteer.launch({
-  	headless: true 
+    headless: true
   });
   const page = await browser.newPage();
   try {

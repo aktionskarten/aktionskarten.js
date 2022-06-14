@@ -18,7 +18,7 @@ services:
     image: "redis"
     ports:
       - "0.0.0.0:6379:6379"
-  web:
+  backend:
     image: kombinat451/aktionskarten-backend-app
     depends_on:
       - tileserver-gl
@@ -26,7 +26,6 @@ services:
       - redis
     ports:
       - "0.0.0.0:5000:5000"
-      - "[::]:5000:5000"
     environment:
       - POSTGRES_HOST=postgis
       - REDIS_HOST=redis
@@ -34,9 +33,13 @@ services:
     env_file:
       - "postgres.env"
       - "backend.env"
-  aktionskarten.js:
-    image: nginx
+  tests:
+    image: node
+    depends_on:
+      - backend
     volumes:
-      - ../dist/:/usr/share/nginx/html/
-    ports:
-      - "0.0.0.0:8080:80"
+      - ../:/app
+    command:
+      npx ava -vs tests/unit
+    working_dir:
+      /app

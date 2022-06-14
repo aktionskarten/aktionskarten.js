@@ -45,7 +45,8 @@
     "webpack-dev-server": "^4.9.2"
   },
   "scripts": {
-    "test": "ava -vs",
+    "tests": "docker-compose -f docker-compose/docker-compose.yml run tests",
+    "uiTests": "ava -vs tests/ui",
     "dev": "cross-env NODE_ENV=development webpack serve",
     "build": "webpack build"
   },
@@ -57,8 +58,8 @@
       "@babel/register"
     ],
     "files": [
-      "tests/*",
-      "!tests/utils.js"
+      "tests/**",
+      "!**/utils.js"
     ]
   }
 }

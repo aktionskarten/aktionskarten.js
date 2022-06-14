@@ -1,6 +1,6 @@
 import test from 'ava';
 import {api, reset_db} from './utils'
-import {MapModel} from '../src/model'
+import {MapModel} from '../../src/model'
 import haversine from 's-haversine';
 import withPage from './_withPage';
 
@@ -181,7 +181,6 @@ test('page - draw marker', withPage, async (t, page) => {
   }
 
   // place markers
-  console.log('placing markers')
   for (var i=0; i<10;++i) {
     await page.click('.leaflet-toolbar-editable-marker')
 

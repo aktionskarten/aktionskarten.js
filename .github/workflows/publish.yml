@@ -6,7 +6,7 @@ on:
       - '**'
 
 jobs:
-  all:
+  build:
     runs-on: ubuntu-latest
     steps:
       -
@@ -20,6 +20,17 @@ jobs:
       -
         name: Build
         run: npm run build
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Run tests
+        run: docker-compose -f docker-compose/docker-compose.yml run tests
+
+  publish:
+    runs-on: ubuntu-latest
+    steps:
       - 
         name: Publish to npmjs.com
         uses: JS-DevTools/npm-publish@v1
