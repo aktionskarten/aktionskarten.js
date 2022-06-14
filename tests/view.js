@@ -1,15 +1,16 @@
 import test from 'ava';
-import puppeteer from 'puppeteer';
 import {api, reset_db} from './utils'
 import {MapModel} from '../src/model'
 import haversine from 's-haversine';
+import withPage from './_withPage';
+
 
 // Use to track xy coords in new tests. Add the folloing in your test case
 // await registerMouseEvents(page);
 function registerMouseEvents(page) {
   page.evaluateOnNewDocument(type=>{
     let callback = (e)=>{
-      console.info(e.type, e.clientX, e.clientY);
+      t.info(e.type, e.clientX, e.clientY);
       return true;
     };
     document.addEventListener('click', e=>callback(e))
@@ -31,19 +32,14 @@ function getSizes(bbox) {
   return [height, width];
 }
 
-
 test.beforeEach(async t => {
   await reset_db();
 });
 
-test('page - draw bbox (landscape)', async t => {
+test('page - draw bbox (landscape)', withPage, async (t, page) => {
   var model = new MapModel(api, {name: 'foo'});
   await model.save()
 
-	const browser = await puppeteer.launch({
-//    headless: false
-  });
-	const page = await browser.newPage();
   await page.setViewport({ width: 1024, height: 544 });
 
   const id = model.id
@@ -75,18 +71,12 @@ test('page - draw bbox (landscape)', async t => {
 
   t.true(Math.abs(ratio-landscape) < 0.1)
 
-  await page.close();
-  await browser.close();
 });
 
-test('page - draw bbox (portrait)', async t => {
+test('page - draw bbox (portrait)', withPage, async (t, page) => {
   var model = new MapModel(api, {name: 'foo'});
   await model.save()
 
-	const browser = await puppeteer.launch({
-//    headless: false
-  });
-	const page = await browser.newPage();
   await page.setViewport({ width: 1024, height: 544 });
 
   const id = model.id
@@ -122,19 +112,13 @@ test('page - draw bbox (portrait)', async t => {
 
   t.true(Math.abs(ratio-portrait) < 0.1)
 
-  await page.close();
-  await browser.close();
 });
 
 
-test('page - draw bbox (no restrictions)', async t => {
+test('page - draw bbox (no restrictions)', withPage, async (t, page) => {
   var model = new MapModel(api, {name: 'foo'});
   await model.save()
 
-	const browser = await puppeteer.launch({
-//    headless: false
-  });
-	const page = await browser.newPage();
   await page.setViewport({ width: 1024, height: 544 });
 
   const id = model.id
@@ -167,26 +151,28 @@ test('page - draw bbox (no restrictions)', async t => {
   let [height, width] = getSizes(model.bbox)
   t.true(Math.abs(width-height) < 1)
 
-  await page.close();
-  await browser.close();
 });
 
 
-test('page - draw marker', async t => {
+test('page - draw marker', withPage, async (t, page) => {
   const bbox = [ 13.412933, 52.496578, 13.424606, 52.501601 ]
   var model = new MapModel(api, {name: 'foo', bbox: bbox});
   await model.save()
 
-	const browser = await puppeteer.launch({
-//    headless: false
-  });
-	const page = await browser.newPage();
   await page.setViewport({ width: 1024, height: 544 });
 
   const id = model.id
   const secret = model.secret
   var url = 'http://localhost:8080/#'+id+'/'+secret;
   await page.goto(url)
+
+  // accept rectangle
+  try {
+    await page.waitForSelector('.leaflet-styleeditor-tooltip-wrapper')
+  } catch (error) {
+    console.log("Tooltip not rendered.")
+  }
+  await page.click('.btn-primary')
 
   try {
     await page.waitForSelector('.leaflet-toolbar-editable-marker')
@@ -195,6 +181,7 @@ test('page - draw marker', async t => {
   }
 
   // place markers
+  console.log('placing markers')
   for (var i=0; i<10;++i) {
     await page.click('.leaflet-toolbar-editable-marker')
 
@@ -217,7 +204,7 @@ test('page - draw marker', async t => {
     await page.click('.styleeditor-nextBtn')
     try {
       await page.waitForSelector('.editor-enabled', { timeout: 500} )
-      fail("Style editor did not close.")
+      t.fail("Style editor did not close.")
     } catch (error) {
     }
   }
@@ -226,6 +213,4 @@ test('page - draw marker', async t => {
   var features = [...(await model2.features()).features]
   t.is(features.length, 10)
 
-  await page.close();
-  await browser.close();
 });
