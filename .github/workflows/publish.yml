@@ -26,6 +26,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       -
+        name: Run ls 
+        run: ls 
+      -
         name: Run tests
         run: docker-compose -f docker-compose/docker-compose.yml run tests
 
