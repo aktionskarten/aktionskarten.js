@@ -1,0 +1,27 @@
+name: tests and publish docker container
+
+on:
+  push:
+    tags:
+      - '**'
+
+jobs:
+  all:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout repo and subrepos
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      -
+        name: Install node dependencies
+        run: npm install
+      -
+        name: Build
+        run: npm run build
+      - 
+        name: Publish to npmjs.com
+        uses: JS-DevTools/npm-publish@v1
+        with:
+          token: ${{ secrets.NPM_TOKEN }}
