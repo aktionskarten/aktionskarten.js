@@ -34,7 +34,7 @@ services:
     env_file:
       - "postgres.env"
       - "backend.env"
-  frontend:
+  aktionskarten.js:
     image: nginx
     volumes:
       - ../dist/:/usr/share/nginx/html/
