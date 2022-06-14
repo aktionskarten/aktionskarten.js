@@ -23,7 +23,7 @@ jobs:
         id: setup 
         with:
           path: ./*
-
+          key: ${{ github.sha }}
   build:
     runs-on: ubuntu-latest
     needs: setup
