@@ -1,0 +1,46 @@
+version: "3.9"
+services:
+  tileserver-gl:
+    image: "kombinat451/tileserver-gl"
+    ports:
+      - "0.0.0.0:8085:80"
+    volumes:
+      - ./tileserver-gl:/data
+  postgis:
+    image: "postgis/postgis:13-3.1-alpine"
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    env_file:
+      - "postgres.env"
+    ports:
+      - "0.0.0.0:5432:5432"
+  redis:
+    image: "redis"
+    ports:
+      - "0.0.0.0:6379:6379"
+  backend:
+    image: kombinat451/aktionskarten-backend-app
+    depends_on:
+      - tileserver-gl
+      - postgis
+      - redis
+    ports:
+      - "0.0.0.0:5000:5000"
+    environment:
+      - POSTGRES_HOST=postgis
+      - REDIS_HOST=redis
+      - TILESERVER_HOST=tileserver-gl:8080
+    env_file:
+      - "postgres.env"
+      - "backend.env"
+  tests:
+    image: node
+    depends_on:
+      - backend
+    volumes:
+      - ../:/app
+      - ./docker-test-entrypoint.sh:/docker-test-entrypoint.sh
+    command:
+      /docker-test-entrypoint.sh 
+    working_dir:
+      /app

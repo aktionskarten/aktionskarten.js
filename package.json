@@ -4,10 +4,11 @@
   "description": "aktionskarten.js is a client library for creating interactive maps for aktionskarten.org",
   "main": "src/index.js",
   "dependencies": {
-    "aktionskarten-marker": "1.0.1",
+    "aktionskarten-marker": "1.0.2",
+    "chalk": "^4.1.2",
     "eventemitter3": "^4.0.7",
-    "i18next": "^19.9.1",
-    "leaflet": "^1.7.1",
+    "i18next": "^21.8.9",
+    "leaflet": "^1.8.0",
     "leaflet-editable": "^1.2.0",
     "leaflet-editable-scaled-rect": "^0.0.1",
     "leaflet-groupedlayercontrol": "^0.6.1",
@@ -15,37 +16,37 @@
     "leaflet-styleeditor": "^0.1.21",
     "leaflet-text": "git+https://github.com/aktionskarten/leaflet-text.git#WIP",
     "leaflet-text-editable": "^0.0.1",
-    "socket.io-client": "^3.1.2",
-    "webpack-cli": "^4.5.0"
+    "npm-check-updates": "^13.1.5",
+    "socket.io-client": "^4.5.1",
+    "webpack-cli": "^4.10.0"
   },
   "devDependencies": {
     "@ava/babel-preset-stage-4": "^4.0.0",
-    "@babel/core": "^7.12.3",
-    "@babel/plugin-transform-runtime": "^7.12.1",
-    "@babel/preset-env": "^7.12.1",
-    "@babel/register": "^7.12.1",
-    "@babel/runtime": "^7.12.1",
-    "@webpack-cli/serve": "^1.3.0",
-    "ava": "^3.13.0",
-    "babel-loader": "^8.1.0",
-    "chalk": "^4.1.0",
-    "clean-webpack-plugin": "^3.0.0",
+    "@babel/core": "^7.18.5",
+    "@babel/plugin-transform-runtime": "^7.18.5",
+    "@babel/preset-env": "^7.18.2",
+    "@babel/register": "^7.17.7",
+    "@babel/runtime": "^7.18.3",
+    "@webpack-cli/serve": "^1.7.0",
+    "ava": "^4.3.0",
+    "babel-loader": "^8.2.5",
+    "clean-webpack-plugin": "^4.0.0",
     "cross-env": "^7.0.3",
-    "cross-fetch": "^3.0.6",
-    "css-loader": "^5.1.1",
-    "file-loader": "^6.2.0",
-    "html-webpack-plugin": "^5.2.0",
-    "http-server": "^0.12.3",
-    "mini-css-extract-plugin": "^1.3.9",
-    "puppeteer": "^8.0.0",
+    "cross-fetch": "^3.1.5",
+    "css-loader": "^6.7.1",
+    "html-webpack-plugin": "^5.5.0",
+    "mini-css-extract-plugin": "^2.6.0",
+    "p-event": "^4.1.0",
+    "puppeteer": "^14.4.0",
     "s-haversine": "^2.0.0",
-    "style-loader": "^2.0.0",
-    "webpack": "^5.24.2",
-    "webpack-bundle-analyzer": "^4.4.0",
-    "webpack-dev-server": "^4.0.0-beta.0"
+    "style-loader": "^3.3.1",
+    "webpack": "^5.73.0",
+    "webpack-bundle-analyzer": "^4.5.0",
+    "webpack-dev-server": "^4.9.2"
   },
   "scripts": {
-    "test": "ava -vs",
+    "tests": "docker-compose -f docker-compose/docker-compose.yml run tests",
+    "uiTests": "ava -vs tests/ui",
     "dev": "cross-env NODE_ENV=development webpack serve",
     "build": "webpack build"
   },
@@ -57,8 +58,8 @@
       "@babel/register"
     ],
     "files": [
-      "tests/*",
-      "!tests/utils.js"
+      "tests/**",
+      "!**/utils.js"
     ]
   }
 }
